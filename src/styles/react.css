@@ -1,0 +1,42 @@
+/* React-only glue. Everything visual comes from tokens.css + app.css. */
+#root { min-height: 100vh; }
+body > #root { display: block; }
+.boot { display: grid; place-items: center; min-height: 60vh; gap: 12px; color: var(--text-2); }
+.side-backdrop { position: fixed; inset: 0; background: var(--scrim); z-index: 44; }
+@media (min-width: 1024px) { .side-backdrop { display: none; } }
+.btn--as { text-decoration: none; }
+.stack-6 { display: flex; flex-direction: column; gap: 6px; }
+.stack-10 { display: flex; flex-direction: column; gap: 10px; }
+.row-gap-4 { display: flex; align-items: center; gap: 4px; }
+.spin { animation: spin 900ms linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.fade-in { animation: fadein 380ms var(--ease) both; }
+@keyframes fadein { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.form-error { color: var(--on-danger); background: var(--danger-container); border-radius: 10px; padding: 10px 12px; font-size: 13px; }
+.form-ok { color: var(--on-success); background: var(--success-container); border-radius: 10px; padding: 10px 12px; font-size: 13px; }
+.toast-wrap { position: fixed; left: 50%; transform: translateX(-50%); bottom: 24px; z-index: 90; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+/* detail page: the rail repeats under the actions on small screens only */
+.rail-mobile { display: flex; }
+@media (min-width: 1024px) { .rail-mobile { display: none; } }
+
+/* ---- admin-only layouts that lived in per-page <style> blocks ---- */
+.edit-grid { display: flex; flex-direction: column; gap: var(--gap); }
+@media (min-width: 1024px) {
+  .edit-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: var(--gap); align-items: start; }
+}
+.split { display: flex; flex-direction: column; gap: var(--gap); }
+@media (min-width: 1024px) {
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); align-items: start; }
+  .split > .card { position: sticky; top: 108px; max-height: calc(100vh - 140px); overflow: auto; }
+}
+.src { font-size: 13px; line-height: 1.6; white-space: pre-wrap; color: var(--text); }
+.src mark { background: var(--warning-container); color: var(--on-warning); padding: 1px 2px; border-radius: 3px; }
+.input--error { border-color: var(--on-danger); }
+
+/* `.phead > .row` must fill the head so `sp` can push actions right */
+.phead > .row { width: 100%; }
+
+/* a <label> inside `.check` must look exactly like the old <span> */
+.check label { font-size: 13px; color: var(--text-2); cursor: pointer; }
+.check label a { color: var(--link); }

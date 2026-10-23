@@ -1,0 +1,574 @@
+/* ==========================================================================
+   REFERENCE DATA — real German scholarships and degree programmes.
+
+   Rule: every record below is copied from an official page (DAAD, the
+   foundation or the university itself). `sourceUrl` is the page the record was
+   read from, `lastVerified` is the day an editor last checked it, and the
+   wording of a description never adds a claim the source does not make.
+
+   Where an official page states a range or leaves a number open (semester
+   contribution, IELTS band), the field stays empty on purpose: an empty field
+   shows as "not stated" instead of a made-up number.
+   ========================================================================== */
+window.DB = (function () {
+
+  const TODAY = '2026-10-22';
+
+  const universities = [
+    { id: 'u1', name: 'Technische Universität München (TUM)', city: 'Munich', state: 'Bavaria', type: 'tu', isPublic: true, websiteUrl: 'https://www.tum.de', uniAssistMember: true, notes: 'Every applicant with a non-German Bachelor needs a uni-assist preliminary documentation (VPD).' },
+    { id: 'u2', name: 'RWTH Aachen University', city: 'Aachen', state: 'North Rhine-Westphalia', type: 'tu', isPublic: true, websiteUrl: 'https://www.rwth-aachen.de', uniAssistMember: false, notes: 'Master applications for Computer Science and Software Systems Engineering go directly through RWTHonline.' },
+    { id: 'u3', name: 'Ludwig-Maximilians-Universität München (LMU)', city: 'Munich', state: 'Bavaria', type: 'university', isPublic: true, websiteUrl: 'https://www.lmu.de', uniAssistMember: true, notes: 'International Office deadlines: 15 January for the summer semester, 15 July for the winter semester.' },
+    { id: 'u4', name: 'Ruhr-Universität Bochum', city: 'Bochum', state: 'North Rhine-Westphalia', type: 'university', isPublic: true, websiteUrl: 'https://www.ruhr-uni-bochum.de', uniAssistMember: true, notes: 'Master Computer Science: 15 December is the final deadline for applicants whose Bachelor was obtained outside the EU.' },
+    { id: 'u5', name: 'Technische Universität Berlin', city: 'Berlin', state: 'Berlin', type: 'tu', isPublic: true, websiteUrl: 'https://www.tu.berlin', uniAssistMember: true, notes: 'Applicants with foreign academic credentials also submit a uni-assist VPD.' },
+    { id: 'u6', name: 'Humboldt-Universität zu Berlin', city: 'Berlin', state: 'Berlin', type: 'university', isPublic: true, websiteUrl: 'https://www.hu-berlin.de', uniAssistMember: true, notes: 'Deutschlandstipendium: application 9 November to 6 December 2026, funding from 1 April 2027.' },
+    { id: 'u7', name: 'TU Dresden', city: 'Dresden', state: 'Saxony', type: 'tu', isPublic: true, websiteUrl: 'https://tu-dresden.de', uniAssistMember: true, notes: 'Deutschlandstipendium: next application window 1 to 15 July 2027.' },
+    { id: 'u8', name: 'Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU)', city: 'Erlangen', state: 'Bavaria', type: 'university', isPublic: true, websiteUrl: 'https://www.fau.eu', uniAssistMember: true, notes: 'Deutschlandstipendium 2026 ran from 15 June to 15 July 2026.' },
+    { id: 'u9', name: 'Albert-Ludwigs-Universität Freiburg', city: 'Freiburg', state: 'Baden-Württemberg', type: 'university', isPublic: true, websiteUrl: 'https://uni-freiburg.de', uniAssistMember: true, notes: 'Hosts the DAAD EPOS course MSc Environmental Governance.' }
+  ];
+
+  /* ---------- listings ---------- */
+  const listings = [
+
+    /* ===== SCHOLARSHIPS ===== */
+    {
+      id: 'S1', kind: 'scholarship', status: 'verified', lastVerified: '2026-10-22',
+      title: 'Study scholarships – Master studies for all academic disciplines',
+      provider: 'DAAD (German Academic Exchange Service)',
+      hostCountry: 'Germany', degreeLevels: ['master'],
+      fundingType: 'full',
+      coverage: ['Monthly stipend of €992', 'Travel allowance', 'Health, accident and personal liability insurance', 'One-off study allowance of €460'],
+      description: 'DAAD scholarship for graduates of any discipline who want to take a master\'s degree in Germany. The database lists 16 November 2026 as the deadline, selection in spring 2027 and funding from the winter semester 2027/2028. Applicants cannot have lived in Germany for more than 15 months at the deadline, cannot already hold a master\'s degree, and should have completed their last degree no more than six years before the deadline. The language certificate follows the requirements of the chosen programme.',
+      deadline: '2026-11-16', opensDate: '2026-06-01', isAnnual: true,
+      ieltsRequired: false,
+      applySteps: [
+        'Open the DAAD scholarship database entry for your country and read the call.',
+        'Create an account in the DAAD portal and select this programme.',
+        'Upload your degree certificate, transcripts, CV, motivation letter and language certificate.',
+        'Enter your referee so the letter is submitted through the portal.',
+        'Submit before 16 November 2026 and keep the PDF confirmation.'
+      ],
+      documents: ['Bachelor degree certificate', 'Transcripts of records', 'CV', 'Motivation letter', 'Language certificate', 'Letter of recommendation'],
+      officialUrl: 'https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/?detail=50026200',
+      applyUrl: 'https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/?detail=50026200',
+      sourceUrl: 'https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/?detail=50026200',
+      verifiedBy: 'admin@example.com', createdBy: 'admin@example.com',
+      openErrorReports: 1
+    },
+    {
+      id: 'S2', kind: 'scholarship', status: 'verified', lastVerified: '2026-10-20',
+      title: 'Study scholarships for graduates – Heinrich Böll Foundation',
+      provider: 'Heinrich-Böll-Stiftung',
+      hostCountry: 'Germany', degreeLevels: ['master', 'phd'],
+      fundingType: 'partial',
+      coverage: ['Monthly stipend of €992 for master\'s students', 'Health-insurance allowance of up to €100 per month', 'German language course costs', 'Family and child allowances'],
+      description: 'The foundation runs two rounds a year with deadlines on 1 March and 1 September; the spring 2027 portal opens on 15 January 2027. Master\'s applicants must have completed their first degree outside Germany and apply before starting the programme, and the programme must have a standard duration of at least four semesters. German at B2 level (DSH 1) is required. Applicants from DAC countries who have not yet taken up residence in Germany are prioritised. Tuition fees are not covered.',
+      deadline: '2027-03-01', opensDate: '2027-01-15', isAnnual: true,
+      minGermanLevel: 'B2', ieltsRequired: false,
+      applySteps: [
+        'Register in the online application portal, which opens about six weeks before the deadline.',
+        'Complete the form on your academic background, social engagement and political interests.',
+        'Upload your first degree certificate, transcripts and the German certificate (B2 / DSH 1).',
+        'Add one academic reference and one reference on your social engagement.',
+        'Submit before 1 March 2027.'
+      ],
+      documents: ['First degree certificate', 'Transcripts', 'German certificate (B2 / DSH 1)', 'CV', 'Motivation letter', 'Two references'],
+      officialUrl: 'https://www.boell.de/en/scholarships',
+      applyUrl: 'https://www.boell.de/en/application',
+      sourceUrl: 'https://www.boell.de/en/application',
+      verifiedBy: 'admin@example.com', createdBy: 'admin@example.com',
+      openErrorReports: 0
+    },
+    {
+      id: 'S3', kind: 'scholarship', status: 'verified', lastVerified: '2026-10-18',
+      title: 'Helmut-Schmidt-Programme – Master\'s scholarships for public policy and good governance',
+      provider: 'DAAD',
+      hostCountry: 'Germany', degreeLevels: ['master'],
+      fundingType: 'full',
+      coverage: ['Monthly stipend of €992', 'Health, accident and personal liability insurance', 'Travel allowance', 'German language course before the programme'],
+      description: 'DAAD scholarships for graduates from developing and emerging countries who want a master\'s degree in public policy, governance, law, economics or administration. The DAAD Pakistan page lists the deadline as generally at the end of July. Part of the programme is a German language course, and courses are taught in German or English. A first degree and professional experience are expected.',
+      deadline: '2027-07-31', opensDate: '2027-06-01', isAnnual: true,
+      ieltsRequired: false,
+      applySteps: [
+        'Choose up to three participating master\'s programmes from the DAAD programme list.',
+        'Write a motivation letter that links your professional experience to those programmes.',
+        'Submit through the DAAD portal with degree certificate, transcripts, CV and language proof.',
+        'Check the DAAD Pakistan page for the exact deadline of the next call.'
+      ],
+      documents: ['First degree certificate', 'Transcripts', 'CV', 'Motivation letter', 'Language certificate', 'Employer reference'],
+      officialUrl: 'https://www.daad.pk/en/find-funding/daad-scholarship-programmes-for-pakistan/',
+      applyUrl: 'https://www.daad.pk/en/find-funding/daad-scholarship-programmes-for-pakistan/',
+      sourceUrl: 'https://www.daad.pk/en/find-funding/daad-scholarship-programmes-for-pakistan/',
+      verifiedBy: 'admin@example.com', createdBy: 'admin@example.com',
+      openErrorReports: 0
+    },
+    {
+      id: 'S4', kind: 'scholarship', status: 'verified', lastVerified: '2026-10-22',
+      title: 'Fellowships for female scientists with children – Christiane Nüsslein-Volhard Foundation',
+      provider: 'Christiane Nüsslein-Volhard-Stiftung',
+      hostCountry: 'Germany', degreeLevels: ['phd'],
+      fundingType: 'partial',
+      coverage: ['€500 per month for one year', 'Childcare and household help', 'Can be extended after a report'],
+      description: 'The foundation supports outstanding female scientists with children in the experimental natural sciences and basic medical research. It pays €500 a month for one year towards childcare or household help, not towards living costs. Doctoral candidates of any nationality from the second year of their doctorate can apply, as can postdocs researching in Germany or abroad after a German doctorate. Applications run from 1 September to 30 November each year.',
+      deadline: '2026-11-30', opensDate: '2026-09-01', isAnnual: true,
+      genderRestriction: 'female', ieltsRequired: false,
+      applySteps: [
+        'Open the application portal on the foundation website, which opens on 1 September.',
+        'Fill in the application form in German or English.',
+        'Add a tabular CV, certificates and a short report on your current project.',
+        'Ask two referees for letters of recommendation.',
+        'Submit before 30 November 2026.'
+      ],
+      documents: ['Application form', 'CV', 'Certificates', 'Project report', 'Two letters of recommendation'],
+      officialUrl: 'https://cnv-stiftung.de/scholarships/',
+      applyUrl: 'https://cnv-stiftung.de/scholarships/',
+      sourceUrl: 'https://cnv-stiftung.de/scholarships/',
+      verifiedBy: 'admin@example.com', createdBy: 'admin@example.com',
+      openErrorReports: 0
+    },
+    {
+      id: 'S5', kind: 'scholarship', status: 'verified', lastVerified: '2026-10-20',
+      title: 'Deutschlandstipendium – TU Dresden',
+      provider: 'TU Dresden / Federal Ministry of Education and Research',
+      hostCountry: 'Germany', degreeLevels: ['bachelor', 'master'],
+      fundingType: 'partial',
+      coverage: ['€300 per month', 'Mentoring programme', 'Paid regardless of income'],
+      description: 'The next TU Dresden application window runs from 1 to 15 July 2027. Students of any nationality may apply. Applicants must be enrolled at TU Dresden when the funding period starts and be within the standard period of study; the scholarship is awarded for one year at a time.',
+      deadline: '2027-07-15', opensDate: '2027-07-01', isAnnual: true,
+      ieltsRequired: false,
+      applySteps: [
+        'Apply online in the TU Dresden portal between 1 and 15 July 2027.',
+        'Upload transcripts, CV and evidence of social engagement.',
+        'Accept the offer and the sponsor introduction if you are selected.'
+      ],
+      documents: ['Transcripts', 'CV', 'Enrolment certificate'],
+      officialUrl: 'https://tu-dresden.de/studium/rund-ums-studium/foerderung-und-finanzierung/deutschlandstipendium/bewerben',
+      applyUrl: 'https://tu-dresden.de/studium/rund-ums-studium/foerderung-und-finanzierung/deutschlandstipendium/bewerben',
+      sourceUrl: 'https://tu-dresden.de/studium/rund-ums-studium/foerderung-und-finanzierung/deutschlandstipendium/bewerben',
+      verifiedBy: 'admin@example.com', createdBy: 'admin@example.com',
+      openErrorReports: 0
+    },
+    {
+      id: 'S6', kind: 'scholarship', status: 'verified', lastVerified: '2026-10-15',
+      title: 'Deutschlandstipendium – Friedrich-Alexander-Universität Erlangen-Nürnberg',
+      provider: 'FAU Erlangen-Nürnberg / Federal Ministry of Education and Research',
+      hostCountry: 'Germany', degreeLevels: ['bachelor', 'master'],
+      fundingType: 'partial',
+      coverage: ['€300 per month', 'Mentoring and networking programme'],
+      description: 'The FAU application period for winter semester 2026/2027 ran from 15 June to 15 July 2026 and has closed. The entry stays online as an annual listing so it returns with the next cycle; FAU opens the portal again in summer 2027. The scholarship pays €300 a month for at least two semesters.',
+      deadline: '2026-07-15', opensDate: '2026-06-15', isAnnual: true,
+      ieltsRequired: false,
+      applySteps: [
+        'Wait for the next FAU application window in summer 2027.',
+        'Prepare transcripts, CV and evidence of social engagement.',
+        'Apply through the FAU portal once it opens.'
+      ],
+      documents: ['Transcripts', 'CV', 'Enrolment certificate or admission letter'],
+      officialUrl: 'https://www.fau.eu/studying/organizing-your-studies-and-where-to-go-for-advice/funding-your-studies/fau-deutschlandstipendium/',
+      applyUrl: 'https://www.fau.eu/studying/organizing-your-studies-and-where-to-go-for-advice/funding-your-studies/fau-deutschlandstipendium/',
+      sourceUrl: 'https://www.fau.eu/studying/organizing-your-studies-and-where-to-go-for-advice/funding-your-studies/fau-deutschlandstipendium/',
+      verifiedBy: 'admin@example.com', createdBy: 'admin@example.com',
+      openErrorReports: 0
+    },
+    {
+      id: 'S7', kind: 'scholarship', status: 'draft', lastVerified: '2026-10-21',
+      title: 'MSc Environmental Governance – University of Freiburg',
+      provider: 'Albert-Ludwigs-Universität Freiburg / DAAD EPOS',
+      hostCountry: 'Germany', degreeLevels: ['master'],
+      fundingType: 'full',
+      coverage: ['Monthly stipend of €992', 'Study fee of €1,500 per semester waived', 'Health, accident and personal liability insurance', 'Travel allowance'],
+      description: 'Draft extracted from the programme announcement for the DAAD EPOS call. The programme is a two-year, English-taught master\'s of 120 ECTS credits starting in October 2027. At least two years of professional experience after the first degree are required. The deadline for that intake (15 October 2026) has passed, so the next cycle dates have to be confirmed before this can be published.',
+      deadline: '2026-10-15', opensDate: '2026-06-15', isAnnual: true,
+      ieltsRequired: false,
+      applySteps: [
+        'Check the next EPOS call on the DAAD Pakistan page.',
+        'Prepare evidence for at least two years of professional experience.',
+        'Submit through the DAAD portal once the next call opens.'
+      ],
+      documents: ['First degree certificate', 'Transcripts', 'CV', 'Motivation letter', 'Employer reference'],
+      officialUrl: 'https://www.daad.pk/en/find-funding/daad-scholarship-programmes-for-pakistan/',
+      applyUrl: 'https://www.daad.pk/en/find-funding/daad-scholarship-programmes-for-pakistan/',
+      sourceUrl: 'https://www.daad.pk/en/find-funding/daad-scholarship-programmes-for-pakistan/',
+      verifiedBy: null, createdBy: 'contributor@example.com',
+      draftedByAi: true, openErrorReports: 0,
+      sourceSnapshot: 'DAAD EPOS – Development-Related Postgraduate Courses. MSc Environmental Governance at the University of Freiburg is a two-year, English-taught programme of 120 ECTS credits. The application deadline for the October 2027 intake is 15 October 2026. Applicants need at least two years of professional experience after their first degree. Scholarship holders receive 992 euro per month and are exempt from the study fee of 1500 euro per semester.',
+      evidence: {
+        title: 'MSc Environmental Governance at the University of Freiburg is a two-year, English-taught programme of 120 ECTS credits.',
+        deadline: 'The application deadline for the October 2027 intake is 15 October 2026.'
+      }
+    },
+    {
+      id: 'S8', kind: 'scholarship', status: 'verified', lastVerified: '2026-02-10',
+      title: 'Study scholarships for foreign graduates in the field of architecture',
+      provider: 'DAAD',
+      hostCountry: 'Germany', degreeLevels: ['master'],
+      fundingType: 'full',
+      coverage: ['Monthly stipend of €992', 'Travel allowance', 'Health, accident and personal liability insurance'],
+      description: 'DAAD scholarships for graduates of architecture and urban design who want a master\'s degree or a complementary study year in Germany. The country page lists the deadline as generally at the end of September, with a portfolio as part of the application. This record has not been rechecked for more than six months, so it is hidden from students until an editor verifies it again.',
+      deadline: '2027-09-30', opensDate: '2027-07-01', isAnnual: true,
+      ieltsRequired: false,
+      applySteps: [
+        'Confirm the current call on the DAAD Pakistan page.',
+        'Prepare the portfolio that the call asks for.',
+        'Submit through the DAAD portal.'
+      ],
+      documents: ['Portfolio', 'Degree certificate', 'Transcripts', 'CV', 'Language certificate'],
+      officialUrl: 'https://www.daad.pk/en/find-funding/daad-scholarship-programmes-for-pakistan/',
+      applyUrl: 'https://www.daad.pk/en/find-funding/daad-scholarship-programmes-for-pakistan/',
+      sourceUrl: 'https://www.daad.pk/en/find-funding/daad-scholarship-programmes-for-pakistan/',
+      verifiedBy: 'admin@example.com', createdBy: 'admin@example.com',
+      openErrorReports: 1
+    },
+
+    {
+      id: 'S9', kind: 'scholarship', status: 'verified', lastVerified: '2026-10-21',
+      title: 'Deutschlandstipendium – Humboldt-Universität zu Berlin',
+      provider: 'Humboldt-Universität zu Berlin / Federal Ministry of Education and Research',
+      hostCountry: 'Germany', degreeLevels: ['bachelor', 'master'],
+      fundingType: 'partial',
+      coverage: ['€300 per month for at least two semesters', 'Mentoring and contact with the sponsor company', 'Paid regardless of income, can be combined with BAföG'],
+      description: 'The Deutschlandstipendium pays €300 a month, half from the federal government and half from a private sponsor. The HU Berlin application period runs from 9 November to 6 December 2026 and funding starts on 1 April 2027. Applicants must be enrolled or about to enrol at HU Berlin and still be within the standard period of study.',
+      deadline: '2026-12-06', opensDate: '2026-11-09', isAnnual: true,
+      ieltsRequired: false,
+      applySteps: [
+        'Open the HU Berlin Deutschlandstipendium portal during the application period.',
+        'Fill in grades, CV and a short statement on social engagement.',
+        'Upload transcripts and, for foreign certificates, the grade conversion.',
+        'Submit before 6 December 2026.'
+      ],
+      documents: ['Transcripts', 'CV', 'Enrolment certificate or admission letter', 'Evidence of social engagement'],
+      officialUrl: 'https://deutschlandstipendium.hu-berlin.de/en',
+      applyUrl: 'https://deutschlandstipendium.hu-berlin.de/en',
+      sourceUrl: 'https://deutschlandstipendium.hu-berlin.de/en',
+      verifiedBy: 'admin@example.com', createdBy: 'admin@example.com',
+      openErrorReports: 0
+    },
+
+    /* ===== PROGRAMS ===== */
+    {
+      id: 'P1', kind: 'program', status: 'verified', lastVerified: '2026-10-22',
+      title: 'M.Sc. Informatics', provider: 'Technische Universität München (TUM)',
+      universityId: 'u1', hostCountry: 'Germany', degreeLevels: ['master'],
+      degreeTitle: 'Master of Science', fieldCategory: 'software', languageMode: 'english',
+      fundingType: null, tuitionPerSemester: 0, semesterFee: null,
+      coverage: ['No tuition fee (semester contribution only)'],
+      description: 'English-taught master\'s at the TUM School of Computation, Information and Technology. Winter-semester applications run from 1 February to 31 May; applicants who need a visa are advised to apply by 31 March. Every applicant with a non-German Bachelor needs the uni-assist preliminary documentation (VPD), which takes four to six weeks. No tuition fee is charged; the semester contribution is set by the university each semester.',
+      deadline: '2027-05-31', opensDate: '2027-02-01', isAnnual: true, intakes: ['WS', 'SS'],
+      ieltsRequired: true, minIelts: 6.5,
+      requiredPriorFields: ['cs', 'software', 'data'],
+      apsRequired: 'no', applyRoute: 'uni_assist',
+      applySteps: [
+        'Apply in TUMonline for the winter semester between 1 February and 31 May 2027.',
+        'Apply for the uni-assist VPD at the same time — it takes four to six weeks.',
+        'Upload transcripts, degree certificate, curriculum analysis and English certificate.',
+        'Check the programme page for any additional document it asks for.'
+      ],
+      documents: ['Transcripts', 'Degree certificate', 'uni-assist VPD', 'English certificate', 'CV'],
+      officialUrl: 'https://www.tum.de/en/studies/degree-programs/detail/informatics-master-of-science-msc',
+      requirementsUrl: 'https://www.cit.tum.de/en/cit/studies/degree-programs/master-informatics/',
+      applyUrl: 'https://www.tum.de/en/studies/degree-programs/detail/informatics-master-of-science-msc',
+      sourceUrl: 'https://www.cit.tum.de/en/cit/studies/degree-programs/master-informatics/',
+      verifiedBy: 'admin@example.com', createdBy: 'admin@example.com',
+      openErrorReports: 1,
+      evidence: {}
+    },
+    {
+      id: 'P2', kind: 'program', status: 'verified', lastVerified: '2026-10-20',
+      title: 'M.Sc. Information Systems', provider: 'Technische Universität München (TUM)',
+      universityId: 'u1', hostCountry: 'Germany', degreeLevels: ['master'],
+      degreeTitle: 'Master of Science', fieldCategory: 'data', languageMode: 'english',
+      fundingType: null, tuitionPerSemester: 0, semesterFee: null,
+      coverage: ['No tuition fee (semester contribution only)'],
+      description: 'English-taught master\'s that links information systems with management. Winter applications run from 1 February to 31 May, with 31 March recommended for applicants who need a visa. Applicants with a Bachelor from Bangladesh, China, India, Iran or Pakistan must submit a GRE or GATE score. A uni-assist VPD is required for every degree obtained outside Germany. No tuition fee is charged.',
+      deadline: '2027-05-31', opensDate: '2027-02-01', isAnnual: true, intakes: ['WS', 'SS'],
+      ieltsRequired: true, minIelts: 6.5,
+      requiredPriorFields: ['cs', 'software', 'data', 'business'],
+      apsRequired: 'no', applyRoute: 'uni_assist',
+      applySteps: [
+        'Apply in TUMonline between 1 February and 31 May 2027.',
+        'Order the GRE or GATE score report if your Bachelor is from Bangladesh, China, India, Iran or Pakistan.',
+        'Apply for the uni-assist VPD for your Bachelor documents.',
+        'Upload transcripts, degree certificate, CV and English certificate.'
+      ],
+      documents: ['Transcripts', 'Degree certificate', 'uni-assist VPD', 'GRE or GATE score', 'English certificate', 'CV'],
+      officialUrl: 'https://www.tum.de/en/studies/degree-programs/detail/information-systems-master-of-science-msc',
+      requirementsUrl: 'https://www.cit.tum.de/en/cit/studies/degree-programs/master-information-systems/',
+      applyUrl: 'https://www.tum.de/en/studies/degree-programs/detail/information-systems-master-of-science-msc',
+      sourceUrl: 'https://www.cit.tum.de/en/cit/studies/degree-programs/master-information-systems/',
+      verifiedBy: 'admin@example.com', createdBy: 'admin@example.com',
+      openErrorReports: 0,
+      evidence: {}
+    },
+    {
+      id: 'P3', kind: 'program', status: 'verified', lastVerified: '2026-10-19',
+      title: 'M.Sc. Computer Science', provider: 'RWTH Aachen University',
+      universityId: 'u2', hostCountry: 'Germany', degreeLevels: ['master'],
+      degreeTitle: 'Master of Science', fieldCategory: 'software', languageMode: 'german',
+      fundingType: null, tuitionPerSemester: 0, semesterFee: null,
+      coverage: ['No tuition fee (semester contribution only)'],
+      description: 'Master\'s programme at RWTH\'s Faculty of Computer Science. Applications go directly through RWTHonline, not through uni-assist. Applicants from outside the EU/EEA apply from 1 December and the deadline for the following winter semester is 1 March. The standard course language is German, so German language skills are checked at enrolment. No tuition fee is charged.',
+      deadline: '2027-03-01', opensDate: '2026-12-01', isAnnual: true, intakes: ['WS', 'SS'],
+      minGermanLevel: 'C1', ieltsRequired: false,
+      requiredPriorFields: ['cs', 'software'],
+      apsRequired: 'no', applyRoute: 'direct',
+      applySteps: [
+        'Create the master\'s application in RWTHonline — the route is direct, not uni-assist.',
+        'Non-EU applicants: submit between 1 December 2026 and 1 March 2027.',
+        'Upload transcripts, degree certificate, module descriptions and language proof.',
+        'Check the RWTH page for the current semester dates before you file.'
+      ],
+      documents: ['Transcripts', 'Degree certificate', 'Module handbook extract', 'Language certificate', 'CV'],
+      officialUrl: 'https://www.rwth-aachen.de/cms/root/studium/vor-dem-studium/bewerbung-um-einen-studienplatz/master-bewerbung/~dqml/bewerbung-master-internationale/?lidx=1',
+      requirementsUrl: 'https://www.rwth-aachen.de/cms/root/studium/vor-dem-studium/bewerbung-um-einen-studienplatz/master-bewerbung/~dqml/bewerbung-master-internationale/?lidx=1',
+      applyUrl: 'https://www.rwth-aachen.de/cms/root/studium/vor-dem-studium/bewerbung-um-einen-studienplatz/master-bewerbung/~dqml/bewerbung-master-internationale/?lidx=1',
+      sourceUrl: 'https://www.rwth-aachen.de/cms/root/studium/vor-dem-studium/bewerbung-um-einen-studienplatz/master-bewerbung/~dqml/bewerbung-master-internationale/?lidx=1',
+      verifiedBy: 'admin@example.com', createdBy: 'admin@example.com',
+      openErrorReports: 0,
+      evidence: {}
+    },
+    {
+      id: 'P4', kind: 'program', status: 'verified', lastVerified: '2026-10-17',
+      title: 'B.Sc. Informatik', provider: 'Technische Universität Berlin',
+      universityId: 'u5', hostCountry: 'Germany', degreeLevels: ['bachelor'],
+      degreeTitle: 'Bachelor of Science', fieldCategory: 'software', languageMode: 'german',
+      fundingType: null, tuitionPerSemester: 0, semesterFee: null,
+      coverage: ['No tuition fee (semester contribution only)'],
+      description: 'German-taught bachelor programme. TU Berlin applies the same deadlines to international applicants as to German ones and asks everyone with foreign academic credentials for a uni-assist VPD. School-leaving certificates from Pakistan do not give direct access, so a Studienkolleg year with the Feststellungsprüfung comes first. German at DSH-2 level (about C1) is required at enrolment.',
+      deadline: '2027-07-15', opensDate: '2027-06-01', isAnnual: true, intakes: ['WS'],
+      hsscEntryRoute: 'studienkolleg_required', hsscGroups: ['pre_engineering', 'ics'],
+      apsRequired: 'unknown', minGermanLevel: 'C1', ieltsRequired: false,
+      applyRoute: 'uni_assist',
+      applySteps: [
+        'Finish the Studienkolleg year and pass the Feststellungsprüfung.',
+        'Apply through uni-assist with the Feststellungsprüfung certificate and your HSSC documents.',
+        'Submit the German certificate (DSH-2 or TestDaF 4) with the application.',
+        'Watch the TU Berlin dates page: the winter-semester window closes on 15 July.'
+      ],
+      documents: ['HSSC certificate', 'IBCC equivalence', 'Feststellungsprüfung certificate', 'uni-assist VPD', 'German certificate'],
+      officialUrl: 'https://www.tu.berlin/en/studierendensekretariat/dates-deadlines-for-application-and-enrollment-at-tu-berlin',
+      requirementsUrl: 'https://www.tu.berlin/en/studierendensekretariat/dates-deadlines-for-application-and-enrollment-at-tu-berlin',
+      applyUrl: 'https://www.tu.berlin/en/studierendensekretariat/dates-deadlines-for-application-and-enrollment-at-tu-berlin',
+      sourceUrl: 'https://www.tu.berlin/en/studierendensekretariat/dates-deadlines-for-application-and-enrollment-at-tu-berlin',
+      verifiedBy: 'admin@example.com', createdBy: 'admin@example.com',
+      openErrorReports: 0,
+      evidence: {}
+    },
+    {
+      id: 'P5', kind: 'program', status: 'verified', lastVerified: '2026-10-16',
+      title: 'M.Sc. Computer Science', provider: 'Ruhr-Universität Bochum',
+      universityId: 'u4', hostCountry: 'Germany', degreeLevels: ['master'],
+      degreeTitle: 'Master of Science', fieldCategory: 'software', languageMode: 'english',
+      fundingType: null, tuitionPerSemester: 0, semesterFee: null,
+      coverage: ['No tuition fee (semester contribution only)'],
+      description: 'English-taught master\'s programme. The main deadline is 15 December of the year before the intended start, and that date is also the final deadline for every applicant whose degree does not meet the Lisbon Convention — which covers most degrees obtained outside the EU. The programme page lists the accepted English certificates. No tuition fee is charged.',
+      deadline: '2026-12-15', opensDate: '2026-11-01', isAnnual: true, intakes: ['WS'],
+      ieltsRequired: true,
+      requiredPriorFields: ['cs', 'software', 'data'],
+      apsRequired: 'unknown', applyRoute: 'direct',
+      applySteps: [
+        'Apply through the RUB application portal before 15 December 2026.',
+        'Upload transcripts, degree certificate and the English certificate.',
+        'Add module descriptions if the admission committee asks for them.'
+      ],
+      documents: ['Transcripts', 'Degree certificate', 'English certificate', 'CV'],
+      officialUrl: 'https://informatik.rub.de/en/studies/application/msc-cs/',
+      requirementsUrl: 'https://informatik.rub.de/en/studies/application/msc-cs/',
+      applyUrl: 'https://informatik.rub.de/en/studies/application/msc-cs/',
+      sourceUrl: 'https://informatik.rub.de/en/studies/application/msc-cs/',
+      verifiedBy: 'admin@example.com', createdBy: 'admin@example.com',
+      openErrorReports: 0,
+      evidence: {}
+    },
+    {
+      id: 'P6', kind: 'program', status: 'verified', lastVerified: '2026-10-18',
+      title: 'M.Sc. Software Systems Engineering', provider: 'RWTH Aachen University',
+      universityId: 'u2', hostCountry: 'Germany', degreeLevels: ['master'],
+      degreeTitle: 'Master of Science', fieldCategory: 'software', languageMode: 'english',
+      fundingType: null, tuitionPerSemester: 0, semesterFee: null,
+      coverage: ['No tuition fee (semester contribution only)'],
+      description: 'English-taught master\'s for graduates of computer science or a closely related field. Non-EU and non-EEA applicants apply between December and 1 March for the following winter semester; EU applicants have until 15 July. A GRE General Test is required and the quantitative score must be above the 75th percentile. The application is made directly at the university.',
+      deadline: '2027-03-01', opensDate: '2026-12-01', isAnnual: true, intakes: ['WS'],
+      ieltsRequired: true,
+      requiredPriorFields: ['cs', 'software'],
+      apsRequired: 'no', applyRoute: 'direct',
+      applySteps: [
+        'Take the GRE General Test early enough for the score to arrive before 1 March.',
+        'Apply through the RWTHonline portal between December and 1 March.',
+        'Upload transcripts, degree certificate, module descriptions and English proof.',
+        'Send the GRE score report through ETS.'
+      ],
+      documents: ['Transcripts', 'Degree certificate', 'GRE score report', 'English certificate', 'Module handbook extract'],
+      officialUrl: 'https://sc.informatik.rwth-aachen.de/en/studium/master/sse/application-for-admission/',
+      requirementsUrl: 'https://sc.informatik.rwth-aachen.de/en/studium/master/sse/application-for-admission/',
+      applyUrl: 'https://sc.informatik.rwth-aachen.de/en/studium/master/sse/application-for-admission/',
+      sourceUrl: 'https://sc.informatik.rwth-aachen.de/en/studium/master/sse/application-for-admission/',
+      verifiedBy: 'admin@example.com', createdBy: 'admin@example.com',
+      openErrorReports: 0,
+      evidence: {}
+    },
+    {
+      id: 'P7', kind: 'program', status: 'verified', lastVerified: '2026-10-22',
+      title: 'M.Sc. Data Engineering and Analytics', provider: 'Technische Universität München (TUM)',
+      universityId: 'u1', hostCountry: 'Germany', degreeLevels: ['master'],
+      degreeTitle: 'Master of Science', fieldCategory: 'data', languageMode: 'english',
+      fundingType: null, tuitionPerSemester: 0, semesterFee: null,
+      coverage: ['No tuition fee (semester contribution only)'],
+      description: 'English-taught master\'s at the TUM School of Computation, Information and Technology. The application window for the winter semester is 1 February to 31 May, and 31 March is recommended for applicants who need a visa. A uni-assist VPD is required for a Bachelor obtained outside Germany. No tuition fee is charged.',
+      deadline: '2027-05-31', opensDate: '2027-02-01', isAnnual: true, intakes: ['WS', 'SS'],
+      ieltsRequired: true, minIelts: 6.5,
+      requiredPriorFields: ['cs', 'data', 'software'],
+      apsRequired: 'no', applyRoute: 'uni_assist',
+      applySteps: [
+        'Apply in TUMonline between 1 February and 31 May 2027.',
+        'Order the uni-assist VPD in parallel — it takes four to six weeks.',
+        'Upload transcripts, degree certificate, curriculum analysis and English certificate.'
+      ],
+      documents: ['Transcripts', 'Degree certificate', 'uni-assist VPD', 'English certificate', 'CV'],
+      officialUrl: 'https://www.cit.tum.de/en/cit/studies/degree-programs/master-data-engineering-analytics/',
+      requirementsUrl: 'https://www.cit.tum.de/en/cit/studies/degree-programs/master-data-engineering-analytics/',
+      applyUrl: 'https://www.cit.tum.de/en/cit/studies/degree-programs/master-data-engineering-analytics/',
+      sourceUrl: 'https://www.cit.tum.de/en/cit/studies/degree-programs/master-data-engineering-analytics/',
+      verifiedBy: 'admin@example.com', createdBy: 'admin@example.com',
+      openErrorReports: 0,
+      evidence: {}
+    },
+    {
+      id: 'P8', kind: 'program', status: 'draft', lastVerified: '2026-10-21',
+      title: 'B.Sc. Physics', provider: 'Ludwig-Maximilians-Universität München (LMU)',
+      universityId: 'u3', hostCountry: 'Germany', degreeLevels: ['bachelor'],
+      degreeTitle: 'Bachelor of Science', fieldCategory: 'science', languageMode: 'german',
+      fundingType: null, tuitionPerSemester: 0, semesterFee: null,
+      coverage: ['No tuition fee (semester contribution only)'],
+      description: 'Draft waiting for a second reviewer. German-taught bachelor programme at LMU\'s Faculty of Physics. International applicants register with the LMU International Office, whose winter-semester deadline is 15 July; a successful application also requires the Bachelor to be finished by 30 September. German language proof is needed before enrolment.',
+      deadline: '2027-07-15', opensDate: '2027-05-01', isAnnual: true, intakes: ['WS', 'SS'],
+      hsscEntryRoute: 'unknown', apsRequired: 'unknown', minGermanLevel: 'C1', ieltsRequired: false,
+      applyRoute: 'uni_assist',
+      applySteps: [
+        'Confirm the entry route for your HSSC certificate on the LMU page.',
+        'Register with the LMU International Office before 15 July 2027.',
+        'Upload the German certificate and the school-leaving documents.'
+      ],
+      documents: ['HSSC certificate', 'German certificate', 'Transcripts'],
+      officialUrl: 'https://www.physik.lmu.de/en/studies/study-programs/applying-to-a-masters-program/',
+      requirementsUrl: '',
+      applyUrl: 'https://www.lmu.de/en/study/degree-students/dates-and-deadlines/',
+      sourceUrl: 'https://www.lmu.de/en/study/degree-students/dates-and-deadlines/',
+      verifiedBy: null, createdBy: 'contributor@example.com',
+      draftedByAi: true, openErrorReports: 0,
+      sourceSnapshot: 'Bachelor programme Physics at LMU Munich. The application deadline for the winter semester is 15 July 2027 and for the summer semester 15 January 2027. The programme is taught in German and applicants must prove German language skills before enrolment. No tuition fee is charged; a semester contribution is payable.',
+      evidence: {
+        title: 'Bachelor programme Physics at LMU Munich.',
+        deadline: 'The application deadline for the winter semester is 15 July 2027 and for the summer semester 15 January 2027.'
+      }
+    }
+  ];
+
+  /* ---------- profiles (the demo accounts that stay for now) ---------- */
+  const profiles = {
+    ayesha: {
+      key: 'ayesha', fullName: 'Ayesha Khan', firstName: 'Ayesha', email: 'ayesha@example.com',
+      whatsapp: '+92 300 0000000', city: 'Lahore', province: 'Punjab', nationality: 'PK',
+      dateOfBirth: '2003-03-01', gender: 'female', currentLevel: 'bachelor',
+      institution: 'University of Engineering and Technology, Lahore', currentField: 'cs', currentSemester: 8,
+      expectedCompletionYear: 2026, matricPct: 92, interPct: 85, hsscBoard: 'BISE Lahore',
+      hsscGroup: 'pre_engineering', ibccStatus: 'done', hecStatus: 'not_needed',
+      bachelorCgpa: 3.7, bachelorScale: 4, passMark: 2, bachelorPct: 92, bachelorField: 'cs',
+      ielts: { status: 'taken', overall: 7.0, date: '2026-04-21' },
+      germanLevel: 'none', fundingNeed: 'partial_ok', blockedAccountReady: false,
+      incomeBracket: 'low', workExpMonths: 0, documentsReady: ['transcripts', 'cv', 'ielts'],
+      hasEctsBreakdown: false, apsStatus: 'certificate_ready', studienkollegOk: true,
+      completenessPct: 100, notifyEmail: true, notifyWhatsapp: false, alertDays: [30, 14, 7, 1],
+      consentAt: '2026-08-14T10:12:00Z'
+    },
+    bilal: {
+      key: 'bilal', fullName: 'Bilal Ahmed', firstName: 'Bilal', email: 'bilal@example.com',
+      whatsapp: '', city: 'Multan', province: 'Punjab', nationality: 'PK',
+      dateOfBirth: '2002-07-15', gender: 'male', currentLevel: 'bachelor',
+      institution: 'Bahauddin Zakariya University, Multan', currentField: 'cs', currentSemester: 8,
+      expectedCompletionYear: 2026, matricPct: 78, interPct: 72, hsscBoard: 'BISE Multan',
+      hsscGroup: 'ics', ibccStatus: 'planned', hecStatus: 'not_needed',
+      bachelorCgpa: 2.6, bachelorScale: 4, passMark: 2, bachelorPct: 72, bachelorField: 'cs',
+      ielts: { status: 'not_taken', overall: null, date: null },
+      germanLevel: null, fundingNeed: 'partial_ok', blockedAccountReady: false,
+      incomeBracket: 'prefer_not_to_say', workExpMonths: 0, documentsReady: ['transcripts'],
+      hasEctsBreakdown: false, apsStatus: 'not_started', studienkollegOk: null,
+      completenessPct: 62, notifyEmail: true, notifyWhatsapp: false, alertDays: [30, 14],
+      consentAt: '2026-10-02T18:40:00Z'
+    },
+    sana: {
+      key: 'sana', fullName: 'Sana Fatima', firstName: 'Sana', email: 'sana@example.com',
+      whatsapp: '+92 301 0000000', city: 'Bahawalpur', province: 'Punjab', nationality: 'PK',
+      dateOfBirth: '2008-05-20', gender: 'female', currentLevel: 'intermediate',
+      institution: 'Government Sadiq College Women University, Bahawalpur', currentField: null, currentSemester: null,
+      expectedCompletionYear: 2027, matricPct: 88, interPct: 84, hsscBoard: 'BISE Bahawalpur',
+      hsscGroup: 'pre_engineering', ibccStatus: 'applied', hecStatus: 'not_needed',
+      bachelorCgpa: null, bachelorScale: null, passMark: null, bachelorPct: null, bachelorField: null,
+      ielts: { status: 'planned', overall: null, date: null },
+      germanLevel: 'B1', fundingNeed: 'full_only', blockedAccountReady: false,
+      incomeBracket: 'low', workExpMonths: 0, documentsReady: [],
+      hasEctsBreakdown: false, apsStatus: 'not_started', studienkollegOk: true,
+      completenessPct: 76, notifyEmail: true, notifyWhatsapp: true, alertDays: [30, 14, 7],
+      consentAt: '2026-09-20T09:00:00Z'
+    }
+  };
+
+  const targets = {
+    ayesha: [
+      { degree: 'master', fields: ['ai'], intakeYear: 2027, isPrimary: true, label: 'Primary: MSc AI' },
+      { degree: 'master', fields: ['data'], intakeYear: 2027, isPrimary: false, label: 'Backup: Data' }
+    ],
+    bilal: [
+      { degree: 'master', fields: ['software'], intakeYear: 2027, isPrimary: true, label: 'Primary: MSc Software' }
+    ],
+    sana: [
+      { degree: 'bachelor', fields: ['engineering'], intakeYear: 2027, isPrimary: true, label: 'Primary: BSc Engineering' },
+      { degree: 'bachelor', fields: ['business'], intakeYear: 2027, isPrimary: false, label: 'Backup: Business' }
+    ]
+  };
+
+  const savedItems = {
+    ayesha: [
+      { kind: 'scholarship', id: 'S1', createdAt: '2026-10-12T09:00:00Z', note: 'Ask Sir about the referee letters.' },
+      { kind: 'program', id: 'P1', createdAt: '2026-10-15T09:00:00Z', note: '' },
+      { kind: 'program', id: 'P4', createdAt: '2026-09-28T09:00:00Z', note: '' },
+      { kind: 'scholarship', id: 'S5', createdAt: '2026-10-19T09:00:00Z', note: 'Deadline is a year away — set a reminder.' }
+    ],
+    bilal: [
+      { kind: 'scholarship', id: 'S2', createdAt: '2026-10-01T09:00:00Z', note: '' }
+    ],
+    sana: []
+  };
+
+  /* ---------- admin data ---------- */
+  const errorReports = [
+    { id: 'er1', listingType: 'scholarship', listingId: 'S1', reason: 'wrong_deadline', note: 'My DAAD country page shows 23 September 2026 for Pakistan, not 16 November.', userId: 'ayesha', status: 'open', createdAt: '2026-10-19T11:20:00Z' },
+    { id: 'er2', listingType: 'scholarship', listingId: 'S3', reason: 'broken_link', note: 'The programme list link on the DAAD Pakistan page does not open for me.', userId: 'bilal', status: 'open', createdAt: '2026-10-20T08:05:00Z' },
+    { id: 'er3', listingType: 'program', listingId: 'P1', reason: 'wrong_requirement', note: 'The TUM programme page also asks for a curriculum analysis.', userId: 'ayesha', status: 'open', createdAt: '2026-10-20T15:40:00Z' },
+    { id: 'er4', listingType: 'scholarship', listingId: 'S8', reason: 'other', note: 'This scholarship has not been updated since February.', userId: null, status: 'open', createdAt: '2026-10-18T12:00:00Z' },
+    { id: 'er5', listingType: 'program', listingId: 'P2', reason: 'wrong_deadline', note: 'Deadline is correct actually, I misread the semester.', userId: 'sana', status: 'dismissed', createdAt: '2026-10-10T12:00:00Z' }
+  ];
+
+  const adminUsers = [
+    { id: 'u-ayesha', email: 'ayesha@example.com', role: 'student', displayName: 'Ayesha Khan', isActive: true, lastLogin: '2026-10-22T06:10:00Z', createdAt: '2026-08-14T10:12:00Z' },
+    { id: 'u-bilal', email: 'bilal@example.com', role: 'student', displayName: 'Bilal Ahmed', isActive: true, lastLogin: '2026-10-21T19:02:00Z', createdAt: '2026-10-02T18:40:00Z' },
+    { id: 'u-sana', email: 'sana@example.com', role: 'student', displayName: 'Sana Fatima', isActive: true, lastLogin: '2026-10-20T07:30:00Z', createdAt: '2026-09-20T09:00:00Z' },
+    { id: 'u-admin', email: 'admin@example.com', role: 'admin', displayName: 'Editor Admin', isActive: true, lastLogin: '2026-10-22T05:00:00Z', createdAt: '2026-07-01T09:00:00Z' },
+    { id: 'u-contrib', email: 'contributor@example.com', role: 'contributor', displayName: 'Data Contributor', isActive: true, lastLogin: '2026-10-21T04:20:00Z', createdAt: '2026-09-01T09:00:00Z' },
+    { id: 'u-old', email: 'closed@example.com', role: 'student', displayName: 'Hamza Tariq', isActive: false, lastLogin: '2026-08-01T09:00:00Z', createdAt: '2026-07-20T09:00:00Z' }
+  ];
+
+  const adminLogs = [
+    { id: 'l1', adminId: 'contributor', action: 'insert_draft', entityType: 'scholarship', entityId: 'S7', detail: { via: 'ai_draft' }, createdAt: '2026-10-21T16:30:00Z' },
+    { id: 'l2', adminId: 'admin', action: 'publish', entityType: 'program', entityId: 'P7', detail: { previous: 'draft' }, createdAt: '2026-10-22T09:15:00Z' },
+    { id: 'l3', adminId: 'admin', action: 'verify', entityType: 'program', entityId: 'P1', detail: { fields: 6 }, createdAt: '2026-10-22T10:00:00Z' },
+    { id: 'l4', adminId: 'admin', action: 'flag_stale', entityType: 'scholarship', entityId: 'S8', detail: { days: 254 }, createdAt: '2026-10-22T01:00:00Z' },
+    { id: 'l5', adminId: 'admin', action: 'report_fixed', entityType: 'program', entityId: 'P2', detail: { report: 'er5' }, createdAt: '2026-10-11T12:00:00Z' },
+    { id: 'l6', adminId: 'contributor', action: 'insert_draft', entityType: 'program', entityId: 'P8', detail: { via: 'ai_draft' }, createdAt: '2026-10-21T16:45:00Z' }
+  ];
+
+  return {
+    today: TODAY,
+    listings, universities, profiles, targets, savedItems,
+    errorReports, adminUsers, adminLogs,
+    counts: { scholarships: 9, programs: 8, universities: 9, students: 3 }
+  };
+})();

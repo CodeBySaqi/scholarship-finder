@@ -1,0 +1,17 @@
+# dependencies
+node_modules/
+
+# build output (the host builds it)
+dist/
+
+# secrets — set these in the Render dashboard
+.env
+.env.local
+
+# local database. It is recreated by `npm run seed`; production data lives in Supabase.
+data/db.json.tmp
+data/*.backup.json
+
+# noise
+.DS_Store
+*.log

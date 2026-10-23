@@ -1,0 +1,25 @@
+{
+  "name": "scholarship-finder-app",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "seed": "node server/seed.js",
+    "build": "vite build",
+    "start": "node server/index.js",
+    "dev": "vite",
+    "serve": "npm run build && node server/index.js",
+    "seed:remote": "node server/seed.js --remote",
+    "start:env": "node --env-file=.env server/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.0"
+  }
+}

@@ -1,0 +1,136 @@
+/* ==========================================================================
+   DESIGN TOKENS v2 — rebuilt from the reference dashboard
+   (floating white cards on a soft lavender canvas, blue primary,
+   tinted status pills, 16px radii, one soft shadow)
+   ========================================================================== */
+:root {
+  --font-sans: Inter, "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* surfaces */
+  --canvas: #F2F4F9;          /* page canvas */
+  --bg: #F2F4F9;
+  --card: #FFFFFF;
+  --card-2: #F8FAFD;          /* inset blocks inside a card */
+  --tint: #F2F6FC;            /* nav hover / quiet blocks */
+  --border: #E7EBF3;          /* hairlines */
+  --border-2: #EEF2F8;
+  --chip: #F2F6FC;
+
+  /* ink */
+  --text: #0B1437;
+  --text-2: #5A6A85;
+  --text-3: #8494AD;
+  --text-label: #9AA6BC;
+
+  /* brand */
+  --primary: #1B84FF;
+  --primary-hover: #0E74EC;
+  --on-primary: #FFFFFF;
+  --primary-container: #E8F1FF;
+  --on-primary-container: #1B6FE0;
+  --ring: rgba(27, 132, 255, .18);
+
+  /* status */
+  --success-container: #E6F8EF; --on-success: #16A34A;
+  --warning-container: #FFF4E0; --on-warning: #D98511;
+  --danger-container:  #FDECEC; --on-danger:  #E04343;
+  --purple-container:  #F1EBFE; --on-purple:  #7C4DF0;
+  --cyan-container:    #E4F8FC; --on-cyan:    #0FA5C4;
+  --neutral-container: #F2F6FC; --on-neutral: #5A6A85;
+
+  /* chart series */
+  --c1: #1B84FF; --c2: #6FB6FF; --c3: #A9D3FF; --c4: #28C76F; --c5: #FF9F43; --c6: #8B5CF6;
+  --chart-grid: #EEF2F8; --chart-track: #EAEFF6;
+
+  /* shape */
+  --r-card: 16px;
+  --r-inner: 12px;
+  --r-button: 10px;
+  --r-tag: 999px;
+  --r-input: 10px;
+  --card-border: transparent;
+  --card-shadow: 0 2px 12px rgba(140, 152, 164, .10);
+  --card-shadow-hover: 0 8px 24px rgba(140, 152, 164, .22);
+  --pop-shadow: 0 12px 40px rgba(17, 34, 68, .16);
+
+  /* density */
+  --pad: 24px;
+  --gap: 24px;
+  --fs: 14px;
+  --dur: 160ms;
+  --ease: cubic-bezier(.2, 0, 0, 1);
+
+  /* chrome */
+  --link: #1B84FF;
+  --snack-bg: #0B1437;
+  --snack-text: #FFFFFF;
+  --scrim: rgba(11, 20, 55, .42);
+  --side-w: 272px;
+  --top-h: 72px;
+  --grad: linear-gradient(135deg, #3B9CFF 0%, #1B84FF 55%, #0E6BE0 100%);
+}
+
+:root[data-theme="dark"] {
+  --canvas: #0B0F1A;
+  --bg: #0B0F1A;
+  --card: #131A2A;
+  --card-2: #172033;
+  --tint: #1A2336;
+  --border: #232E45;
+  --border-2: #1D2739;
+  --chip: #1A2336;
+
+  --text: #E9EEF9;
+  --text-2: #9AABc7;
+  --text-3: #7C8BA8;
+  --text-label: #7C8BA8;
+
+  --primary: #4D9AFF;
+  --primary-hover: #6BAAFF;
+  --on-primary: #FFFFFF;
+  --primary-container: #16263F;
+  --on-primary-container: #7FB6FF;
+  --ring: rgba(77, 154, 255, .25);
+
+  --success-container: #10291D; --on-success: #4ADE80;
+  --warning-container: #2C2315; --on-warning: #FBBF6B;
+  --danger-container:  #2E1A1A; --on-danger:  #F87171;
+  --purple-container:  #221B38; --on-purple:  #A78BFA;
+  --cyan-container:    #10282F; --on-cyan:    #38CFE8;
+  --neutral-container: #1A2336; --on-neutral: #9AABC7;
+
+  --c1: #4D9AFF; --c2: #7FB6FF; --c3: #3C6FA8; --c4: #4ADE80; --c5: #FBBF6B; --c6: #A78BFA;
+  --chart-grid: #1E2839; --chart-track: #1E2839;
+
+  --card-shadow: 0 2px 12px rgba(0, 0, 0, .35);
+  --card-shadow-hover: 0 10px 28px rgba(0, 0, 0, .5);
+  --pop-shadow: 0 16px 44px rgba(0, 0, 0, .6);
+
+  --snack-bg: #E9EEF9;
+  --snack-text: #0B1437;
+  --scrim: rgba(2, 6, 16, .66);
+  --grad: linear-gradient(135deg, #3B9CFF 0%, #1B84FF 55%, #0E6BE0 100%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    --canvas: #0B0F1A; --bg: #0B0F1A; --card: #131A2A; --card-2: #172033;
+    --tint: #1A2336; --border: #232E45; --border-2: #1D2739; --chip: #1A2336;
+    --text: #E9EEF9; --text-2: #9AABC7; --text-3: #7C8BA8; --text-label: #7C8BA8;
+    --primary: #4D9AFF; --primary-hover: #6BAAFF; --on-primary: #FFFFFF;
+    --primary-container: #16263F; --on-primary-container: #7FB6FF; --ring: rgba(77,154,255,.25);
+    --success-container: #10291D; --on-success: #4ADE80;
+    --warning-container: #2C2315; --on-warning: #FBBF6B;
+    --danger-container:  #2E1A1A; --on-danger:  #F87171;
+    --purple-container:  #221B38; --on-purple:  #A78BFA;
+    --cyan-container:    #10282F; --on-cyan:    #38CFE8;
+    --neutral-container: #1A2336; --on-neutral: #9AABC7;
+    --c1: #4D9AFF; --c2: #7FB6FF; --c3: #3C6FA8; --c4: #4ADE80; --c5: #FBBF6B; --c6: #A78BFA;
+    --chart-grid: #1E2839; --chart-track: #1E2839;
+    --card-shadow: 0 2px 12px rgba(0,0,0,.35);
+    --card-shadow-hover: 0 10px 28px rgba(0,0,0,.5);
+    --pop-shadow: 0 16px 44px rgba(0,0,0,.6);
+    --snack-bg: #E9EEF9; --snack-text: #0B1437; --scrim: rgba(2,6,16,.66);
+  }
+}

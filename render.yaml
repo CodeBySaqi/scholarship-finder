@@ -1,0 +1,31 @@
+# Render blueprint — free web service + auto-deploy on every push.
+#
+# How it works: connect this repository in Render, and Render reads this file.
+# Every push to `main` builds and deploys. Pull requests get their own preview URL.
+#
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: scholarship-finder
+    runtime: node
+    plan: free                 # $0: 750 instance-hours/month, sleeps after 15 min idle
+    region: frankfurt          # closest free region to Pakistan/EU users
+    branch: main
+    autoDeploy: true           # ← the "push and it updates" part
+    buildCommand: npm ci && npm run build
+    startCommand: node server/index.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Secrets: set the values in the Render dashboard, never in git.
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      # Signs the session cookie. Render can generate it once for you.
+      - key: SF_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production

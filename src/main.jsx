@@ -1,0 +1,173 @@
+import React, { Component, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AuthProvider, useAuth } from './auth.jsx';
+import { ToastProvider, Loader, Icon } from './components/ui.jsx';
+import { SavedProvider } from './components/saved.jsx';
+import { applyTheme, readTheme } from './components/theme.js';
+import './styles/tokens.css';
+import './styles/app.css';
+import './styles/react.css';
+
+import Landing from './pages/Landing.jsx';
+import { Login, Signup, VerifyEmail, ForgotPassword, ResetSent, ResetPassword } from './pages/AuthPages.jsx';
+import Browse from './pages/Browse.jsx';
+import Dashboard from './pages/Dashboard.jsx';
+import Detail from './pages/Detail.jsx';
+import Matches from './pages/Matches.jsx';
+import Saved from './pages/Saved.jsx';
+import Profile from './pages/Profile.jsx';
+import Wizard from './pages/Wizard.jsx';
+import Settings from './pages/Settings.jsx';
+import { Terms, Privacy } from './pages/Legal.jsx';
+import AdminOverview from './pages/admin/Overview.jsx';
+import AdminListings from './pages/admin/Listings.jsx';
+import ListingForm from './pages/admin/ListingForm.jsx';
+import AdminQueue from './pages/admin/Queue.jsx';
+import AdminErrors from './pages/admin/Errors.jsx';
+import AiDraft from './pages/admin/AiDraft.jsx';
+import AdminUniversities from './pages/admin/Universities.jsx';
+import AdminUsers from './pages/admin/Users.jsx';
+import AdminLogs from './pages/admin/Logs.jsx';
+import NotFound from './pages/NotFound.jsx';
+
+function ScrollTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
+/* A crash must never leave a white page: show what broke and a way back. */
+class ErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { error: null }; }
+  static getDerivedStateFromError(error) { return { error }; }
+  componentDidCatch(error, info) { console.error('[ui] render failed:', error, info && info.componentStack); }
+  render() {
+    if (!this.state.error) return this.props.children;
+    return (
+      <div className="boot">
+        <div className="card" style={{ maxWidth: 520, textAlign: 'center' }}>
+          <Icon name="alert" size={28} style={{ margin: '0 auto 8px', color: 'var(--on-danger)' }} />
+          <h1 className="h2">This page could not be shown</h1>
+          <p className="cap" style={{ marginTop: 6 }}>
+            {String(this.state.error.message || this.state.error)}
+          </p>
+          <div className="row" style={{ justifyContent: 'center', gap: 8, marginTop: 14 }}>
+            <button className="btn btn--filled btn--sm" type="button" onClick={() => window.location.reload()}>Reload</button>
+            <a className="btn btn--outlined btn--sm" href="/dashboard">Go to dashboard</a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+function BootError({ kind, onRetry }) {
+  const offline = kind === 'offline';
+  return (
+    <div className="boot">
+      <div className="card" style={{ maxWidth: 520, textAlign: 'center' }}>
+        <Icon name={offline ? 'globe' : 'alert'} size={28} style={{ margin: '0 auto 8px', color: offline ? 'var(--on-warning)' : 'var(--on-danger)' }} />
+        <h1 className="h2">{offline ? 'Cannot reach the server' : 'The server had a problem'}</h1>
+        <p className="cap" style={{ marginTop: 6 }}>
+          {offline
+            ? 'Your connection or our server dropped the request, so the page could not load. Check your internet connection and try again.'
+            : 'The server answered with an error. Nothing was lost — try again in a moment; if it keeps happening, contact support.'}
+        </p>
+        <button className="btn btn--filled btn--sm" type="button" style={{ marginTop: 14 }} onClick={onRetry}>Try again</button>
+      </div>
+    </div>
+  );
+}
+
+function NoAdminAccess({ role, onSwitch }) {
+  return (
+    <div className="boot">
+      <div className="card" style={{ maxWidth: 560 }}>
+        <div className="row" style={{ gap: 10 }}>
+          <Icon name="shield" size={22} style={{ color: 'var(--on-warning)' }} />
+          <h1 className="h2">Admin access required</h1>
+        </div>
+        <p className="cap" style={{ marginTop: 8 }}>
+          You are signed in as <b className="w600">{role}</b>. The console is limited to administrators and
+          contributors. If you were given an admin account, sign out and sign back in with it.
+        </p>
+        <div className="row" style={{ gap: 8, marginTop: 14 }}>
+          <a className="btn btn--filled btn--sm" href="/dashboard">Back to your dashboard</a>
+          <button className="btn btn--outlined btn--sm" type="button" onClick={onSwitch}>Sign in as someone else</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Guard({ children, admin }) {
+  const { user, loading, bootError, logout, retryBoot } = useAuth();
+  const loc = useLocation();
+  if (loading) return <div className="boot"><Loader /></div>;
+  if (bootError) return <BootError kind={bootError} onRetry={retryBoot} />;
+  if (!user) return <Navigate to={'/login?next=' + encodeURIComponent(loc.pathname)} replace />;
+  if (admin && user.role !== 'admin' && user.role !== 'contributor') {
+    return <NoAdminAccess role={user.role} onSwitch={async () => { await logout(); window.location.assign('/login?next=' + encodeURIComponent(loc.pathname)); }} />;
+  }
+  return children;
+}
+
+function App() {
+  return (
+    <Routes>
+      {/* public */}
+      <Route path="/" element={<Landing />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
+
+      {/* auth */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-sent" element={<ResetSent />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
+      {/* student app */}
+      <Route path="/dashboard" element={<Guard><Dashboard /></Guard>} />
+      <Route path="/matches" element={<Guard><Matches /></Guard>} />
+      <Route path="/scholarships" element={<Guard><Browse kind="scholarship" /></Guard>} />
+      <Route path="/programs" element={<Guard><Browse kind="program" /></Guard>} />
+      <Route path="/scholarship/:id" element={<Guard><Detail kind="scholarship" /></Guard>} />
+      <Route path="/program/:id" element={<Guard><Detail kind="program" /></Guard>} />
+      <Route path="/saved" element={<Guard><Saved /></Guard>} />
+      <Route path="/profile" element={<Guard><Profile /></Guard>} />
+      <Route path="/wizard" element={<Guard><Wizard /></Guard>} />
+      <Route path="/settings" element={<Guard><Settings /></Guard>} />
+
+      {/* admin */}
+      <Route path="/admin" element={<Guard admin><AdminOverview /></Guard>} />
+      <Route path="/admin/listings" element={<Guard admin><AdminListings /></Guard>} />
+      <Route path="/admin/listings/new" element={<Guard admin><ListingForm /></Guard>} />
+      <Route path="/admin/listings/:id" element={<Guard admin><ListingForm /></Guard>} />
+      <Route path="/admin/queue" element={<Guard admin><AdminQueue /></Guard>} />
+      <Route path="/admin/errors" element={<Guard admin><AdminErrors /></Guard>} />
+      <Route path="/admin/ai-draft" element={<Guard admin><AiDraft /></Guard>} />
+      <Route path="/admin/universities" element={<Guard admin><AdminUniversities /></Guard>} />
+      <Route path="/admin/users" element={<Guard admin><AdminUsers /></Guard>} />
+      <Route path="/admin/logs" element={<Guard admin><AdminLogs /></Guard>} />
+
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
+
+applyTheme(readTheme());
+createRoot(document.getElementById('root')).render(
+  <BrowserRouter>
+    <ErrorBoundary><AuthProvider>
+      <ToastProvider>
+        <SavedProvider>
+          <ScrollTop />
+          <App />
+        </SavedProvider>
+      </ToastProvider>
+    </AuthProvider></ErrorBoundary>
+  </BrowserRouter>
+);
