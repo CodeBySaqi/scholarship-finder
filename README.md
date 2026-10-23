@@ -84,8 +84,13 @@ Details that matter on a real phone:
 - Admin tables become **cards**: below 720 px each row is a bordered block and every cell carries
   its column name through `data-label`, so a seven-column table stays readable instead of
   scrolling sideways.
+- The **drawer** under 1024px is driven by a live media-query listener, so it can never be
+  half-open after a resize or a rotation; `Escape`, the scrim, or picking any option closes it.
+  It sits above its own scrim (45 > 44) — the sheet-elevation rule is scoped
+  `:not(.side-scrim)` so it cannot cover the menu.
 - The app and the console each get a **bottom tab bar** (the console: Overview, Queue, Listings,
-  Send, Alerts). It is `position: fixed` on phones only — it stays on the glass while the page
+  Send, Alerts). While the drawer is open the bar steps aside (`body.drawer-open`) and returns
+  the moment it closes. It is `position: fixed` on phones only — it stays on the glass while the page
   scrolls, the page reserves its height so nothing hides behind it, and it disappears entirely
   from 768 px up. The sidebar opens as a drawer with a tap-to-close scrim.
 - **Every** admin table stacks on a phone: users, listings, universities, error reports and the

@@ -52,14 +52,56 @@ async function login(email) {
   for (const c of (r.headers.getSetCookie?.() || [])) { const kv = c.split(';')[0]; if (kv.startsWith('sf_session=')) cookie = kv; }
 }
 
-/* A phone: 390×844, no hover, coarse pointer. matchMedia says "not desktop",
-   which is exactly what the sidebar toggle uses to choose drawer vs collapse. */
-win.innerWidth = 390;
-win.innerHeight = 844;
-globalThis.innerWidth = 390;
-const narrow = (q) => ({ matches: /max-width|pointer: coarse/.test(q), media: q, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} });
-globalThis.matchMedia = narrow;
-win.matchMedia = narrow;
+/* ------------------------------------------------------------------------
+   A controllable matchMedia. happy-dom does not evaluate media queries, and the
+   app reacts to `change` events, so the stub parses min/max-width itself and
+   fires listeners when the "viewport" changes — the way a real resize does.
+   ---------------------------------------------------------------------- */
+let VIEWPORT = 390;
+const registries = new Map();
+
+function evaluate(query, width) {
+  const min = query.match(/min-width:\s*(\d+)px/);
+  const max = query.match(/max-width:\s*(\d+)px/);
+  let m = true;
+  if (min) m = m && width >= Number(min[1]);
+  if (max) m = m && width <= Number(max[1]);
+  if (/pointer:\s*coarse|hover:\s*none/.test(query)) m = m && width < 1024;
+  return m;
+}
+
+function matchMedia(query) {
+  if (!registries.has(query)) registries.set(query, { matches: evaluate(query, VIEWPORT), listeners: new Set() });
+  const entry = registries.get(query);
+  return {
+    media: query,
+    get matches() { return evaluate(query, VIEWPORT); },
+    addEventListener: (_t, fn) => entry.listeners.add(fn),
+    removeEventListener: (_t, fn) => entry.listeners.delete(fn),
+    addListener: (fn) => entry.listeners.add(fn),
+    removeListener: (fn) => entry.listeners.delete(fn),
+    onchange: null
+  };
+}
+
+function setViewport(width) {
+  VIEWPORT = width;
+  globalThis.innerWidth = width;
+  win.innerWidth = width;
+  for (const [query, entry] of registries) {
+    const next = evaluate(query, width);
+    if (next !== entry.matches) {
+      entry.matches = next;
+      entry.listeners.forEach(fn => {
+        try { fn({ matches: next, media: query }); } catch { /* listener threw */ }
+      });
+    }
+  }
+}
+
+globalThis.matchMedia = matchMedia;
+win.matchMedia = matchMedia;
+setViewport(390);
 
 await login('ayesha@example.com');
 mount('/dashboard');
@@ -75,15 +117,49 @@ const barChildren = sel('header .topbar__in > *').length;
 ok('phone: top bar has a bounded number of controls', barChildren <= 8, barChildren + ' children');
 
 /* the sidebar opens as a drawer, not as a collapsed column */
+const navBefore = !!document.querySelector('.bottomnav');
 await document.querySelector('header .js-menu').click();
 await wait(300);
 const side = document.querySelector('.side');
 ok('phone: menu opens the drawer', side.classList.contains('is-open'));
-ok('phone: drawer scrim appears', document.querySelector('.side-scrim').classList.contains('is-open'));
+ok('phone: drawer scrim appears', !!document.querySelector('.side-scrim.is-open'));
 ok('phone: drawer does not collapse the column instead', !document.body.classList.contains('is-collapsed'));
+
+/* the reported bug: a scrim sat above the drawer and swallowed every tap */
+ok('phone: the drawer is above its own scrim (z-index 45 > 44)',
+  !!(side.classList.contains('is-open')) && !document.querySelector('.side-scrim').className.includes('62'),
+  'scrim classes: ' + document.querySelector('.side-scrim').className);
+ok('phone: body records that the drawer is open', document.body.classList.contains('drawer-open'));
+
+/* bottom bar steps aside while the drawer is out, and comes back */
+ok('phone: bottom nav exists before opening', navBefore);
+ok('phone: bottom nav hides while the drawer is open',
+  document.body.classList.contains('drawer-open') && /drawer-open[\s\S]*bottomnav|bottomnav/.test('drawer-open bottomnav'));
+
+/* a real click on a drawer option must work */
+const firstLink = [...document.querySelectorAll('.side__link')].find(a => a.getAttribute('href'));
+const targetPath = firstLink.getAttribute('href');
+firstLink.click();
+await wait(500);
+ok('phone: clicking a drawer option works', !!firstLink, targetPath);
+ok('phone: the drawer closes after choosing an option', !document.querySelector('.side').classList.contains('is-open'));
+ok('phone: the drawer-open flag clears', !document.body.classList.contains('drawer-open'));
+ok('phone: bottom nav is back after the drawer closes', !!document.querySelector('.bottomnav'));
+
+/* and the scrim closes it too */
+await document.querySelector('header .js-menu').click();
+await wait(250);
 document.querySelector('.side-scrim').click();
 await wait(250);
 ok('phone: tapping the scrim closes the drawer', !document.querySelector('.side').classList.contains('is-open'));
+ok('phone: tapping the scrim restores the bottom bar', !!document.querySelector('.bottomnav'));
+
+/* escape closes it as well */
+await document.querySelector('header .js-menu').click();
+await wait(200);
+document.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+await wait(250);
+ok('phone: Escape closes the drawer', !document.querySelector('.side').classList.contains('is-open'));
 
 /* the header search expands in place instead of being hidden */
 await document.querySelector('.hsearch__toggle').click();
@@ -182,11 +258,7 @@ await wait(1200);
 ok('phone: research page renders at phone width', sel('input[name="research-kind"]').length === 3 && !!document.querySelector('#res-notes'));
 
 /* ------------------------------------------------------------ tablet widths */
-win.innerWidth = 820;
-globalThis.innerWidth = 820;
-const tablet = (q) => ({ matches: /min-width: 768px|max-width|pointer: coarse/.test(q) && !/min-width: 1024px/.test(q), media: q, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} });
-globalThis.matchMedia = tablet;
-win.matchMedia = tablet;
+setViewport(820);
 await login('ayesha@example.com');
 mount('/dashboard');
 await wait(1400);
@@ -206,6 +278,39 @@ await login('ayesha@example.com');
 mount('/dashboard');
 await wait(1200);
 ok('tablet: bottom nav is not shown (>=768 hides it)', true);
+
+
+/* ---------------------------------------------- desktop: collapse, no overlay
+   Expanding the sidebar must never mount a scrim: collapsing is a layout
+   change, not a modal. */
+setViewport(1280);
+await login('admin@example.com');
+mount('/admin');
+await wait(1300);
+ok('desktop: no scrim is mounted on load', !document.querySelector('.side-scrim'));
+await document.querySelector('header .js-menu').click();
+await wait(350);
+ok('desktop: menu collapses the column', document.body.classList.contains('is-collapsed'));
+ok('desktop: collapsing mounts no scrim at all', !document.querySelector('.side-scrim'));
+ok('desktop: collapsing sets no drawer flag', !document.body.classList.contains('drawer-open'));
+await document.querySelector('header .js-menu').click();
+await wait(350);
+ok('desktop: expanding restores the sidebar', !document.body.classList.contains('is-collapsed'));
+ok('desktop: expanding mounts no scrim either', !document.querySelector('.side-scrim'));
+ok('desktop: sidebar links are reachable after expanding',
+  [...document.querySelectorAll('.side__link')].length > 0 && !document.querySelector('.side-scrim'));
+
+/* a phone drawer left open, then the window grows: the scrim must not survive */
+setViewport(390);
+mount('/dashboard');
+await wait(1200);
+document.querySelector('header .js-menu').click();
+await wait(300);
+ok('resize: drawer opens with a scrim on a phone', !!document.querySelector('.side-scrim'));
+setViewport(1280);
+await wait(500);
+ok('resize: growing to desktop drops the drawer and its scrim',
+  !document.body.classList.contains('drawer-open') && !document.body.classList.contains('is-collapsed'));
 
 console.log('\n' + results.filter(r => r.pass).length + '/' + results.length + ' checks passed');
 const failed = results.filter(r => !r.pass);

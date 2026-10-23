@@ -69,7 +69,7 @@ ok('the page reserves space for the bar',
   /body\[data-shell=app\]\s*\.page/.test(phoneBody.replace(/"/g, '')) &&
   /padding-bottom:\s*calc\(84px/.test(phoneBody), compact(phoneBody).match(/body\[data-shell=app\][^{]*\{[^}]*\}/)?.[0] || '');
 ok('toasts sit above the bar', /\.toast-wrap\s*\{[^}]*bottom:\s*calc\(84px/.test(phoneBody));
-ok('an open sheet covers the bar', /\.scrim\.is-open\s*\{[^}]*z-index:\s*6\d/.test(phoneBody));
+ok('an open sheet covers the bar', /\.scrim\.is-open(:not\(\.side-scrim\))?\s*\{[^}]*z-index:\s*6\d/.test(phoneBody));
 ok('the bar sits below the drawer scrim (z-index 34 < 44)',
   /z-index:\s*34/.test(phoneBar) && /z-index:\s*44/.test(css));
 
@@ -86,6 +86,21 @@ ok('header search has a phone-only expanded state',
 ok('sheets become centred dialogs from 768px up',
   media(/min-width:\s*768px/).some(b => /\.scrim\s*\{[^}]*align-items:\s*center/.test(b.body)));
 ok('inputs are 16px on phones (no iOS zoom)', media(/max-width:\s*640px/).some(b => /font-size:\s*16px/.test(b.body)));
+
+
+/* ------------------------------------------- drawer vs scrim vs bottom bar
+   The bug this guards against: a rule that lifts any open .scrim to z-index 62
+   also lifted the sidebar scrim above the drawer (45), so the menu looked grey
+   and unclickable. The elevation rule must exclude the sidebar scrim. */
+const elevated = css.match(/\.scrim\.is-open[^{]*\{[^}]*z-index:\s*6\d/);
+ok('the sheet elevation rule excludes the sidebar scrim',
+  !!elevated && elevated[0].includes(':not(.side-scrim)'), elevated ? elevated[0].slice(0, 60) : 'no elevation rule found');
+ok('the drawer sits above its own scrim', /z-index:\s*45/.test(css) && /\.scrim\.side-scrim\s*\{[^}]*z-index:\s*44/.test(css));
+
+ok('the bottom bar hides while the drawer is open',
+  /body\.drawer-open \.bottomnav\s*\{[^}]*display:\s*none/.test(css));
+ok('that rule is scoped below the desktop breakpoint', /@media \(max-width: 1023px\)\{?[^@]*body\.drawer-open/.test(css) ||
+  media(/max-width:\s*1023px/).some(b => /drawer-open/.test(b.body)));
 
 console.log('\n' + results.filter(r => r.pass).length + '/' + results.length + ' stylesheet checks passed');
 process.exit(results.every(r => r.pass) ? 0 : 1);

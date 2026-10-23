@@ -47,29 +47,66 @@ function useShell(mode, page) {
   }, [mode, page]);
 }
 
-/* The sidebar has two different states: a drawer on narrow screens, a column
-   that collapses on wide ones. The top-bar button drives whichever applies,
-   and the wide-screen choice is remembered. */
+/* The sidebar has two states: a drawer under 1024px, a column that collapses
+   above it. State is resolved against a live media-query listener rather than a
+   one-off matchMedia() at click time, so a resize or a rotation can never leave
+   the drawer half-open. The two states are mutually exclusive. */
 function useSidebar() {
   const [collapsed, setCollapsed] = useState(() => {
     try { return localStorage.getItem('sf.sidebar') === 'collapsed'; } catch { return false; }
   });
   const [drawer, setDrawer] = useState(false);
+  const [wide, setWide] = useState(() => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches);
   const location = useLocation();
 
+  /* track the breakpoint continuously */
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const sync = (e) => setWide(e.matches);
+    setWide(mq.matches);
+    if (mq.addEventListener) mq.addEventListener('change', sync);
+    else if (mq.addListener) mq.addListener(sync);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener('change', sync);
+      else if (mq.removeListener) mq.removeListener(sync);
+    };
+  }, []);
+
+  /* a drawer is a phone thing: at desktop width it must never stay open */
+  useEffect(() => { if (wide) setDrawer(false); }, [wide]);
+
+  /* navigating always closes the drawer */
   useEffect(() => { setDrawer(false); }, [location.pathname]);
 
+  /* escape closes it, like every other overlay */
   useEffect(() => {
-    document.body.classList.toggle('is-collapsed', collapsed);
+    if (!drawer) return;
+    const onKey = (e) => { if (e.key === 'Escape') setDrawer(false); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [drawer]);
+
+  useEffect(() => {
+    document.body.classList.toggle('is-collapsed', collapsed && wide);
     try { localStorage.setItem('sf.sidebar', collapsed ? 'collapsed' : 'open'); } catch { /* private mode */ }
     return () => document.body.classList.remove('is-collapsed');
-  }, [collapsed]);
+  }, [collapsed, wide]);
+
+  /* the bottom bar steps aside while the drawer is open */
+  useEffect(() => {
+    document.body.classList.toggle('drawer-open', drawer && !wide);
+    return () => document.body.classList.remove('drawer-open');
+  }, [drawer, wide]);
 
   return {
-    collapsed, drawer, setDrawer,
+    collapsed: collapsed && wide,
+    drawer: drawer && !wide,
+    wide,
+    setDrawer,
     toggle: () => {
-      const wide = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches;
-      if (wide) setCollapsed(c => !c); else setDrawer(d => !d);
+      if (wide) { setDrawer(false); setCollapsed(c => !c); }
+      else { setCollapsed(false); setDrawer(d => !d); }
     }
   };
 }
@@ -182,7 +219,7 @@ function Sidebar({ mode, counts, drawer, collapsed, onClose }) {
           </div>
         </div>
       </aside>
-      <div className={'scrim side-scrim' + (drawer ? ' is-open' : '')} onClick={onClose} />
+      {drawer ? <div className="scrim side-scrim is-open" onClick={onClose} aria-hidden="true" /> : null}
     </>
   );
 }

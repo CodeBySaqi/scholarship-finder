@@ -65,8 +65,19 @@ breakpoint, is declared after the sticky base rule (so it wins), the bar is `dis
 covers it (**17/17**). Error reports and the audit log were also converted to stacked cards, so
 **every** admin table stacks on a phone (asserted: zero plain tables).
 
+**Round 4b — the grey-overlay regression.** A rule added for sheets
+(`.scrim.is-open { z-index: 62 }`) also matched the *sidebar* scrim, lifting it above the drawer
+(45) so the menu looked grey and no option could be tapped. Fixed by scoping the elevation rule to
+`:not(.side-scrim)`, mounting the sidebar scrim only while the drawer is open, driving `wide` from
+a live media-query listener, and making collapse/drawer mutually exclusive. The bottom bar now
+hides while the drawer is open (`body.drawer-open`) and returns when it closes.
+
+The test harness grew a real `matchMedia` stub that parses min/max-width and fires `change` on
+resize, so a phone → desktop resize is an actual test rather than an assumption.
+
 Regression suites re-run after the change: api-matrix 83/83, feature-logic 114/114,
-data-integrity 20/20, dom-smoke 37/37, features-admin 69/69, responsive 39/39, responsive-css 17/17.
+data-integrity 20/20, dom-smoke 37/37, features-admin 69/69, **responsive 58/58**,
+**responsive-css 21/21**.
 
 ## Identities exercised
 

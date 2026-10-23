@@ -362,8 +362,10 @@ body { overflow-x: hidden; }
   body[data-shell="admin"] .page { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
   /* toasts float above the bar instead of behind it */
   .toast-wrap { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
-  /* a sheet that slides up should cover the bar, not sit behind it */
-  .scrim.is-open { z-index: 62; }
+  /* a sheet that slides up should cover the bar, not sit behind it.
+     :not(.side-scrim) matters — without it this rule also lifted the *sidebar*
+     scrim above the drawer (z 62 vs 45) and swallowed every tap on the menu. */
+  .scrim.is-open:not(.side-scrim) { z-index: 62; }
 }
 
 /* landscape phones: a 58px bar plus a sheet leaves almost nothing, so trim it */
@@ -374,3 +376,14 @@ body { overflow-x: hidden; }
   body[data-shell="app"] .page,
   body[data-shell="admin"] .page { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
 }
+
+/* ---------------------------------------------- drawer open on a phone
+   While the sidebar drawer is out, the bottom bar is not shown: the drawer is
+   the navigation at that moment, and two navs at once is clutter. It comes back
+   the moment the drawer closes. */
+@media (max-width: 1023px) {
+  body.drawer-open .bottomnav { display: none; }
+}
+/* and a hard guarantee that the drawer is always above its own scrim */
+.side { z-index: 45; }
+.scrim.side-scrim { z-index: 44; }
