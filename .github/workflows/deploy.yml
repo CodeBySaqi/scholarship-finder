@@ -1,0 +1,40 @@
+name: deploy
+# Builds on push to main.
+#
+# Render installs its GitHub webhook when a service is connected through the
+# dashboard. This service was created through the Render API, so no webhook
+# exists and `autoDeploy` alone does nothing. Until the repo is connected in the
+# Render dashboard, this workflow is the webhook: it asks Render to build the
+# commit that was just pushed.
+#
+# Needs one repository secret: RENDER_API_KEY (Render Dashboard -> Account
+# Settings -> API Keys). Without it the job fails loudly instead of silently
+# doing nothing. Once the GitHub repo is connected in Render, delete this file.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger the Render deploy
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          SERVICE_ID: srv-dbdk3559fdbs73bdghrg
+          COMMIT: ${{ github.sha }}
+        run: |
+          if [ -z "$RENDER_API_KEY" ]; then
+            echo "::error::RENDER_API_KEY secret is missing - add it in Settings > Secrets and variables > Actions"
+            exit 1
+          fi
+          code=$(curl -s -o /tmp/d.json -w "%{http_code}" --max-time 60 \
+            -X POST "https://api.render.com/v1/services/$SERVICE_ID/deploys" \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"commitId\":\"$COMMIT\",\"clearCache\":\"do_not_clear\"}")
+          echo "HTTP $code"; cat /tmp/d.json
+          [ "$code" = "201" ] || [ "$code" = "200" ]
