@@ -42,21 +42,22 @@ Postgres (row `key = main`, `updated_at` moves on every write), and `/api/health
 ### Auto-deploy on push — one step left for you
 
 The service was created through the Render API, which does **not** install Render's GitHub
-webhook (`autoDeploy: yes` is set, but nothing fires on push; verified: repo has 0 webhooks).
-Two ways to close that gap, pick one:
+webhook (verified: the repo had 0 webhooks), so `autoDeploy: yes` alone does not fire on push.
+`.github/workflows/deploy.yml` fills that gap, but it needs one credential on the GitHub side:
 
-1. **Connect the repo in the Render dashboard** (recommended, native):
-   Render → `scholarship-finder` → **Settings → Build & Deploy → Connect Repo** →
-   `CodeBySaqi/scholarship-finder`, branch `main`. This installs the webhook and turns on real
-   push-to-deploy. Afterwards `.github/workflows/deploy.yml` is redundant — delete it.
-2. **Add the Actions secret** (keeps the workflow as the webhook):
-   GitHub repo → **Settings → Secrets and variables → Actions → New repository secret**,
-   name `RENDER_API_KEY`, value = your Render API key. Every push to `main` then calls the
-   Render deploy API for that commit.
+**Add one repository secret** — GitHub repo → **Settings → Secrets and variables → Actions →
+New repository secret**, name `RENDER_DEPLOY_HOOK`, value = the service's Deploy Hook URL
+(Render → `scholarship-finder` → Settings → **Deploy Hook**). Every push to `main` then
+deploys production in about a minute. `RENDER_API_KEY` also works as a fallback name.
 
-Until one of those is done, a push alone will not rebuild — trigger a deploy with
-`bash tools/deploy-render.sh` or from the Render dashboard. The live service is current with
-`main` as of commit `b337991`.
+The hook URL is a credential — it is deliberately **not** stored in this repo.
+
+Prefer the native path? Render → `scholarship-finder` → **Settings → Build & Deploy →
+Connect Repo** → `CodeBySaqi/scholarship-finder`, branch `main`. That installs the webhook and
+makes deploys work with no GitHub Actions at all; delete `.github/workflows/deploy.yml` after.
+
+Until one of those is done, trigger a deploy with the hook (`curl -X POST "$RENDER_DEPLOY_HOOK"`),
+`bash tools/deploy-render.sh`, or the Render dashboard. Live service tracks `main`.
 
 ---
 
