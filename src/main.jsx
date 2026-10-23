@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AuthProvider, useAuth } from './auth.jsx';
 import { ToastProvider, Loader, Icon } from './components/ui.jsx';
 import { SavedProvider } from './components/saved.jsx';
+import { NotificationsProvider } from './components/notifications.jsx';
 import { applyTheme, readTheme } from './components/theme.js';
 import './styles/tokens.css';
 import './styles/app.css';
@@ -29,6 +30,9 @@ import AiDraft from './pages/admin/AiDraft.jsx';
 import AdminUniversities from './pages/admin/Universities.jsx';
 import AdminUsers from './pages/admin/Users.jsx';
 import AdminLogs from './pages/admin/Logs.jsx';
+import Broadcast from './pages/admin/Broadcast.jsx';
+import Research from './pages/admin/Research.jsx';
+import Notifications from './pages/Notifications.jsx';
 import NotFound from './pages/NotFound.jsx';
 
 function ScrollTop() {
@@ -140,6 +144,7 @@ function App() {
       <Route path="/profile" element={<Guard><Profile /></Guard>} />
       <Route path="/wizard" element={<Guard><Wizard /></Guard>} />
       <Route path="/settings" element={<Guard><Settings /></Guard>} />
+      <Route path="/notifications" element={<Guard><Notifications /></Guard>} />
 
       {/* admin */}
       <Route path="/admin" element={<Guard admin><AdminOverview /></Guard>} />
@@ -152,6 +157,8 @@ function App() {
       <Route path="/admin/universities" element={<Guard admin><AdminUniversities /></Guard>} />
       <Route path="/admin/users" element={<Guard admin><AdminUsers /></Guard>} />
       <Route path="/admin/logs" element={<Guard admin><AdminLogs /></Guard>} />
+      <Route path="/admin/broadcast" element={<Guard admin><Broadcast /></Guard>} />
+      <Route path="/admin/research" element={<Guard admin><Research /></Guard>} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
@@ -164,8 +171,10 @@ createRoot(document.getElementById('root')).render(
     <ErrorBoundary><AuthProvider>
       <ToastProvider>
         <SavedProvider>
-          <ScrollTop />
-          <App />
+          <NotificationsProvider>
+            <ScrollTop />
+            <App />
+          </NotificationsProvider>
         </SavedProvider>
       </ToastProvider>
     </AuthProvider></ErrorBoundary>

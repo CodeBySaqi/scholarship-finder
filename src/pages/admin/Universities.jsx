@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AdminShell } from '../../components/Shell.jsx';
-import { Loader, Btn, Field, useAsync, useToast, LoadError } from '../../components/ui.jsx';
+import { Icon, Loader, Btn, Field, Notice, useAsync, useToast, LoadError } from '../../components/ui.jsx';
 import { Sheet } from '../../components/Sheet.jsx';
 import { api } from '../../api.js';
 import { useAuth } from '../../auth.jsx';
@@ -12,18 +12,44 @@ export default function AdminUniversities() {
   const toast = useToast();
   const { data, loading, reload, error } = useAsync(() => api.get('/admin/universities'), []);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: '', city: '', state: '', type: 'university', websiteUrl: '', uniAssistMember: false });
+  const [editId, setEditId] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const blank = { name: '', city: '', state: '', type: 'university', websiteUrl: '', uniAssistMember: false };
+  const [form, setForm] = useState(blank);
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const unis = (data && data.universities) || [];
+  const isAdmin = user?.role === 'admin';
 
   async function save() {
+    setBusy(true);
     try {
-      await api.post('/admin/universities', form);
-      setOpen(false);
-      setForm({ name: '', city: '', state: '', type: 'university', websiteUrl: '', uniAssistMember: false });
-      toast('University added and logged');
+      if (editId) {
+        await api.put('/admin/universities/' + editId, form);
+        toast('University updated');
+      } else {
+        await api.post('/admin/universities', form);
+        toast('University added and logged');
+      }
+      setOpen(false); setEditId(null); setForm(blank);
       reload();
     } catch (e) { toast(e.message); }
+    finally { setBusy(false); }
+  }
+  function openEdit(u) {
+    setEditId(u.id);
+    setForm({ name: u.name, city: u.city, state: u.state === '—' ? '' : u.state, type: u.type, websiteUrl: u.websiteUrl, uniAssistMember: !!u.uniAssistMember });
+    setOpen(true);
+  }
+  async function remove(u) {
+    setBusy(true);
+    try {
+      await api.del('/admin/universities/' + u.id);
+      toast(u.name + ' deleted');
+      setConfirmDelete(null);
+      reload();
+    } catch (e) { toast(e.message); }
+    finally { setBusy(false); }
   }
 
   if (error) return <AdminShell page="admin-universities"><LoadError error={error} onRetry={reload} what="universities" /></AdminShell>;
@@ -44,7 +70,7 @@ export default function AdminUniversities() {
       <div className="card">
         <div className="table-wrap">
           <table className="table">
-            <thead><tr><th>University</th><th>City</th><th>Type</th><th>Funding</th><th>uni-assist</th><th>Programs</th><th>Website</th></tr></thead>
+            <thead><tr><th>University</th><th>City</th><th>Type</th><th>Funding</th><th>uni-assist</th><th>Programs</th><th style={{ textAlign: 'right' }}>Actions</th></tr></thead>
             <tbody>
               {loading && <tr><td colSpan={7}><Loader /></td></tr>}
               {unis.map(u => (
@@ -55,7 +81,14 @@ export default function AdminUniversities() {
                   <td className="cap">{u.isPublic ? 'Public' : 'Private'}</td>
                   <td>{u.uniAssistMember ? <span className="tag tag--ok">member</span> : <span className="tag tag--out">direct</span>}</td>
                   <td className="cap">{u.programs ?? 0}</td>
-                  <td><a className="btn btn--text btn--sm" href={u.websiteUrl} target="_blank" rel="noopener">Open</a></td>
+                  <td>
+                    <div className="row" style={{ justifyContent: 'flex-end', gap: 2 }}>
+                      <a className="iconbtn" href={u.websiteUrl} target="_blank" rel="noopener" aria-label={'Open the website of ' + u.name} title="Open website"><Icon name="external" /></a>
+                      {isAdmin && <button className="iconbtn" type="button" aria-label={'Edit ' + u.name} title="Edit" onClick={() => openEdit(u)}><Icon name="edit" /></button>}
+                      {isAdmin && <button className="iconbtn" type="button" aria-label={'Delete ' + u.name} title="Delete" style={{ color: 'var(--on-danger)' }}
+                        onClick={() => setConfirmDelete(u)}><Icon name="trash" /></button>}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -64,10 +97,10 @@ export default function AdminUniversities() {
         <p className="cap">Name and city must be unique together, so duplicate records fail at the database level.</p>
       </div>
 
-      <Sheet open={open} title="Add a university" onClose={() => setOpen(false)}
+      <Sheet open={open} title={editId ? 'Edit university' : 'Add a university'} onClose={() => { setOpen(false); setEditId(null); }}
         footer={<div className="row" style={{ justifyContent: 'flex-end', gap: 8, marginTop: 10 }}>
-          <button className="btn btn--text" type="button" onClick={() => setOpen(false)}>Cancel</button>
-          <button className="btn btn--filled" type="button" onClick={save} disabled={user?.role !== 'admin'}>Save university</button>
+          <button className="btn btn--text" type="button" onClick={() => { setOpen(false); setEditId(null); }}>Cancel</button>
+          <button className="btn btn--filled" type="button" onClick={save} disabled={user?.role !== 'admin' || busy}>{busy ? 'Saving…' : 'Save university'}</button>
         </div>}>
         <Field label="Name" htmlFor="u-name"><input className="input" id="u-name" value={form.name} onChange={e => set('name', e.target.value)} /></Field>
         <div className="g2">
@@ -86,6 +119,25 @@ export default function AdminUniversities() {
             onClick={() => set('uniAssistMember', !form.uniAssistMember)} />
         </div>
         <p className="cap">Adding a university is an admin action and is written to the audit log.</p>
+      </Sheet>
+
+      <Sheet open={!!confirmDelete} title="Delete this university?" onClose={() => setConfirmDelete(null)}
+        footer={<div className="row" style={{ justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
+          <button className="btn btn--text" type="button" onClick={() => setConfirmDelete(null)}>Cancel</button>
+          <button className="btn btn--danger" type="button" disabled={busy} onClick={() => remove(confirmDelete)}>{busy ? 'Deleting…' : 'Delete'}</button>
+        </div>}>
+        {confirmDelete && (
+          <div className="col" style={{ gap: 10 }}>
+            <Notice tone="danger" icon="alert">
+              <b>{confirmDelete.name}</b> in {confirmDelete.city} will be removed.
+            </Notice>
+            <p className="cap">
+              {(confirmDelete.programs || 0) > 0
+                ? 'This university still has ' + confirmDelete.programs + ' program(s) pointing at it. Move or delete those first — the server refuses to orphan them.'
+                : 'Nothing points at this record, so it can go.'}
+            </p>
+          </div>
+        )}
       </Sheet>
     </AdminShell>
   );

@@ -15,6 +15,36 @@ seeded from the real data set (`server/lib/reference.js`), fresh browser context
 | `audit/flows.mjs` — core flows | signup → verify → dashboard, save/note, publish, AI draft, reports, dark theme | 19 / 19 |
 | `audit/failure-modes.mjs` — no blank pages | every page with its own endpoint failing (500 and unreachable), API down at boot, missing id, expired session | 75 / 75 |
 
+## Round 3 — notifications, admin CRUD, research, dark mode (2026-10-23)
+
+Added: a notification system shared by every role, full admin management of users / listings /
+universities, a broadcast composer, an AI research agent with admin-only settings, a working
+sidebar collapse, a working header search, and the removal of the demo controller, the
+"every screen in this app" sitemap and the admin-console footer link.
+
+| Suite | What it proves | Result |
+| --- | --- | --- |
+| `audit/api-matrix.mjs` | identity × endpoint matrix still holds | 83 / 83 |
+| `audit/feature-logic.mjs` | matching, publish gate, freshness unchanged | 114 / 114 |
+| `audit/data-integrity.mjs` | no shared, orphaned or misattributed rows | 20 / 20 |
+| `audit/dom-smoke.mjs` | 37 route × role combinations render without crashing | 37 / 37 |
+| `audit/features-admin.mjs` | notifications, admin CRUD, broadcast, research, settings visibility, search | 69 / 69 |
+
+Run them with `./audit/run-dom.sh smoke` and `./audit/run-dom.sh features` (needs `happy-dom`;
+the harness bundles the real components, so it exercises React, the router and the live API).
+
+What the new suites check, in plain terms:
+
+- a notification opens, shows its full body, and is marked read **on the server**, not just in the list
+- the bell badge matches the server's unread count, and "mark all read" clears it
+- a banned account is refused at sign-in and gets an "Account updated" notification when the ban is lifted
+- an admin edit reaches the database; a student and a contributor never see the Site & AI tab
+- the broadcast composer refuses an empty title, an empty body, or no recipients, and records who received it
+- the research agent fills a form from pasted text (title, deadline, CGPA, IELTS) and saves it as an
+  unpublished draft; the provider badge says `extract` when no key is configured and names the model when one is
+- the header search filters the catalogue at `/scholarships?q=` / `/programs?q=` and offers the other collection
+
+
 ## Identities exercised
 
 | Identity | Reaches | Must never reach |

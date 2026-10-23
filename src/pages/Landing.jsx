@@ -11,12 +11,6 @@ const STEPS = [
   { n: '03', icon: 'bookmark', tone: 'tone-amber', t: 'Track and apply', d: 'Save the shortlist, watch deadlines, and confirm on the provider’s own page.' }
 ];
 
-const SITEMAP = [
-  ['Public', [['/', 'Landing'], ['/scholarships', 'Browse scholarships'], ['/programs', 'Browse programs'], ['/privacy', 'Privacy'], ['/terms', 'Terms']]],
-  ['Account', [['/signup', 'Create account'], ['/login', 'Log in'], ['/verify-email', 'Verify email'], ['/forgot-password', 'Forgot password'], ['/wizard', 'Profile wizard']]],
-  ['Student app', [['/dashboard', 'Dashboard'], ['/matches', 'Matches'], ['/saved', 'Saved'], ['/profile', 'Profile'], ['/settings', 'Settings']]],
-  ['Admin', [['/admin', 'Overview'], ['/admin/listings', 'Scholarships & programs'], ['/admin/ai-draft', 'AI draft review'], ['/admin/universities', 'Universities'], ['/admin/queue', 'Review queue'], ['/admin/errors', 'Error reports'], ['/admin/users', 'Users & roles'], ['/admin/logs', 'Audit log']]],
-];
 
 export default function Landing() {
   const { data, loading, error, reload } = useAsync(() => api.get('/public/stats'), []);
@@ -184,35 +178,22 @@ export default function Landing() {
         </div>
       </div>
 
-      <section id="pages" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <div className="phead">
-          <div><h2 className="h1" style={{ fontSize: 22 }}>Every screen in this app</h2>
-            <p className="cap">Each feature has its own page — open any of them.</p></div>
-        </div>
-        <div className="sitemap">
-          {SITEMAP.map(([label, items]) => (
-            <div className="card" style={{ gap: 8 }} key={label}>
-              <div className="row sp"><div className="h3">{label}</div><span className="tag tag--out">{items.length}</span></div>
-              {items.map(([to, text]) => (
-                <Link key={to} to={to}><span>{text}</span><Icon name="chevron" /></Link>
-              ))}
-            </div>
-          ))}
-        </div>
-      </section>
-
       <footer className="landing-foot">
         <div>
           <Link className="brand" to="/"><span className="brand__mark"><Icon name="cap" /></span>
             <span className="brand__name">Scholarship Finder</span></Link>
-          <p className="cap" style={{ marginTop: 8, maxWidth: '40ch' }}>A working React + Node build: real accounts, real saving, and an admin console with a two-person publish gate.</p>
+          <p className="cap" style={{ marginTop: 8, maxWidth: '46ch' }}>
+            Built for Pakistani students applying to Germany: we check every published minimum — CGPA, IELTS, degree
+            route, age, APS — against your profile, tell you exactly what is still missing, and show the date each listing
+            was last verified against the provider's own page. Free, with no paid ranking and no promises about selection.
+          </p>
         </div>
         <nav aria-label="Product"><b className="h3" style={{ color: 'var(--text)' }}>Product</b>
           <Link to="/scholarships">Scholarships</Link><Link to="/programs">German programs</Link><Link to="/matches">Matches</Link><Link to="/saved">Saved list</Link></nav>
         <nav aria-label="Account"><b className="h3" style={{ color: 'var(--text)' }}>Account</b>
           <Link to="/signup">Create account</Link><Link to="/login">Log in</Link><Link to="/profile">Profile</Link><Link to="/settings">Settings</Link></nav>
-        <nav aria-label="Legal"><b className="h3" style={{ color: 'var(--text)' }}>Legal &amp; system</b>
-          <Link to="/privacy">Privacy</Link><Link to="/terms">Terms</Link><Link to="/admin">Admin console</Link></nav>
+        <nav aria-label="Legal"><b className="h3" style={{ color: 'var(--text)' }}>Legal</b>
+          <Link to="/privacy">Privacy</Link><Link to="/terms">Terms</Link></nav>
       </footer>
       <Disclaimer />
     </PublicShell>

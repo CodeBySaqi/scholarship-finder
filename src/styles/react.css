@@ -40,3 +40,95 @@ body > #root { display: block; }
 /* a <label> inside `.check` must look exactly like the old <span> */
 .check label { font-size: 13px; color: var(--text-2); cursor: pointer; }
 .check label a { color: var(--link); }
+
+/* ==========================================================================
+   Notifications, sidebar collapse, header search — added with the admin
+   tooling. Only new selectors: nothing above this line was restyled.
+   ========================================================================== */
+
+/* ------------------------------------------------------------ header search */
+.searchpill--form { display: none; padding: 0 10px 0 14px; gap: 8px; }
+@media (min-width: 768px) { .searchpill--form { display: flex; } }
+.searchpill--form input {
+  flex: 1; min-width: 0; border: 0; outline: 0; background: transparent;
+  font: inherit; font-size: 13px; color: var(--text); height: 100%;
+}
+.searchpill--form input::placeholder { color: var(--text-3); }
+.searchpill--form:focus-within { border-color: var(--border); background: var(--card); box-shadow: 0 0 0 4px var(--ring); }
+.searchpill__clear { border: 0; background: transparent; color: var(--text-3); display: grid; place-items: center; cursor: pointer; padding: 2px; border-radius: 999px; }
+.searchpill__clear:hover { color: var(--text); background: var(--tint); }
+.searchpill__clear .ic { width: 15px; height: 15px; }
+
+/* -------------------------------------------------------------- the bell */
+.notif { position: relative; display: flex; }
+.notif__btn { position: relative; }
+.notif__count {
+  position: absolute; top: 4px; right: 4px; min-width: 17px; height: 17px; padding: 0 4px;
+  border-radius: 999px; background: var(--danger-container); color: var(--on-danger);
+  font-size: 10px; font-weight: 700; line-height: 17px; text-align: center;
+  box-shadow: 0 0 0 2px var(--canvas);
+}
+.notif__pop {
+  position: absolute; right: 0; top: calc(100% + 10px); z-index: 60;
+  width: min(380px, calc(100vw - 28px));
+  background: var(--card); border-radius: var(--r-card); box-shadow: var(--pop-shadow);
+  border: 1px solid var(--border); overflow: hidden;
+  display: flex; flex-direction: column; animation: fadein 140ms var(--ease) both;
+}
+@media (max-width: 560px) { .notif__pop { position: fixed; left: 12px; right: 12px; top: 72px; width: auto; } }
+.notif__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px 10px; }
+.notif__head b { display: block; font-size: 14px; }
+.notif__head .cap { display: block; font-size: 12px; }
+.notif__list { list-style: none; margin: 0; padding: 0; max-height: 340px; overflow: auto; }
+.notif__item {
+  display: flex; align-items: flex-start; gap: 10px; width: 100%; text-align: left;
+  padding: 10px 16px; border: 0; background: transparent; cursor: pointer;
+  border-top: 1px solid var(--border-2);
+}
+.notif__item:hover { background: var(--tint); }
+.notif__item.is-unread { background: color-mix(in srgb, var(--primary-container) 45%, var(--card)); }
+.notif__text { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.notif__title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.35; }
+.notif__text .cap { font-size: 11px; }
+.notif__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex: none; margin-top: 6px; }
+.notif__empty { display: flex; align-items: center; gap: 10px; padding: 18px 16px; color: var(--text-3); }
+.notif__empty .ic { width: 20px; height: 20px; }
+.notif__all {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-top: 1px solid var(--border-2);
+  font-size: 13px; font-weight: 600; color: var(--primary); background: var(--card-2);
+}
+.notif__all .ic { width: 16px; height: 16px; transform: rotate(-90deg); }
+
+/* ------------------------------------------------------- notifications page */
+.notif-page { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.notif-row {
+  display: flex; align-items: flex-start; gap: 12px; width: 100%; text-align: left;
+  padding: 14px 4px; border: 0; border-bottom: 1px solid var(--border-2); background: transparent; cursor: pointer;
+}
+.notif-row:last-child { border-bottom: 0; }
+.notif-row:hover { background: var(--tint); border-radius: var(--r-inner); }
+.notif-row.is-unread { background: color-mix(in srgb, var(--primary-container) 38%, transparent); border-radius: var(--r-inner); }
+.notif-row__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.notif-row__title { font-size: 14px; font-weight: 600; color: var(--text); }
+.notif-row.is-unread .notif-row__title { font-weight: 700; }
+.notif-row__body { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.notif-row__meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
+
+/* --------------------------------------------------------- recipient picker */
+.picklist { max-height: 260px; overflow: auto; display: flex; flex-direction: column; gap: 2px; }
+.picklist .check { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: var(--r-inner); }
+.picklist .check:hover { background: var(--tint); }
+.picklist .check .grow { display: flex; flex-direction: column; }
+.picklist .check .cap { font-size: 11px; }
+
+/* ------------------------------------------------------------ sidebar collapse
+   At >=1024px the sidebar is a column; collapsing it removes the page padding
+   that reserves space for it and slides the column out. Below that it is a
+   drawer, driven by .is-open. The same button drives both. */
+@media (min-width: 1024px) {
+  body.is-collapsed[data-shell="app"],
+  body.is-collapsed[data-shell="admin"] { padding-left: 0; }
+  body.is-collapsed .side { transform: translateX(calc(-100% - 24px)); }
+  body.is-collapsed .side + .side-scrim { display: none; }
+}

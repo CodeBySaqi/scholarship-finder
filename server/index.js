@@ -11,6 +11,8 @@ import { fileURLToPath } from 'node:url';
 import { db, persist, nextId, log, initStore, storeInfo, closeStore } from './lib/store.js';
 import { hashPassword, verifyPassword, signToken, readToken, parseCookies, COOKIE } from './lib/auth.js';
 import { Match, resultsFor, matchOne, safeMatchOne, safeResultsFor, completeness } from './lib/matching.js';
+import { ensureCollections, addNotification, notifyUsers, listFor, unreadCount, summary as notifySummary, CATEGORIES } from './lib/notify.js';
+import { readSettings, publicSettings, writeSettings, runResearch, SETTINGS_DEFAULTS } from './lib/research.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -219,6 +221,15 @@ app.post('/api/auth/signup', (req, res) => {
     fullName: user.displayName, firstName: user.displayName.split(' ')[0],
     email: user.email, nationality: 'PK', completenessPct: 0, targets: []
   };
+  ensureCollections(d);
+  addNotification(d, {
+    userId: user.id,
+    title: 'Welcome to ' + (readSettings(d).siteName || 'Scholarship Finder'),
+    body: 'Your account is ready. Complete your profile and every listing will show the requirements you meet and the ones you still need. Nothing here is a promise of selection — the provider decides.',
+    category: 'system',
+    link: '/wizard',
+    createdBy: 'system'
+  });
   persist();
   // the prototype has no mail server: the verify link is returned so the flow is walkable
   res.json({ user: pub(user), verifyToken: user.verifyToken, verifyUrl: '/verify-email?token=' + user.verifyToken });
@@ -447,6 +458,48 @@ app.put('/api/settings', requireUser, (req, res) => {
   d.settings[req.user.id] = Object.assign({}, d.settings[req.user.id] || {}, req.body || {});
   persist();
   res.json({ settings: d.settings[req.user.id] });
+});
+
+
+/* ========================================================== NOTIFICATIONS
+   Everyone gets the same four endpoints; the page and the bell are shared by
+   students, contributors and admins so there is one behaviour to reason about. */
+app.get('/api/notifications', requireUser, (req, res) => {
+  const d = db();
+  ensureCollections(d);
+  const limit = Math.min(Number(req.query.limit) || 50, 200);
+  res.json(notifySummary(d, req.user.id));
+});
+
+app.post('/api/notifications/read-all', requireUser, (req, res) => {
+  const d = db();
+  const at = new Date().toISOString();
+  let changed = 0;
+  d.notifications.forEach(n => {
+    if (n.userId === req.user.id && !n.readAt) { n.readAt = at; changed++; }
+  });
+  if (changed) persist();
+  res.json({ marked: changed, unread: unreadCount(d, req.user.id) });
+});
+
+app.post('/api/notifications/:id/read', requireUser, (req, res) => {
+  const d = db();
+  const n = d.notifications.find(x => x.id === req.params.id);
+  /* someone else's notification is a 404, not a 403: it does not exist for you */
+  if (!n || n.userId !== req.user.id) return res.status(404).json({ error: 'Notification not found' });
+  if (!n.readAt) {
+    n.readAt = new Date().toISOString();
+    persist();
+  }
+  res.json({ notification: n, unread: unreadCount(d, req.user.id) });
+});
+
+app.delete('/api/notifications/:id', requireUser, (req, res) => {
+  const d = db();
+  const before = d.notifications.length;
+  d.notifications = d.notifications.filter(n => !(n.id === req.params.id && n.userId === req.user.id));
+  if (before !== d.notifications.length) persist();
+  res.json({ removed: before - d.notifications.length, unread: unreadCount(d, req.user.id) });
 });
 
 /* ================================================================ REPORTS */
@@ -795,26 +848,268 @@ app.get('/api/admin/users', requireAdmin, (req, res) => {
     })
   });
 });
+app.get('/api/admin/users/:id', requireAdmin, (req, res) => {
+  const d = db();
+  const u = d.users.find(x => x.id === req.params.id);
+  if (!u) return res.status(404).json({ error: 'User not found' });
+  const p = d.profiles[u.id] || {};
+  const saved = d.saved.filter(s => s.userId === u.id);
+  const logs = d.logs.filter(l => String(l.adminId || '').toLowerCase() === String(u.email || '').toLowerCase()).slice(0, 12);
+  res.json({
+    user: {
+      ...pub(u),
+      createdAt: u.createdAt || null,
+      lastLogin: u.lastLogin || null,
+      passwordChangedAt: u.passwordChangedAt || null,
+      sessionEpoch: u.sessionEpoch || 0,
+      profilePct: u.role === 'student' ? completeness(p, p.targets || []) : null,
+      savedCount: saved.length,
+      savedIds: saved.map(s => s.listingId),
+      notificationCount: (d.notifications || []).filter(n => n.userId === u.id).length,
+      unreadCount: (d.notifications || []).filter(n => n.userId === u.id && !n.readAt).length,
+      targets: p.targets || [],
+      profile: {
+        fullName: p.fullName || null, firstName: p.firstName || null, city: p.city || null,
+        province: p.province || null, institution: p.institution || null,
+        whatsapp: p.whatsapp || null, dateOfBirth: p.dateOfBirth || null,
+        currentLevel: p.currentLevel || null, bachelorCgpa: p.bachelorCgpa ?? null,
+        bachelorScale: p.bachelorScale ?? null, interPct: p.interPct ?? null, matricPct: p.matricPct ?? null,
+        ielts: p.ielts || null, germanLevel: p.germanLevel || null, apsStatus: p.apsStatus || null,
+        fundingNeed: p.fundingNeed || null, documentsReady: p.documentsReady || []
+      },
+      logs
+    }
+  });
+});
+
 app.put('/api/admin/users/:id', requireStrictAdmin, (req, res) => {
   const d = db();
   const u = d.users.find(x => x.id === req.params.id);
   if (!u) return res.status(404).json({ error: 'User not found' });
+  const body = req.body || {};
   const activeAdmins = () => d.users.filter(x => x.role === 'admin' && x.isActive);
-  if (u.id === req.user.id && req.body.role && req.body.role !== 'admin')
+
+  if (u.id === req.user.id && body.role && body.role !== 'admin')
     return res.status(400).json({ error: 'You cannot remove your own admin role' });
   /* locking yourself out is never what anyone means to do */
-  if (u.id === req.user.id && req.body.isActive === false)
+  if (u.id === req.user.id && body.isActive === false)
     return res.status(400).json({ error: 'You cannot deactivate your own account' });
-  /* and the console must always keep one way back in */
-  const losesAdmin = (req.body.role && req.body.role !== 'admin' && u.role === 'admin')
-    || (req.body.isActive === false && u.role === 'admin' && u.isActive);
+  const losesAdmin = (body.role && body.role !== 'admin' && u.role === 'admin')
+    || (body.isActive === false && u.role === 'admin' && u.isActive);
   if (losesAdmin && activeAdmins().length <= 1)
     return res.status(400).json({ error: 'Keep at least one active admin' });
-  if (req.body.role) u.role = req.body.role;
-  if (req.body.isActive !== undefined) u.isActive = !!req.body.isActive;
-  log('role change', { adminId: req.user.email, entityType: 'user', entityId: u.id, detail: { role: u.role, isActive: u.isActive } });
+
+  const changed = [];
+  if (body.role !== undefined) {
+    if (!['student', 'contributor', 'admin'].includes(body.role)) return res.status(400).json({ error: 'Unknown role' });
+    if (body.role !== u.role) { u.role = body.role; changed.push('role'); }
+  }
+  if (body.isActive !== undefined) {
+    const next = !!body.isActive;
+    if (next !== u.isActive) { u.isActive = next; changed.push(next ? 'activated' : 'suspended'); }
+  }
+  if (body.displayName !== undefined) {
+    const name = String(body.displayName || '').trim().slice(0, 80);
+    if (!name) return res.status(400).json({ error: 'A display name cannot be empty' });
+    if (name !== u.displayName) { u.displayName = name; changed.push('name'); }
+  }
+  if (body.email !== undefined) {
+    const email = String(body.email || '').trim().toLowerCase();
+    if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'That email address is not valid' });
+    if (d.users.some(x => x.id !== u.id && String(x.email).toLowerCase() === email)) return res.status(409).json({ error: 'Another account already uses that email' });
+    if (email !== u.email) { u.email = email; changed.push('email'); }
+  }
+  if (body.emailVerified !== undefined) {
+    if (!!body.emailVerified !== !!u.emailVerified) { u.emailVerified = !!body.emailVerified; changed.push('verification'); }
+  }
+
+  if (changed.length) {
+    /* the person must be told their account changed under them */
+    const why = changed.includes('suspended') ? 'Your account was suspended by an administrator. You can no longer sign in. Contact ' + (readSettings(d).supportEmail || 'support') + ' if you think this is a mistake.'
+      : changed.includes('activated') ? 'Your account has been reactivated. You can sign in again.'
+      : 'An administrator updated your account (' + changed.join(', ') + ').';
+    addNotification(d, { userId: u.id, title: 'Account updated', body: why, category: 'account', createdBy: req.user.email });
+    log('role change', { adminId: req.user.email, entityType: 'user', entityId: u.id, detail: { changed, role: u.role, isActive: u.isActive } });
+    persist();
+  }
+  res.json({ user: pub(u), changed });
+});
+
+app.delete('/api/admin/users/:id', requireStrictAdmin, (req, res) => {
+  const d = db();
+  const u = d.users.find(x => x.id === req.params.id);
+  if (!u) return res.status(404).json({ error: 'User not found' });
+  if (u.id === req.user.id) return res.status(400).json({ error: 'You cannot delete your own account from the console' });
+  if (u.role === 'admin' && d.users.filter(x => x.role === 'admin' && x.isActive && x.id !== u.id).length === 0)
+    return res.status(400).json({ error: 'Keep at least one active admin' });
+
+  d.users = d.users.filter(x => x.id !== u.id);
+  delete d.profiles[u.id];
+  d.saved = d.saved.filter(s => s.userId !== u.id);
+  delete d.settings[u.id];
+  d.notifications = (d.notifications || []).filter(n => n.userId !== u.id);
+  log('user deleted', { adminId: req.user.email, entityType: 'user', entityId: u.id, detail: { email: u.email, role: u.role } });
   persist();
-  res.json({ user: pub(u) });
+  res.json({ deleted: u.id });
+});
+
+/* ------------------------------------------------- content deletion (admin) */
+app.delete('/api/admin/listings/:id', requireStrictAdmin, (req, res) => {
+  const d = db();
+  const l = listingById(req.params.id);
+  if (!l) return res.status(404).json({ error: 'Listing not found' });
+  d.listings = d.listings.filter(x => x.id !== l.id);
+  d.saved = d.saved.filter(s => s.listingId !== l.id);
+  d.errorReports = d.errorReports.filter(r => r.listingId !== l.id);
+  log('listing deleted', { adminId: req.user.email, entityType: l.kind, entityId: l.id, detail: { title: l.title, was: l.status } });
+  persist();
+  res.json({ deleted: l.id });
+});
+
+app.delete('/api/admin/universities/:id', requireStrictAdmin, (req, res) => {
+  const d = db();
+  const u = d.universities.find(x => x.id === req.params.id);
+  if (!u) return res.status(404).json({ error: 'University not found' });
+  const linked = d.listings.filter(l => l.universityId === u.id);
+  if (linked.length) return res.status(409).json({ error: 'Move or delete its ' + linked.length + ' program(s) first' });
+  d.universities = d.universities.filter(x => x.id !== u.id);
+  log('university deleted', { adminId: req.user.email, entityType: 'university', entityId: u.id, detail: { name: u.name } });
+  persist();
+  res.json({ deleted: u.id });
+});
+
+/* --------------------------------------------------- site settings (admin) */
+app.get('/api/admin/settings', requireAdmin, (req, res) => {
+  res.json({ settings: publicSettings(db()), canEdit: req.user.role === 'admin' });
+});
+
+app.put('/api/admin/settings', requireStrictAdmin, (req, res) => {
+  const d = db();
+  const settings = writeSettings(d, req.body || {});
+  log('settings update', { adminId: req.user.email, entityType: 'settings', entityId: 'site', detail: { fields: Object.keys(req.body || {}) } });
+  persist();
+  res.json({ settings });
+});
+
+/* ------------------------------------------------------------ broadcast */
+app.get('/api/admin/notifications', requireAdmin, (req, res) => {
+  const d = db();
+  const sends = (d.notificationSends || []).slice(0, 30);
+  res.json({
+    sends,
+    totalSent: sends.reduce((a, s) => a + (s.recipients || 0), 0),
+    users: d.users.map(u => ({ id: u.id, email: u.email, displayName: u.displayName, role: u.role, isActive: u.isActive }))
+  });
+});
+
+app.post('/api/admin/notifications/broadcast', requireStrictAdmin, (req, res) => {
+  const d = db();
+  const { title, body, audience = 'all', userIds = [], link = null, category = 'broadcast' } = req.body || {};
+  if (!String(title || '').trim()) return res.status(400).json({ error: 'A title is required' });
+  if (!String(body || '').trim()) return res.status(400).json({ error: 'A message is required' });
+  if (!['all', 'selected'].includes(audience)) return res.status(400).json({ error: 'Pick who receives it' });
+
+  let targets;
+  if (audience === 'all') targets = d.users.filter(u => u.isActive).map(u => u.id);
+  else {
+    targets = [...new Set((Array.isArray(userIds) ? userIds : []).filter(id => d.users.some(u => u.id === id)))];
+    if (!targets.length) return res.status(400).json({ error: 'Pick at least one recipient' });
+  }
+
+  const { broadcastId, rows } = notifyUsers(d, targets, {
+    title: String(title).slice(0, 120),
+    body: String(body).slice(0, 1200),
+    category: CATEGORIES.includes(category) ? category : 'broadcast',
+    link: link ? String(link).slice(0, 200) : null,
+    createdBy: req.user.email
+  });
+
+  const send = {
+    id: broadcastId,
+    title: String(title).slice(0, 120),
+    body: String(body).slice(0, 1200),
+    audience,
+    recipients: rows.length,
+    recipientIds: targets,
+    link: link || null,
+    sentBy: req.user.email,
+    sentAt: new Date().toISOString()
+  };
+  d.notificationSends.unshift(send);
+  d.notificationSends = d.notificationSends.slice(0, 100);
+  log('broadcast sent', { adminId: req.user.email, entityType: 'notification', entityId: broadcastId, detail: { audience, recipients: rows.length } });
+  persist();
+  res.status(201).json({ send });
+});
+
+/* ------------------------------------------------------- research agent */
+app.post('/api/admin/research', requireAdmin, async (req, res, next) => {
+  try {
+    const d = db();
+    const settings = readSettings(d);
+    if (!settings.researchEnabled) return res.status(400).json({ error: 'The research agent is turned off in Settings' });
+    const { kind = 'scholarship', url = '', notes = '' } = req.body || {};
+    if (!['scholarship', 'program', 'university'].includes(kind)) return res.status(400).json({ error: 'Pick what to research' });
+    const result = await runResearch({ kind, url: String(url).trim(), notes, settings });
+    log('research run', { adminId: req.user.email, entityType: 'research', entityId: kind, detail: { provider: result.provider, url: url || null, fields: Object.keys(result.fields).length } });
+    persist();
+    res.json(result);
+  } catch (e) { next(e); }
+});
+
+/* Save a research result as a draft. It can never arrive here as published. */
+app.post('/api/admin/research/save', requireAdmin, (req, res) => {
+  const d = db();
+  const { kind = 'scholarship', fields = {}, provider = 'extract', sourceUrl = null } = req.body || {};
+  if (!fields || typeof fields !== 'object') return res.status(400).json({ error: 'Nothing to save' });
+
+  if (kind === 'university') {
+    const name = String(fields.name || '').trim();
+    const city = String(fields.city || '').trim();
+    if (!name || !city) return res.status(400).json({ error: 'A university needs a name and a city' });
+    if (d.universities.some(u => u.name.toLowerCase() === name.toLowerCase() && u.city.toLowerCase() === city.toLowerCase()))
+      return res.status(409).json({ error: 'That university and city already exist' });
+    const u = {
+      id: nextId('u', d.universities), name, city,
+      state: String(fields.state || '—').slice(0, 60),
+      type: ['university', 'uas', 'tu'].includes(fields.type) ? fields.type : 'university',
+      isPublic: true,
+      websiteUrl: String(fields.websiteUrl || sourceUrl || '').slice(0, 200) || 'https://example.edu',
+      uniAssistMember: !!fields.uniAssistMember,
+      notes: String(fields.notes || '').slice(0, 500)
+    };
+    d.universities.push(u);
+    log('insert_university', { adminId: req.user.email, entityType: 'university', entityId: u.id, detail: { name, city, via: provider } });
+    persist();
+    return res.status(201).json({ university: u, kind: 'university' });
+  }
+
+  const listing = {
+    id: nextId(kind === 'program' ? 'P' : 'S', d.listings),
+    kind: kind === 'program' ? 'program' : 'scholarship',
+    status: 'draft',
+    title: String(fields.title || 'Untitled draft').slice(0, 120),
+    provider: String(fields.provider || '').slice(0, 120),
+    hostCountry: 'Germany',
+    degreeLevels: Array.isArray(fields.degreeLevels) && fields.degreeLevels.length ? fields.degreeLevels.slice(0, 3) : ['master'],
+    fundingType: fields.fundingType || 'full',
+    deadline: /^\d{4}-\d{2}-\d{2}$/.test(String(fields.deadline || '')) ? fields.deadline : null,
+    lastVerified: today(),
+    createdBy: req.user.email,
+    verifiedBy: null,
+    openErrorReports: 0,
+    draftedByAi: true,
+    researchProvider: provider,
+    evidence: {},
+    updatedAt: new Date().toISOString()
+  };
+  EDITABLE.forEach(k => {
+    if (fields[k] !== undefined && fields[k] !== null && fields[k] !== '' && listing[k] === undefined) listing[k] = fields[k];
+  });
+  d.listings.unshift(listing);
+  log('insert_draft', { adminId: req.user.email, entityType: listing.kind, entityId: listing.id, detail: { via: 'research', provider } });
+  persist();
+  res.status(201).json({ listing, kind: listing.kind });
 });
 
 app.get('/api/admin/logs', requireAdmin, (req, res) => {
@@ -881,6 +1176,12 @@ const PORT = process.env.PORT || 8000;
 /* Load the data first: from Supabase when it is configured, otherwise from
    data/db.json. A failure here is logged, never fatal — the API still starts. */
 const info = await initStore();
+/* collections added after the first deploy must exist before any route reads
+   them; without this a fresh Supabase row from an older version 500s. */
+if (ensureCollections(db())) {
+  persist();
+  console.log('[store] added missing collections (notifications, siteSettings)');
+}
 if (info.mode === 'supabase') console.log('[store] Supabase connected →', info.supabase);
 else console.log('[store] local file →', info.file);
 

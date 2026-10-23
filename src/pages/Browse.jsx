@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AppShell } from '../components/Shell.jsx';
 import { Icon, Empty, Loader, Btn, Chip, LoadError } from '../components/ui.jsx';
@@ -73,6 +73,12 @@ export default function Browse({ kind = 'scholarship' }) {
     ieltsFree: false, freshOnly: false, mineOnly: false, sort: 'deadline'
   });
   const [sort, setSort] = useState('deadline');
+
+  /* the header search pushes ?q= — follow it, and follow later searches too */
+  useEffect(() => {
+    const urlQ = params.get('q') || '';
+    setStateRaw(s => (s.q === urlQ ? s : { ...s, q: urlQ }));
+  }, [params]);
   const set = (patch) => setStateRaw(s => ({ ...s, ...patch }));
   const clear = () => setStateRaw(s => ({ ...s, q: '', degree: [], funding: [], deadline: '', language: [], field: [], ieltsFree: false, freshOnly: false, mineOnly: false }));
 
@@ -125,8 +131,12 @@ export default function Browse({ kind = 'scholarship' }) {
       <div className="phead">
         <div className="row sp wr">
           <div>
-            <h1 className="h1">{label}</h1>
-            <p className="cap">Every listing carries the date it was last checked against the official page.</p>
+            <h1 className="h1">{state.q ? 'Results for “' + state.q + '”' : label}</h1>
+            <p className="cap">
+              {state.q
+                ? <>Searching {kind === 'scholarship' ? 'scholarships' : 'German programs'} by title and provider. <Link className="link-quiet" to={(kind === 'scholarship' ? '/programs' : '/scholarships') + '?q=' + encodeURIComponent(state.q)}>Search {kind === 'scholarship' ? 'programs' : 'scholarships'} instead</Link></>
+                : 'Every listing carries the date it was last checked against the official page.'}
+            </p>
           </div>
           <div className="row" style={{ gap: 8 }}>
             <button className="btn btn--outlined btn--sm" type="button" onClick={() => setMobile(true)} style={{ display: 'inline-flex' }}>

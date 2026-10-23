@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AppShell } from '../components/Shell.jsx';
-import { Icon, Btn, Loader, Notice, useAsync, useToast, LoadError } from '../components/ui.jsx';
+import { Icon, Btn, Loader, Notice, Field, useAsync, useToast, LoadError } from '../components/ui.jsx';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { applyTheme, readTheme } from '../components/theme.js';
@@ -38,6 +38,13 @@ export default function Settings() {
   const { rows: savedRows } = useSaved();
   const nextSaved = (savedRows || [])[0] || null;
   const [prefs, setPrefs] = useState({ notifyEmail: true, notifyWhatsapp: false, alertDays: [30, 14, 7, 1], langPref: 'both' });
+  const isAdmin = user?.role === 'admin';
+  const site = useAsync(() => (isAdmin ? api.get('/admin/settings') : Promise.resolve(null)), [isAdmin]);
+  const [siteForm, setSiteForm] = useState(null);
+  const [siteBusy, setSiteBusy] = useState(false);
+  useEffect(() => {
+    if (site.data && site.data.settings && !siteForm) setSiteForm({ ...site.data.settings, aiApiKey: '' });
+  }, [site.data]);
 
   useEffect(() => { if (data && data.profile) setPrefs(p => ({ ...p, ...Object.fromEntries(Object.entries(data.profile).filter(([k]) => ['notifyEmail', 'notifyWhatsapp', 'alertDays', 'langPref'].includes(k))) })); }, [data]);
 
@@ -58,7 +65,8 @@ export default function Settings() {
         </div>
 
         <div className="tabs" role="tablist">
-          {[['prefs', 'Preferences'], ['alerts', 'Alerts'], ['account', 'Account'], ['privacy', 'Privacy']].map(([k, label]) => (
+          {[['prefs', 'Preferences'], ['alerts', 'Alerts'], ['account', 'Account'], ['privacy', 'Privacy'],
+            ...(isAdmin ? [['site', 'Site & AI']] : [])].map(([k, label]) => (
             <button key={k} role="tab" aria-selected={tab === k} onClick={() => setParams({ tab: k })}>{label}</button>
           ))}
         </div>
@@ -66,7 +74,7 @@ export default function Settings() {
         {tab === 'prefs' && (
           <div className="card card--pad-l">
             <h2 className="h2">Appearance</h2>
-            <p className="cap">Auto follows your operating system. This is the same switch as the demo panel.</p>
+            <p className="cap">Auto follows your operating system. The moon icon in the top bar flips between light and dark from anywhere.</p>
             <RadioCards name="theme" list={THEMES} value={theme} onChange={v => { setTheme(v); applyTheme(v); toast('Theme: ' + v); }} />
             <div className="divider-v" style={{ height: 1, width: 'auto' }} />
             <h2 className="h2">Density</h2>
@@ -162,6 +170,97 @@ export default function Settings() {
               <h2 className="h2">Danger zone</h2>
               <p className="cap">Deleting removes your profile, targets, saved list and notes. Error reports stay, without your name.</p>
               <Btn variant="danger" size="sm" to="/profile" style={{ alignSelf: 'flex-start' }}>Delete my account</Btn>
+            </div>
+          </>
+        )}
+
+        {tab === 'site' && isAdmin && (
+          <>
+            <div className="card card--pad-l">
+              <h2 className="h2">Site</h2>
+              <p className="cap">These values are used by the app itself and in messages the server sends.</p>
+              {!siteForm ? <Loader /> : (
+                <>
+                  <Field label="Site name" htmlFor="site-name">
+                    <input className="input" id="site-name" value={siteForm.siteName || ''} onChange={e => setSiteForm(f => ({ ...f, siteName: e.target.value }))} />
+                  </Field>
+                  <Field label="Tagline" htmlFor="site-tagline">
+                    <input className="input" id="site-tagline" value={siteForm.tagline || ''} onChange={e => setSiteForm(f => ({ ...f, tagline: e.target.value }))} />
+                  </Field>
+                  <Field label="Support email" htmlFor="site-support" help="Shown in suspension messages and on the privacy page.">
+                    <input className="input" id="site-support" type="email" value={siteForm.supportEmail || ''} onChange={e => setSiteForm(f => ({ ...f, supportEmail: e.target.value }))} />
+                  </Field>
+                </>
+              )}
+            </div>
+
+            <div className="card card--pad-l">
+              <div className="row sp wr">
+                <div>
+                  <h2 className="h2">AI research</h2>
+                  <p className="cap">The research agent uses this key to read a scholarship or program page and fill the entry form.</p>
+                </div>
+                <span className={'tag ' + (siteForm && siteForm.aiApiKeySet ? 'tag--ok' : 'tag--wn')}>
+                  <Icon name={siteForm && siteForm.aiApiKeySet ? 'checkCircle' : 'alert'} />
+                  {siteForm && siteForm.aiApiKeySet ? 'key stored' : 'no key'}
+                </span>
+              </div>
+              {!siteForm ? null : (
+                <>
+                  <div className="g2">
+                    <Field label="Provider" htmlFor="ai-provider">
+                      <select className="select" id="ai-provider" value={siteForm.aiProvider || 'openai'}
+                        onChange={e => setSiteForm(f => ({ ...f, aiProvider: e.target.value }))}>
+                        <option value="openai">OpenAI-compatible</option>
+                        <option value="none">None (built-in extractor only)</option>
+                      </select>
+                    </Field>
+                    <Field label="Model" htmlFor="ai-model">
+                      <input className="input" id="ai-model" value={siteForm.aiModel || ''} onChange={e => setSiteForm(f => ({ ...f, aiModel: e.target.value }))} placeholder="gpt-4o-mini" />
+                    </Field>
+                  </div>
+                  <Field label="API base URL" htmlFor="ai-base" help="Change this for a compatible gateway. The path /chat/completions is appended.">
+                    <input className="input" id="ai-base" value={siteForm.aiBaseUrl || ''} onChange={e => setSiteForm(f => ({ ...f, aiBaseUrl: e.target.value }))} placeholder="https://api.openai.com/v1" />
+                  </Field>
+                  <Field label="API key" htmlFor="ai-key"
+                    help={siteForm.aiApiKeySet ? 'A key is stored (' + siteForm.aiApiKeyHint + '). It is never sent back to the browser — type a new one only to replace it.' : 'Stored on the server. Only admins can set or change it.'}>
+                    <input className="input" id="ai-key" type="password" autoComplete="off" value={siteForm.aiApiKey || ''}
+                      onChange={e => setSiteForm(f => ({ ...f, aiApiKey: e.target.value }))}
+                      placeholder={siteForm.aiApiKeySet ? '•••••••••••• stored — leave blank to keep' : 'sk-…'} />
+                  </Field>
+                  <div className="switch-row">
+                    <span className="t"><span className="h3">Research agent enabled</span><span className="cap">Turning this off blocks the AI research page for everyone.</span></span>
+                    <button className="switch" type="button" role="switch" aria-checked={!!siteForm.researchEnabled}
+                      aria-label="Research agent enabled" onClick={() => setSiteForm(f => ({ ...f, researchEnabled: !f.researchEnabled }))} />
+                  </div>
+                  <div className="row wr" style={{ gap: 8 }}>
+                    <button className="btn btn--filled btn--sm" type="button" disabled={siteBusy} onClick={async () => {
+                      setSiteBusy(true);
+                      try {
+                        const r = await api.put('/admin/settings', {
+                          siteName: siteForm.siteName, tagline: siteForm.tagline, supportEmail: siteForm.supportEmail,
+                          aiProvider: siteForm.aiProvider, aiModel: siteForm.aiModel, aiBaseUrl: siteForm.aiBaseUrl,
+                          researchEnabled: siteForm.researchEnabled,
+                          ...(siteForm.aiApiKey ? { aiApiKey: siteForm.aiApiKey } : {})
+                        });
+                        setSiteForm({ ...r.settings, aiApiKey: '' });
+                        site.reload();
+                        toast('Site settings saved');
+                      } catch (e) { toast(e.message); } finally { setSiteBusy(false); }
+                    }}>{siteBusy ? 'Saving…' : 'Save settings'}</button>
+                    {siteForm.aiApiKeySet && (
+                      <button className="btn btn--outlined btn--sm" type="button" onClick={async () => {
+                        try {
+                          const r = await api.put('/admin/settings', { aiApiKey: null });
+                          setSiteForm({ ...r.settings, aiApiKey: '' }); site.reload(); toast('API key removed');
+                        } catch (e) { toast(e.message); }
+                      }}>Remove key</button>
+                    )}
+                    <Btn variant="text" size="sm" to="/admin/research">Open AI research</Btn>
+                  </div>
+                  <Notice tone="info" icon="shield">The key is read only by the server and is masked in every response. Only an admin can open this tab; contributors and students never see it.</Notice>
+                </>
+              )}
             </div>
           </>
         )}

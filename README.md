@@ -18,6 +18,55 @@ First request after 15 idle minutes takes ~1 min (free tier cold start). A daily
 `.github/workflows/keepalive.yml` job pings `/api/health` so neither the Render service nor the
 Supabase project falls asleep.
 
+
+## What is in this build
+
+**For students.** Profile wizard, matched scholarships and German programs (only the ones you
+meet, or nearly meet), saved list with deadlines, a notification inbox, light/dark theme, and a
+header search that filters the catalogue from anywhere in the app.
+
+**Notifications — one system for every role.** A bell in the top bar with an unread count, a
+popup with the newest items, and `/notifications` for the full list with an unread filter.
+Opening a notification marks it read; "mark all read" clears the badge. The same component
+serves students, contributors and admins.
+
+**Admin console.**
+
+| Page | What it does |
+| --- | --- |
+| Dashboard / queue / errors | Review state, stale listings, open error reports |
+| Scholarships & programs | Table with view-all (eye), edit, public page and delete per row |
+| Universities | Add, edit, delete (delete refuses while programs point at it) |
+| AI research | Pick scholarship / program / university, give a URL or pasted text, get a filled form, save it as a draft |
+| Users & roles | View every detail of an account, edit name/email/role/status, ban, unban, delete |
+| Broadcast | Send a notification to everyone, to one person, or to a hand-picked group |
+| Audit log | Append-only record of every editorial action |
+
+**Settings → Site & AI (admins only).** Site name, tagline, support email, the AI provider,
+model, base URL and API key, and the on/off switch for the research agent. The key is stored
+server-side, returned masked, and never reaches a contributor or a student.
+
+**Safety rails that the server enforces**, not just the UI: you cannot ban or delete yourself,
+delete the last active admin, delete a university that still has programs, publish your own
+listing (four-eyes rule), or save a research result as anything other than a draft.
+
+## Testing
+
+```bash
+# API + logic, against a server on :8000
+node audit/api-matrix.mjs        # 83 identity × endpoint checks
+node audit/feature-logic.mjs     # 114 matching / publish-gate checks
+node audit/data-integrity.mjs    #  20 data-set checks
+
+# Browser-free UI suites (happy-dom drives the real React app)
+npm install --no-save happy-dom
+./audit/run-dom.sh smoke         # every route × student / admin / contributor
+./audit/run-dom.sh features      # notifications, admin CRUD, broadcast, research, search
+```
+
+The Playwright suites (`ui-roles`, `wizard-e2e`, `flows`, `failure-modes`, `page-crawl`) need a
+Chromium binary and system libraries; run them where those exist.
+
 ## Run it
 
 ```bash
