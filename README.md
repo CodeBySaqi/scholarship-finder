@@ -93,11 +93,13 @@ Details that matter on a real phone:
   the moment it closes. It is `position: fixed` on phones only — it stays on the glass while the page
   scrolls, the page reserves its height so nothing hides behind it, and it disappears entirely
   from 768 px up. The sidebar opens as a drawer with a tap-to-close scrim.
-- **Matches carries a contextual filter card** directly under the Scholarships / Programs switch.
-  Its groups come from the tab, not from a fixed list: scholarships offer Funding / Degree level,
-  programmes offer Language / Degree level / Tuition / Intake; both share Match, Host country and
-  Deadline. Every chip shows how many listings are behind it, options that would empty the page are
-  disabled, and switching tabs starts the new tab clean.
+- **Matches carries a compact filter bar** directly under the Scholarships / Programs switch: one
+  header line, one row of four match pills, one row of selects, one quiet footer. The selects change
+  with the tab — scholarships get Funding / Degree, programmes get Tuition / Language / Degree /
+  Intake, both share Country and Deadline — and every option shows how many listings sit behind it.
+  Options that would empty the page are disabled, a filter with only one possible value is not
+  shown at all, and switching tabs starts the new tab clean. Selects run across one line on a
+  laptop, three per row on a tablet, two per row on a phone and one on very small screens.
 - The **segmented switch** (Matches → Scholarships / Programs, and the admin filters) is 46px
   tall with 14px text on a phone — larger than the 13px desktop size rather than smaller.
   `app.css` trimmed it to 12px/9px below 560px; the phone layer overrides that.

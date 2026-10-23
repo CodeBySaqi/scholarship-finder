@@ -421,45 +421,62 @@ body { overflow-x: hidden; }
 }
 
 /* ------------------------------------------------- matches filter card
-   Sits directly under the Scholarships / Programs switch. Options are grouped
-   in labelled rows that reflow: three columns on a wide screen, one column on a
-   phone, with the chips wrapping rather than scrolling sideways. */
-.mfilter { display: flex; flex-direction: column; gap: 14px; }
-.mfilter__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.mfilter__head .btn[disabled] { opacity: .45; pointer-events: none; }
-.mfilter__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 12px 20px;
+   Deliberately small: a header line, one pill row, one row of selects and a
+   quiet footer. Options fold into native selects, so the card keeps the same
+   height whether there are three filters or seven, at every width. */
+.mfilter { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; }
+.mfilter__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.mfilter__count { display: flex; align-items: baseline; gap: 8px; min-width: 0; flex-wrap: wrap; }
+.mfilter__count .h2 { font-size: 16px; }
+.mfilter__reset { flex: 0 0 auto; }
+.mfilter__reset[disabled] { opacity: .45; pointer-events: none; }
+
+.mfilter__pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.mfilter__pills .chip { gap: 6px; }
+.mfilter__n {
+  font-size: 11px; font-variant-numeric: tabular-nums; opacity: .6;
+  padding-left: 5px; border-left: 1px solid currentColor; margin-left: 1px;
 }
-.mfilter__group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.mfilter__label {
-  font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+.mfilter__pills .chip[aria-pressed="true"] .mfilter__n { opacity: .9; }
+.mfilter__pills .chip[disabled] { opacity: .38; pointer-events: none; }
+
+/* select row: one line on a laptop, two up on a phone */
+.mfilter__selects {
+  display: grid; gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+}
+.mfilter__select { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.mfilter__select-label {
+  font-size: 10.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
   color: var(--text-3);
 }
-.mfilter__group .chips { flex-wrap: wrap; }
-.mfilter .chip { gap: 6px; }
-.mfilter__n {
-  font-size: 11px; font-variant-numeric: tabular-nums; opacity: .65;
-  padding-left: 5px; border-left: 1px solid currentColor;
-}
-.mfilter .chip[aria-pressed="true"] .mfilter__n { opacity: .9; }
-.mfilter .chip[disabled] { opacity: .38; pointer-events: none; }
+.mfilter__select .select { height: 38px; padding: 0 30px 0 10px; font-size: 13px; }
+
 .mfilter__foot {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
-  border-top: 1px solid var(--outline); padding-top: 12px;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  border-top: 1px solid var(--outline); padding-top: 10px; margin-top: 2px;
+}
+.mfilter__check { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); cursor: pointer; }
+.mfilter__check input { width: 17px; height: 17px; accent-color: var(--primary); margin: 0; }
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .mfilter__selects { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .mfilter__selects { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+  .mfilter { padding: 16px 18px; }
 }
 
 @media (max-width: 767px) {
-  .mfilter { gap: 12px; }
-  .mfilter__grid { grid-template-columns: 1fr; gap: 10px; }
-  .mfilter__label { font-size: 11.5px; }
-  /* chips become comfortable targets and the count never wraps away */
-  .mfilter .chip { min-height: 38px; padding: 0 12px; font-size: 12.5px; }
-  .mfilter__foot { padding-top: 10px; }
-  .mfilter__foot .btn { flex: 1 1 100%; }
+  .mfilter { padding: 12px 13px; gap: 9px; }
+  .mfilter__selects { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+  .mfilter__select .select { height: 42px; font-size: 16px; }
+  .mfilter__select-label { font-size: 10px; }
+  .mfilter__pills .chip { min-height: 36px; padding: 0 11px; font-size: 12.5px; }
+  .mfilter__foot .btn { margin-left: auto; }
 }
 @media (max-width: 399px) {
-  .mfilter .chip { min-height: 36px; padding: 0 10px; font-size: 12px; }
-  .mfilter__n { padding-left: 4px; }
+  .mfilter__selects { grid-template-columns: 1fr; }
+  .mfilter__select .select { height: 44px; }
+  .mfilter__pills .chip { flex: 1 1 auto; justify-content: center; }
 }

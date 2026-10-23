@@ -124,15 +124,22 @@ ok('the "…/count" badge stays legible at 12px or more',
 
 
 /* ------------------------------------------- the Matches filter card */
-ok('the filter card grid reflows with auto-fit columns',
-  /\.mfilter__grid\{[^}]*grid-template-columns:\s*repeat\(auto-fit/.test(css.replace(/\n/g, '')));
-ok('it collapses to a single column on a phone',
-  /\.mfilter__grid\{grid-template-columns:\s*1fr/.test(phoneBody), phoneBody.match(/\.mfilter__grid\{[^}]*\}/)?.[0] || '');
-ok('phone chips inside the card are at least 36px tall (tap target)',
-  /\.mfilter \.chip\{min-height:3[6-9]px/.test(phoneBody.replace(/\n/g, '').replace(/;\s*/g, ';')) ||
-  /\.mfilter \.chip\{min-height:4\dpx/.test(phoneBody));
 ok('the counts are tabular so they do not jiggle',
   /\.mfilter__n\{[^}]*font-variant-numeric:\s*tabular-nums/.test(css));
+
+
+/* ------------------------------- the compact filter bar at every width */
+const selBlock = (re) => (css.match(re) || [])[0] || '';
+ok('laptop: selects auto-fit across one line (>=160px each)',
+  /\.mfilter__selects\{[^}]*minmax\(160px/.test(css), selBlock(/\.mfilter__selects\{[^}]*minmax\(160px[^}]*\}/));
+ok('tablet: selects sit three across',
+  media(/min-width:\s*768px/).some(b => /\.mfilter__selects\{[^}]*repeat\(3,/.test(b.body)) ||
+  media(/max-width:\s*1023px/).some(b => /\.mfilter__selects\{[^}]*repeat\(3,/.test(b.body)));
+ok('phone: two selects per row', /\.mfilter__selects\{[^}]*repeat\(2,/.test(phoneBody));
+ok('small phone: one select per row', media(/max-width:\s*399px/).some(b => /\.mfilter__selects\{[^}]*1fr/.test(b.body)));
+ok('phone selects are 16px (no iOS zoom on the native picker)',
+  /\.mfilter__select \.select\{[^}]*font-size:16px/.test(phoneBody.replace(/;\s+/g, ';')));
+ok('phone selects stay >=42px tall', /\.mfilter__select \.select\{[^}]*height:4[2-9]px/.test(phoneBody.replace(/;\s+/g, ';')));
 
 console.log('\n' + results.filter(r => r.pass).length + '/' + results.length + ' stylesheet checks passed');
 process.exit(results.every(r => r.pass) ? 0 : 1);

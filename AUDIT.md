@@ -81,16 +81,20 @@ Scholarships / Programs switch was *smaller* on a phone than on tablet (13px) or
 layer now sets 46px height, 14px text, 14px padding and equal-width halves — bigger, not smaller —
 with a 399px trim that keeps the height. A CSS-order assertion proves the override wins.
 
-**Round 4d — contextual filters on Matches.** The three switches that used to live in the right
-rail are replaced by a filter card directly under the Scholarship / Program switch. The option
-groups are per tab (scholarship: Funding, Degree level; programme: Language, Degree level, Tuition,
-Intake; shared: Match, Host country, Deadline, Hide needs-recheck), derived from the loaded
-listings, with a live count on every chip and disabled options that would empty the page. Counts
-for the Match group are computed inside the bucket, so "Almost there" no longer reports the total.
+**Round 4d — contextual filters on Matches, then made compact.** The three switches that used to
+live in the right rail were replaced by a filter card directly under the Scholarship / Program
+switch. The first version listed every group as its own labelled chip row — seven groups on a
+programme tab — which read as a wall of controls. It is now two rows: four match pills and a row of
+selects, with a quiet footer. Options stay per tab (scholarship: Funding, Degree; programme:
+Tuition, Language, Degree, Intake; shared: Country, Deadline, Hide needs-recheck), each option
+carries its count, impossible options are disabled, a group with a single possible value is dropped
+entirely, and counts for the Match group are computed inside the bucket so "Almost there" no longer
+reports the total. Layout: auto-fit across one line on a laptop, three per row on a tablet, two on a
+phone, one below 400px; selects are 42px and 16px on phones so the native picker does not zoom.
 
 Regression suites re-run after the change: api-matrix 83/83, feature-logic 114/114,
-data-integrity 20/20, dom-smoke 37/37, features-admin 69/69, **responsive 80/80**,
-**responsive-css 31/31**.
+data-integrity 20/20, dom-smoke 37/37, features-admin 69/69, **responsive 83/83**,
+**responsive-css 34/34**.
 
 ## Identities exercised
 

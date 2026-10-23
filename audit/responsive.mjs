@@ -232,12 +232,9 @@ ok('phone: tapping Programs switches the list',
   progTab.getAttribute('aria-selected') === 'true' &&
   sel('.tabs button').filter(b => b.getAttribute('aria-selected') === 'true').length === 1);
 
-/* ---------------- the contextual filter card on Matches ----------------
-   A fresh student session and a clean /matches (no ?tab=) — the admin session
-   has no matches of its own, which would make every count zero. */
+/* ---------------- the compact filter bar on Matches ----------------
+   A fresh student session, leaving the page first so /matches refetches. */
 await login('ayesha@example.com');
-/* leave the page first: mounting the same route again would keep the old tree
-   (and the admin session's empty match lists) instead of refetching */
 mount('/dashboard');
 await wait(600);
 mount('/matches?tab=scholarships');
@@ -245,66 +242,78 @@ await wait(1500);
 const mfilter = document.querySelector('.card.mfilter');
 ok('phone: the filter card is present', !!mfilter);
 const tabsEl = document.querySelector('.tabs[role="tablist"]');
-const between = tabsEl && mfilter && (tabsEl.compareDocumentPosition(mfilter) & 4) && !document.querySelector('.tabs ~ * .mfilter');
-ok('phone: the filter card comes directly after the two buttons',
+ok('phone: it sits directly under the two buttons',
   !!tabsEl && tabsEl.nextElementSibling === mfilter,
   tabsEl && tabsEl.nextElementSibling ? tabsEl.nextElementSibling.className : 'none');
-const labels = sel('.mfilter__label').map(e => e.textContent.trim());
-ok('phone: filter groups are labelled', labels.length >= 5, labels.join(' · '));
-ok('phone: scholarship options are shown', labels.includes('Funding') && labels.includes('Match'));
 
-const chipTexts = () => sel('.mfilter .chip').map(c => c.textContent.replace(/\s+/g, ' ').trim());
-const schChips = chipTexts();
-ok('phone: scholarship chips carry counts', schChips.every(t => /\s\d+$/.test(t)), schChips.slice(0, 4).join(' | '));
-ok('phone: a scholarship-only option exists (Funded)', schChips.some(t => /Fully funded/.test(t)));
-ok('phone: a programme-only option is absent (Tuition)', !schChips.some(t => /Tuition/.test(t)));
+/* compact shape: pills + selects, not a wall of chip groups */
+const pills = sel('.mfilter__pills .chip');
+const selects = sel('.mfilter__selects select');
+ok('phone: the match group is four pills', pills.length === 4, pills.map(p => p.textContent.trim()).join(' | '));
+ok('phone: the rest folds into selects', selects.length >= 3 && selects.length <= 6, selects.length + ' selects');
+ok('phone: no labelled chip groups are left over', sel('.mfilter__label').length === 0);
+const labels = sel('.mfilter__select-label').map(e => e.textContent.trim());
+ok('phone: every select has a label', labels.length === selects.length, labels.join(' · '));
+ok('phone: scholarship filters shown', labels.includes('Funding') && !labels.includes('Tuition'));
+ok('phone: programme-only options are hidden', !labels.includes('Language') && !labels.includes('Intake'));
 
-/* switching tabs swaps the option set */
+/* counts survive the compact layout */
+ok('phone: pills carry counts', pills.every(p => /\d+$/.test(p.textContent.trim())),
+  pills.map(p => p.textContent.trim()).join(' | '));
+const opts = [...selects[0].options].map(o => o.textContent.trim());
+ok('phone: select options carry counts', opts.every(t => /·\s*\d+$/.test(t)), opts.join(' | '));
+
+/* programmes expose their own set */
 const progBtn = sel('.tabs button').find(b => /Programs/.test(b.textContent));
 progBtn.click();
 await wait(700);
-const progLabels = sel('.mfilter__label').map(e => e.textContent.trim());
-const progChips = chipTexts();
-ok('phone: programmes expose their own groups', progLabels.includes('Language') && progLabels.includes('Tuition') && progLabels.includes('Intake'),
-  progLabels.join(' · '));
-ok('phone: scholarship group is gone on programs', !progLabels.includes('Funding'));
-ok('phone: programme chips carry counts', progChips.length > 0 && progChips.every(t => /\s\d+$/.test(t)), progChips.slice(0, 4).join(' | '));
+const progLabels = sel('.mfilter__select-label').map(e => e.textContent.trim());
+/* a filter with a single possible value is not shown at all — every listing here
+   is English-taught in Germany, so Language and Country stay folded away */
+ok('phone: programmes swap in their own selects',
+  progLabels.includes('Tuition') && progLabels.includes('Intake'), progLabels.join(' · '));
+ok('phone: no select offers a single meaningless choice',
+  sel('.mfilter__selects select').every(s2 => [...s2.options].filter(o => !o.disabled).length > 1));
+ok('phone: the scholarship-only select is gone', !progLabels.includes('Funding'));
 
-/* a filter actually narrows the page */
+/* a filter narrows the page — pick a value the counts say actually will */
 const before = document.querySelectorAll('.cards-2 > *').length;
-/* pick a chip the counts say will actually narrow the page — data-driven, so the
-   test cannot go stale when the seed changes */
-const rowsTotal = Number(/All (\d+)/.exec(sel('.mfilter .chip')[0].textContent)[1]);
-const narrowingChip = sel('.mfilter .chip').find(c => {
-  const m = /(\d+)$/.exec(c.textContent.replace(/\s+$/, ''));
-  return m && Number(m[1]) > 0 && Number(m[1]) < rowsTotal;
-});
-ok('phone: at least one filter option narrows the set', !!narrowingChip,
-  narrowingChip ? narrowingChip.textContent.trim() : 'none available');
-narrowingChip.click();
+const totalRows = Number(/All(\d+)/.exec(sel('.mfilter__pills .chip')[0].textContent.replace(/\s/g, ''))[1]);
+let choice = null;
+for (const selEl of sel('.mfilter__selects select')) {
+  for (const o of [...selEl.options]) {
+    const n = Number((/·\s*(\d+)/.exec(o.textContent) || [])[1]);
+    if (n > 0 && n < totalRows) { choice = { el: selEl, o }; break; }
+  }
+  if (choice) break;
+}
+ok('phone: a narrowing option exists', !!choice, choice ? choice.o.textContent.trim() : 'none');
+const setNative = (el, val) => {
+  const proto = Object.getPrototypeOf(el);
+  Object.getOwnPropertyDescriptor(proto, 'value').set.call(el, val);
+  el.dispatchEvent(new win.Event('change', { bubbles: true }));
+};
+setNative(choice.el, choice.o.value);
 await wait(700);
 const after = document.querySelectorAll('.cards-2 > *').length;
 ok('phone: choosing a filter narrows the results', after < before, before + ' → ' + after);
-const freeChip = sel('.mfilter .chip').find(c => c.getAttribute('aria-pressed') === 'true');
-ok('phone: the chosen chip is pressed', freeChip.getAttribute('aria-pressed') === 'true');
-ok('phone: the head count reflects the filter', /of \d+ programmes/.test(document.querySelector('.mfilter__head .cap').textContent),
-  document.querySelector('.mfilter__head .cap').textContent.trim());
+ok('phone: the header count follows the filter', /of \d+ programmes/.test(document.querySelector('.mfilter__count .cap').textContent),
+  document.querySelector('.mfilter__count .cap').textContent.trim());
+ok('phone: Reset becomes available', !sel('.mfilter__reset')[0].hasAttribute('disabled'));
 
-/* reset puts everything back */
-const resetBtn = sel('.mfilter__head .btn')[0];
-resetBtn.click();
+/* reset restores everything */
+sel('.mfilter__reset')[0].click();
 await wait(700);
-const restored = document.querySelectorAll('.cards-2 > *').length;
-ok('phone: reset restores every card', restored >= after, after + ' → ' + restored);
-ok('phone: reset clears the pressed chip', sel('.mfilter .chip').filter(c => c.getAttribute('aria-pressed') === 'true').length ===
-  sel('.mfilter__group').length);
+ok('phone: reset restores every card', document.querySelectorAll('.cards-2 > *').length >= after,
+  after + ' → ' + document.querySelectorAll('.cards-2 > *').length);
 
-/* going back to scholarships restores its own controls, clean */
-const schBtn = sel('.tabs button').find(b => /Scholarships/.test(b.textContent));
-schBtn.click();
+/* back to scholarships: its own controls, clean */
+sel('.tabs button').find(b => /Scholarships/.test(b.textContent)).click();
 await wait(700);
-const backLabels = sel('.mfilter__label').map(e => e.textContent.trim());
-ok('phone: returning to scholarships restores its options', backLabels.includes('Funding') && !backLabels.includes('Tuition'));
+const backLabels = sel('.mfilter__select-label').map(e => e.textContent.trim());
+ok('phone: returning to scholarships restores its options',
+  backLabels.includes('Funding') && !backLabels.includes('Tuition'), backLabels.join(' · '));
+ok('phone: the recheck checkbox is present', !!document.querySelector('.mfilter__check input'));
 
 /* back to an admin session for the console checks that follow */
 await login('admin@example.com');
