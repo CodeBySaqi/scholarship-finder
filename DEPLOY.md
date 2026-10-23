@@ -39,6 +39,25 @@ Verified on the live service: login, save, delete, and admin endpoints all round
 Postgres (row `key = main`, `updated_at` moves on every write), and `/api/health` reports
 `store.mode: "supabase"` with 17 listings.
 
+### Auto-deploy on push — one step left for you
+
+The service was created through the Render API, which does **not** install Render's GitHub
+webhook (`autoDeploy: yes` is set, but nothing fires on push; verified: repo has 0 webhooks).
+Two ways to close that gap, pick one:
+
+1. **Connect the repo in the Render dashboard** (recommended, native):
+   Render → `scholarship-finder` → **Settings → Build & Deploy → Connect Repo** →
+   `CodeBySaqi/scholarship-finder`, branch `main`. This installs the webhook and turns on real
+   push-to-deploy. Afterwards `.github/workflows/deploy.yml` is redundant — delete it.
+2. **Add the Actions secret** (keeps the workflow as the webhook):
+   GitHub repo → **Settings → Secrets and variables → Actions → New repository secret**,
+   name `RENDER_API_KEY`, value = your Render API key. Every push to `main` then calls the
+   Render deploy API for that commit.
+
+Until one of those is done, a push alone will not rebuild — trigger a deploy with
+`bash tools/deploy-render.sh` or from the Render dashboard. The live service is current with
+`main` as of commit `b337991`.
+
 ---
 
 ## What it costs you (and the one trade-off)
