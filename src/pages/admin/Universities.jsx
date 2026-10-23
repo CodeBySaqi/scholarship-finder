@@ -69,19 +69,19 @@ export default function AdminUniversities() {
 
       <div className="card">
         <div className="table-wrap">
-          <table className="table">
+          <table className="table table--stack">
             <thead><tr><th>University</th><th>City</th><th>Type</th><th>Funding</th><th>uni-assist</th><th>Programs</th><th style={{ textAlign: 'right' }}>Actions</th></tr></thead>
             <tbody>
               {loading && <tr><td colSpan={7}><Loader /></td></tr>}
               {unis.map(u => (
                 <tr key={u.id}>
-                  <td className="t-title">{u.name}<div className="cap">{u.state}</div></td>
-                  <td>{u.city}</td>
-                  <td className="cap">{TYPES[u.type] || u.type}</td>
-                  <td className="cap">{u.isPublic ? 'Public' : 'Private'}</td>
-                  <td>{u.uniAssistMember ? <span className="tag tag--ok">member</span> : <span className="tag tag--out">direct</span>}</td>
-                  <td className="cap">{u.programs ?? 0}</td>
-                  <td>
+                  <td data-label="University" className="t-title">{u.name}<div className="cap">{u.state}</div></td>
+                  <td data-label="City">{u.city}</td>
+                  <td data-label="Type" className="cap">{TYPES[u.type] || u.type}</td>
+                  <td data-label="Funding" className="cap">{u.isPublic ? 'Public' : 'Private'}</td>
+                  <td data-label="uni-assist">{u.uniAssistMember ? <span className="tag tag--ok">member</span> : <span className="tag tag--out">direct</span>}</td>
+                  <td data-label="Programs" className="cap">{u.programs ?? 0}</td>
+                  <td data-label="Actions">
                     <div className="row" style={{ justifyContent: 'flex-end', gap: 2 }}>
                       <a className="iconbtn" href={u.websiteUrl} target="_blank" rel="noopener" aria-label={'Open the website of ' + u.name} title="Open website"><Icon name="external" /></a>
                       {isAdmin && <button className="iconbtn" type="button" aria-label={'Edit ' + u.name} title="Edit" onClick={() => openEdit(u)}><Icon name="edit" /></button>}

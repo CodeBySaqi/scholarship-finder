@@ -89,7 +89,7 @@ export default function AdminListings() {
         </div>
 
         <div className="table-wrap">
-          <table className="table">
+          <table className="table table--stack">
             <thead><tr>
               <th>Listing</th><th>Type</th><th>Status</th><th>Last verified</th><th>Deadline</th><th>Created by</th><th>Actions</th>
             </tr></thead>
@@ -97,18 +97,18 @@ export default function AdminListings() {
               {loading && <tr><td colSpan={7}><Loader /></td></tr>}
               {!loading && rows.map(l => (
                 <tr key={l.id}>
-                  <td><div className="t-title">{l.title}</div><div className="cap">{l.provider} · {l.id}{l.draftedByAi ? ' · AI draft' : ''}</div></td>
-                  <td>{l.kind === 'scholarship' ? 'Scholarship' : 'Program'}</td>
-                  <td>{l.status === 'verified' ? <span className="tag tag--ok">verified</span>
+                  <td data-label="Listing"><div className="t-title">{l.title}</div><div className="cap">{l.provider} · {l.id}{l.draftedByAi ? ' · AI draft' : ''}</div></td>
+                  <td data-label="Type">{l.kind === 'scholarship' ? 'Scholarship' : 'Program'}</td>
+                  <td data-label="Status">{l.status === 'verified' ? <span className="tag tag--ok">verified</span>
                     : l.status === 'draft' ? <span className="tag tag--wn">draft</span>
                       : l.status === 'stale' ? <span className="tag tag--er">stale</span>
                         : <span className="tag tag--out">{l.status}</span>}</td>
-                  <td>{l.freshness.state === 'fresh' ? <span className="cap">{plural(l.freshness.days, 'day')} ago</span>
+                  <td data-label="Last verified">{l.freshness.state === 'fresh' ? <span className="cap">{plural(l.freshness.days, 'day')} ago</span>
                     : l.freshness.state === 'ok' ? <span className="cap">{fmtDate(l.lastVerified)}</span>
                       : <span className="tag tag--er">{l.freshness.days} days — recheck</span>}</td>
-                  <td>{l.deadline ? fmtDate(l.deadline) : '—'}</td>
-                  <td className="cap">{l.createdBy || '—'}</td>
-                  <td>
+                  <td data-label="Deadline">{l.deadline ? fmtDate(l.deadline) : '—'}</td>
+                  <td data-label="Created by" className="cap">{l.createdBy || '—'}</td>
+                  <td data-label="Actions">
                     <div className="row" style={{ justifyContent: 'flex-end', gap: 2 }}>
                       <button className="iconbtn" type="button" aria-label={'View all details for ' + l.id} title="View details"
                         onClick={() => setViewId(l.id)}><Icon name="eye" /></button>

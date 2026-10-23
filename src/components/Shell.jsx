@@ -90,15 +90,38 @@ function ThemeToggle() {
 /* ------------------------------------------------------------------ search */
 function HeaderSearch({ target = '/scholarships', placeholder = 'Search scholarships and programs' }) {
   const [q, setQ] = useState('');
+  const [open, setOpen] = useState(false);
   const nav = useNavigate();
+  const input = useRef(null);
+  const wrap = useRef(null);
+
+  useEffect(() => {
+    if (open && input.current) input.current.focus();
+    if (!open) return;
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    const onDoc = (e) => { if (wrap.current && !wrap.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onDoc);
+    return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('mousedown', onDoc); };
+  }, [open]);
+
+  const submit = (e) => {
+    e.preventDefault();
+    nav(target + (q.trim() ? '?q=' + encodeURIComponent(q.trim()) : ''));
+    setOpen(false);
+  };
+
   return (
-    <form className="searchpill searchpill--form" role="search" style={{ display: 'flex' }}
-      onSubmit={e => { e.preventDefault(); nav(target + (q.trim() ? '?q=' + encodeURIComponent(q.trim()) : '')); }}>
-      <Icon name="search" />
-      <input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder={placeholder}
-        aria-label={placeholder} enterKeyHint="search" />
-      {q && <button type="button" className="searchpill__clear" aria-label="Clear search" onClick={() => setQ('')}><Icon name="close" /></button>}
-    </form>
+    <div className={'hsearch' + (open ? ' is-open' : '')} ref={wrap}>
+      <button className="iconbtn hsearch__toggle" type="button" aria-label="Search" aria-expanded={open}
+        onClick={() => setOpen(o => !o)}><Icon name={open ? 'close' : 'search'} /></button>
+      <form className="searchpill searchpill--form" role="search" onSubmit={submit}>
+        <Icon name="search" />
+        <input ref={input} type="search" value={q} onChange={e => setQ(e.target.value)} placeholder={placeholder}
+          aria-label={placeholder} enterKeyHint="search" />
+        {q && <button type="button" className="searchpill__clear" aria-label="Clear search" onClick={() => setQ('')}><Icon name="close" /></button>}
+      </form>
+    </div>
   );
 }
 
@@ -173,6 +196,22 @@ function MenuButton({ onToggle, collapsed }) {
 }
 
 /* -------------------------------------------------------------------- shells */
+
+function AdminBottomNav() {
+  const items = [
+    { to: '/admin', label: 'Overview', icon: 'grid', end: true },
+    { to: '/admin/queue', label: 'Queue', icon: 'clock' },
+    { to: '/admin/listings', label: 'Listings', icon: 'list' },
+    { to: '/admin/broadcast', label: 'Send', icon: 'mail' },
+    { to: '/notifications', label: 'Alerts', icon: 'bell' }
+  ];
+  return (
+    <nav className="bottomnav" aria-label="Admin shortcuts">
+      {items.map(n => <NavLink key={n.to} to={n.to} end={n.end}><Icon name={n.icon} />{n.label}</NavLink>)}
+    </nav>
+  );
+}
+
 export function AppShell({ page, children, counts = {} }) {
   useShell('app', page);
   const { user } = useAuth();
@@ -230,6 +269,7 @@ export function AdminShell({ page, children }) {
         </div>
       </header>
       <main className="page" id="page">{children}</main>
+      <AdminBottomNav />
     </>
   );
 }

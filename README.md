@@ -67,6 +67,34 @@ npm install --no-save happy-dom
 The Playwright suites (`ui-roles`, `wizard-e2e`, `flows`, `failure-modes`, `page-crawl`) need a
 Chromium binary and system libraries; run them where those exist.
 
+## Responsive design
+
+One layout, four ranges, all driven from `src/styles/react.css`. Nothing in `tokens.css` or
+`app.css` was restyled to get there — the responsive layer is additive.
+
+| Width | Layout |
+| --- | --- |
+| ≤ 399 px | compact top bar; greeting truncates instead of pushing icons off; stacked admin rows |
+| 400–767 px | **phone**: off-canvas sidebar drawer, bottom tab bar, stacked admin tables, sheets slide up from the bottom, header search expands on tap |
+| 768–1023 px | **tablet**: inline header search, two-up cards, real table columns, centred modal sheets |
+| ≥ 1024 px | **desktop**: persistent sidebar (collapsible), full tables, three-up grids |
+
+Details that matter on a real phone:
+
+- Admin tables become **cards**: below 720 px each row is a bordered block and every cell carries
+  its column name through `data-label`, so a seven-column table stays readable instead of
+  scrolling sideways.
+- The app and the console each get a **bottom tab bar** (the console: Overview, Queue, Listings,
+  Send, Alerts); the sidebar opens as a drawer with a tap-to-close scrim.
+- **Header search** collapses to an icon and expands into a full-width field under the bar.
+- Inputs are 16 px below 640 px so iOS does not zoom on focus; hit targets are 44 px on coarse
+  pointers; the drawer never exceeds `100vw - 32px`; safe-area insets are respected.
+- `overflow-x: clip` (with a `hidden` fallback) stops sideways scroll without breaking the sticky
+  top bar.
+
+`./audit/run-dom.sh responsive` checks the phone and tablet behaviour — drawer vs column,
+search expansion, stacked labels, bottom bars, sheet content — 36 checks.
+
 ## Run it
 
 ```bash

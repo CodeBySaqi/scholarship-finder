@@ -82,13 +82,13 @@ export default function AdminUsers() {
 
       <div className="card">
         <div className="table-wrap">
-          <table className="table">
+          <table className="table table--stack">
             <thead><tr><th>User</th><th>Role</th><th>Status</th><th>Last login</th><th>Joined</th><th>Profile</th><th style={{ textAlign: 'right' }}>Actions</th></tr></thead>
             <tbody>
               {loading && <tr><td colSpan={7}><Loader /></td></tr>}
               {users.map(u => (
                 <tr key={u.id}>
-                  <td>
+                  <td data-label="User">
                     <div className="row" style={{ gap: 8 }}>
                       <span className="avatar" style={{ width: 28, height: 28, fontSize: 12 }}>{(u.displayName || 'U')[0]}</span>
                       <div>
@@ -97,7 +97,7 @@ export default function AdminUsers() {
                       </div>
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Role">
                     <select className="select" style={{ minHeight: 34, fontSize: 13, width: 'auto' }} value={u.role}
                       aria-label={'Role for ' + u.email} disabled={!isAdmin || u.id === user?.id}
                       title={u.id === user?.id ? 'You cannot change your own role' : undefined}
@@ -105,13 +105,13 @@ export default function AdminUsers() {
                       {['student', 'contributor', 'admin'].map(r => <option key={r} value={r}>{r[0].toUpperCase() + r.slice(1)}</option>)}
                     </select>
                   </td>
-                  <td>
+                  <td data-label="Status">
                     {u.isActive ? <span className="tag tag--ok">active</span> : <span className="tag tag--er">banned</span>}
                   </td>
-                  <td className="cap">{u.lastLogin ? fmtDate(u.lastLogin.slice(0, 10)) : 'never'}</td>
-                  <td className="cap">{u.createdAt ? fmtDate(u.createdAt.slice(0, 10)) : '—'}</td>
-                  <td>{u.profilePct != null ? <span className={'tag ' + (u.profilePct >= 80 ? 'tag--ok' : 'tag--wn')}>{u.profilePct}%</span> : <span className="cap">—</span>}</td>
-                  <td>
+                  <td data-label="Last login" className="cap">{u.lastLogin ? fmtDate(u.lastLogin.slice(0, 10)) : 'never'}</td>
+                  <td data-label="Joined" className="cap">{u.createdAt ? fmtDate(u.createdAt.slice(0, 10)) : '—'}</td>
+                  <td data-label="Profile">{u.profilePct != null ? <span className={'tag ' + (u.profilePct >= 80 ? 'tag--ok' : 'tag--wn')}>{u.profilePct}%</span> : <span className="cap">—</span>}</td>
+                  <td data-label="Actions">
                     <div className="row" style={{ justifyContent: 'flex-end', gap: 2 }}>
                       <button className="iconbtn" type="button" aria-label={'View all details for ' + u.email} title="View details"
                         onClick={() => setDetailId(u.id)}><Icon name="eye" /></button>

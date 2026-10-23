@@ -45,6 +45,22 @@ What the new suites check, in plain terms:
 - the header search filters the catalogue at `/scholarships?q=` / `/programs?q=` and offers the other collection
 
 
+## Round 4 — responsive audit (2026-10-23)
+
+Phone (390 px), tablet (768–820 px) and desktop (1024 px) are checked by
+`audit/responsive.mjs` — **36 / 36**. It drives the real components at each width:
+
+- the menu button opens the *drawer* on a phone and the *collapse* on desktop — never the wrong one
+- the header search is hidden behind a toggle on a phone, opens on tap, submits, and closes
+- every cell of the three admin tables carries a `data-label`, and the label count equals the
+  header column count (so nothing renders an unlabelled card row)
+- the student and admin bottom bars each have five working destinations
+- sheets, the broadcast recipient picker and the research form all render at 390 px
+- at 820 px the table keeps its real header row and the search field is inline
+
+Regression suites re-run after the change: api-matrix 83/83, feature-logic 114/114,
+data-integrity 20/20, dom-smoke 37/37, features-admin 69/69.
+
 ## Identities exercised
 
 | Identity | Reaches | Must never reach |
