@@ -22,6 +22,25 @@ existing code, git-push deploys.
 
 ---
 
+## This deployment (already done)
+
+| Piece | Value |
+| --- | --- |
+| Live URL | https://scholarship-finder-5g4o.onrender.com |
+| Render service | `scholarship-finder` · `srv-dbdk3559fdbs73bdghrg` · free · frankfurt · autoDeploy on |
+| Build command | `npm ci --include=dev && npm run build` |
+| Start command | `node server/index.js` |
+| Health check | `/api/health` (503 if the store is unusable) |
+| GitHub repo | `CodeBySaqi/scholarship-finder`, branch `main` |
+| Supabase | project `mbxsfcvrbthbgkujlqal`, `https://mbxsfcvrbthbgkujlqal.supabase.co` |
+| Env vars | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SF_SECRET`, `NODE_VERSION=20`, `NODE_ENV=production` |
+
+Verified on the live service: login, save, delete, and admin endpoints all round-trip through
+Postgres (row `key = main`, `updated_at` moves on every write), and `/api/health` reports
+`store.mode: "supabase"` with 17 listings.
+
+---
+
 ## What it costs you (and the one trade-off)
 
 | | Free tier | Catch |

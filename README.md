@@ -1,8 +1,22 @@
-# Scholarship Finder — React + Node app
+# Scholarship Finder (scholarpath)
 
-The finished static prototype (`/home/user/scholarship-platform/`) turned into a working
-application: React 18 + React Router client, Express + JSON-file server, same design system
-(`tokens.css` / `app.css` are reused unchanged — `react.css` only adds page-level glue).
+**Live: https://scholarship-finder-5g4o.onrender.com** — deployed 2026-10-23, running against a
+real Supabase Postgres database. Every push to `main` on
+[CodeBySaqi/scholarship-finder](https://github.com/CodeBySaqi/scholarship-finder) rebuilds and
+redeploys it automatically.
+
+| | |
+| --- | --- |
+| App | https://scholarship-finder-5g4o.onrender.com |
+| Health | [`/api/health`](https://scholarship-finder-5g4o.onrender.com/api/health) → `store.mode: supabase` |
+| Repo | https://github.com/CodeBySaqi/scholarship-finder (public, `main`) |
+| Database | Supabase project `mbxsfcvrbthbgkujlqal`, region eu-central-1, table `app_state` |
+| Host | Render free web service `scholarship-finder` (`srv-dbdk3559fdbs73bdghrg`), Frankfurt |
+| Demo logins | `admin@example.com` / `demo1234` · `ayesha@example.com` / `demo1234` |
+
+First request after 15 idle minutes takes ~1 min (free tier cold start). A daily
+`.github/workflows/keepalive.yml` job pings `/api/health` so neither the Render service nor the
+Supabase project falls asleep.
 
 ## Run it
 
