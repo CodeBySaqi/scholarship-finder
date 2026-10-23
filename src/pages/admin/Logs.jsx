@@ -26,17 +26,17 @@ export default function AdminLogs() {
           ))}
         </div>
         <div className="table-wrap" style={{ marginTop: 10 }}>
-          <table className="table">
+          <table className="table table--stack">
             <thead><tr><th>Action</th><th>Entity</th><th>Record</th><th>Actor</th><th>When</th></tr></thead>
             <tbody>
               {loading && <tr><td colSpan={5}><Loader /></td></tr>}
               {rows.map(l => (
                 <tr key={l.id}>
-                  <td><span className="tag tag--out">{l.action.replace(/_/g, ' ')}</span></td>
-                  <td className="cap">{l.entityType}</td>
-                  <td>{l.entityId}</td>
-                  <td className="cap">{l.adminId}</td>
-                  <td className="cap">{fmtDate(String(l.createdAt).slice(0, 10))}</td>
+                  <td data-label="Action"><span className="tag tag--out">{l.action.replace(/_/g, ' ')}</span></td>
+                  <td data-label="Entity" className="cap">{l.entityType}</td>
+                  <td data-label="Record">{l.entityId}</td>
+                  <td data-label="Actor" className="cap">{l.adminId}</td>
+                  <td data-label="When" className="cap">{fmtDate(String(l.createdAt).slice(0, 10))}</td>
                 </tr>
               ))}
               {!loading && !rows.length && <tr><td colSpan={5}><div className="empty"><p className="cap">No entries for this action yet.</p></div></td></tr>}

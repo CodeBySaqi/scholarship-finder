@@ -85,7 +85,11 @@ Details that matter on a real phone:
   its column name through `data-label`, so a seven-column table stays readable instead of
   scrolling sideways.
 - The app and the console each get a **bottom tab bar** (the console: Overview, Queue, Listings,
-  Send, Alerts); the sidebar opens as a drawer with a tap-to-close scrim.
+  Send, Alerts). It is `position: fixed` on phones only — it stays on the glass while the page
+  scrolls, the page reserves its height so nothing hides behind it, and it disappears entirely
+  from 768 px up. The sidebar opens as a drawer with a tap-to-close scrim.
+- **Every** admin table stacks on a phone: users, listings, universities, error reports and the
+  audit log. No table scrolls sideways.
 - **Header search** collapses to an icon and expands into a full-width field under the bar.
 - Inputs are 16 px below 640 px so iOS does not zoom on focus; hit targets are 44 px on coarse
   pointers; the drawer never exceeds `100vw - 32px`; safe-area insets are respected.
@@ -93,7 +97,10 @@ Details that matter on a real phone:
   top bar.
 
 `./audit/run-dom.sh responsive` checks the phone and tablet behaviour — drawer vs column,
-search expansion, stacked labels, bottom bars, sheet content — 36 checks.
+search expansion, stacked labels, bottom bars, sheet content — **39 checks**.
+`node audit/responsive-css.mjs` checks the built stylesheet itself: that the fixed bar lives in
+the phone breakpoint, that it is declared after the sticky rule, that it is hidden from 768 px,
+and that the page reserves its height — **17 checks**.
 
 ## Run it
 

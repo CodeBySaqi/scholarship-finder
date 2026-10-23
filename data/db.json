@@ -1,6 +1,6 @@
 {
  "meta": {
-  "seededAt": "2026-10-23T14:55:21.789Z",
+  "seededAt": "2026-10-23T15:06:16.997Z",
   "today": "2026-10-22",
   "password": "demo1234",
   "version": 1
@@ -13,8 +13,8 @@
    "role": "student",
    "isActive": true,
    "emailVerified": true,
-   "passwordHash": "8a0606e50ea8e5bac117015ecf3c167f:c5141decdf565e3be2b66e16e6f3cae13b9e8477e394675a5911f8197eb98c96",
-   "createdAt": "2026-10-23T14:55:21.789Z",
+   "passwordHash": "2bcd65570bfb6a393787f859bf6607fc:ddd7cc0d7fdcafdf57fb1297b5588a29cad282bda7c1482daf355ec87d388120",
+   "createdAt": "2026-10-23T15:06:16.997Z",
    "lastLogin": null
   },
   {
@@ -24,8 +24,8 @@
    "role": "student",
    "isActive": true,
    "emailVerified": true,
-   "passwordHash": "8a0606e50ea8e5bac117015ecf3c167f:c5141decdf565e3be2b66e16e6f3cae13b9e8477e394675a5911f8197eb98c96",
-   "createdAt": "2026-10-23T14:55:21.789Z",
+   "passwordHash": "2bcd65570bfb6a393787f859bf6607fc:ddd7cc0d7fdcafdf57fb1297b5588a29cad282bda7c1482daf355ec87d388120",
+   "createdAt": "2026-10-23T15:06:16.997Z",
    "lastLogin": null
   },
   {
@@ -35,8 +35,8 @@
    "role": "student",
    "isActive": true,
    "emailVerified": true,
-   "passwordHash": "8a0606e50ea8e5bac117015ecf3c167f:c5141decdf565e3be2b66e16e6f3cae13b9e8477e394675a5911f8197eb98c96",
-   "createdAt": "2026-10-23T14:55:21.789Z",
+   "passwordHash": "2bcd65570bfb6a393787f859bf6607fc:ddd7cc0d7fdcafdf57fb1297b5588a29cad282bda7c1482daf355ec87d388120",
+   "createdAt": "2026-10-23T15:06:16.997Z",
    "lastLogin": null
   },
   {
@@ -46,8 +46,8 @@
    "role": "contributor",
    "isActive": true,
    "emailVerified": true,
-   "passwordHash": "8a0606e50ea8e5bac117015ecf3c167f:c5141decdf565e3be2b66e16e6f3cae13b9e8477e394675a5911f8197eb98c96",
-   "createdAt": "2026-10-23T14:55:21.789Z",
+   "passwordHash": "2bcd65570bfb6a393787f859bf6607fc:ddd7cc0d7fdcafdf57fb1297b5588a29cad282bda7c1482daf355ec87d388120",
+   "createdAt": "2026-10-23T15:06:16.997Z",
    "lastLogin": null
   },
   {
@@ -57,8 +57,8 @@
    "role": "admin",
    "isActive": true,
    "emailVerified": true,
-   "passwordHash": "8a0606e50ea8e5bac117015ecf3c167f:c5141decdf565e3be2b66e16e6f3cae13b9e8477e394675a5911f8197eb98c96",
-   "createdAt": "2026-10-23T14:55:21.789Z",
+   "passwordHash": "2bcd65570bfb6a393787f859bf6607fc:ddd7cc0d7fdcafdf57fb1297b5588a29cad282bda7c1482daf355ec87d388120",
+   "createdAt": "2026-10-23T15:06:16.997Z",
    "lastLogin": null
   }
  ],
@@ -332,7 +332,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 1,
    "evidence": {},
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "S2",
@@ -381,7 +381,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "S3",
@@ -427,7 +427,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "S4",
@@ -473,7 +473,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "S5",
@@ -515,7 +515,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "S6",
@@ -556,7 +556,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "S7",
@@ -605,7 +605,7 @@
     "title": "MSc Environmental Governance at the University of Freiburg is a two-year, English-taught programme of 120 ECTS credits.",
     "deadline": "The application deadline for the October 2027 intake is 15 October 2026."
    },
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "S8",
@@ -648,7 +648,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 1,
    "evidence": {},
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "S9",
@@ -692,7 +692,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "P1",
@@ -753,7 +753,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 1,
    "evidence": {},
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "P2",
@@ -816,7 +816,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "P3",
@@ -876,7 +876,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "P4",
@@ -936,7 +936,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "P5",
@@ -993,7 +993,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "P6",
@@ -1051,7 +1051,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "P7",
@@ -1111,7 +1111,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "P8",
@@ -1170,7 +1170,7 @@
     "title": "Bachelor programme Physics at LMU Munich.",
     "deadline": "The application deadline for the winter semester is 15 July 2027 and for the summer semester 15 January 2027."
    },
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   }
  ],
  "universities": [
@@ -1184,7 +1184,7 @@
    "websiteUrl": "https://www.tum.de",
    "uniAssistMember": true,
    "notes": "Every applicant with a non-German Bachelor needs a uni-assist preliminary documentation (VPD).",
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "u2",
@@ -1196,7 +1196,7 @@
    "websiteUrl": "https://www.rwth-aachen.de",
    "uniAssistMember": false,
    "notes": "Master applications for Computer Science and Software Systems Engineering go directly through RWTHonline.",
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "u3",
@@ -1208,7 +1208,7 @@
    "websiteUrl": "https://www.lmu.de",
    "uniAssistMember": true,
    "notes": "International Office deadlines: 15 January for the summer semester, 15 July for the winter semester.",
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "u4",
@@ -1220,7 +1220,7 @@
    "websiteUrl": "https://www.ruhr-uni-bochum.de",
    "uniAssistMember": true,
    "notes": "Master Computer Science: 15 December is the final deadline for applicants whose Bachelor was obtained outside the EU.",
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "u5",
@@ -1232,7 +1232,7 @@
    "websiteUrl": "https://www.tu.berlin",
    "uniAssistMember": true,
    "notes": "Applicants with foreign academic credentials also submit a uni-assist VPD.",
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "u6",
@@ -1244,7 +1244,7 @@
    "websiteUrl": "https://www.hu-berlin.de",
    "uniAssistMember": true,
    "notes": "Deutschlandstipendium: application 9 November to 6 December 2026, funding from 1 April 2027.",
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "u7",
@@ -1256,7 +1256,7 @@
    "websiteUrl": "https://tu-dresden.de",
    "uniAssistMember": true,
    "notes": "Deutschlandstipendium: next application window 1 to 15 July 2027.",
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "u8",
@@ -1268,7 +1268,7 @@
    "websiteUrl": "https://www.fau.eu",
    "uniAssistMember": true,
    "notes": "Deutschlandstipendium 2026 ran from 15 June to 15 July 2026.",
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   },
   {
    "id": "u9",
@@ -1280,7 +1280,7 @@
    "websiteUrl": "https://uni-freiburg.de",
    "uniAssistMember": true,
    "notes": "Hosts the DAAD EPOS course MSc Environmental Governance.",
-   "updatedAt": "2026-10-23T14:55:21.789Z"
+   "updatedAt": "2026-10-23T15:06:16.997Z"
   }
  ],
  "saved": [

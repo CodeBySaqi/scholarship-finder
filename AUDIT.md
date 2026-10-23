@@ -58,8 +58,15 @@ Phone (390 px), tablet (768–820 px) and desktop (1024 px) are checked by
 - sheets, the broadcast recipient picker and the research form all render at 390 px
 - at 820 px the table keeps its real header row and the search field is inline
 
+The bottom bar is `position: fixed` **only below 768 px**: it no longer scrolls away with a long
+list. `audit/responsive-css.mjs` proves it from the built stylesheet — the rule sits in the phone
+breakpoint, is declared after the sticky base rule (so it wins), the bar is `display:none` from
+768 px up, the page reserves `84px + safe-area` underneath, toasts clear it and an open sheet
+covers it (**17/17**). Error reports and the audit log were also converted to stacked cards, so
+**every** admin table stacks on a phone (asserted: zero plain tables).
+
 Regression suites re-run after the change: api-matrix 83/83, feature-logic 114/114,
-data-integrity 20/20, dom-smoke 37/37, features-admin 69/69.
+data-integrity 20/20, dom-smoke 37/37, features-admin 69/69, responsive 39/39, responsive-css 17/17.
 
 ## Identities exercised
 

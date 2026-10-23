@@ -340,3 +340,37 @@ body { overflow-x: hidden; }
 @media (max-width: 380px) {
   .pubhead .actions .btn { padding: 0 12px; font-size: 13px; }
 }
+
+/* ------------------------------------------------------------ bottom bar
+   Phones only (>=768 the bar is display:none). `position: sticky` let it ride
+   up with the page, so a long list pushed navigation out of reach. Fixed keeps
+   it on the glass; the page reserves the height so nothing hides underneath. */
+@media (max-width: 767px) {
+  .bottomnav {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 34;                     /* above the page, below scrim (44) and sheets (60) */
+    margin: 0;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -6px 24px rgba(17, 34, 68, .14);
+    padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px));
+    /* the bar is a fixed overlay: it must not be squeezed by a landscape keyboard */
+    min-height: calc(58px + env(safe-area-inset-bottom, 0px));
+  }
+  /* keep the last card clear of the bar */
+  body[data-shell="app"] .page,
+  body[data-shell="admin"] .page { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  /* toasts float above the bar instead of behind it */
+  .toast-wrap { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  /* a sheet that slides up should cover the bar, not sit behind it */
+  .scrim.is-open { z-index: 62; }
+}
+
+/* landscape phones: a 58px bar plus a sheet leaves almost nothing, so trim it */
+@media (max-width: 767px) and (max-height: 480px) {
+  .bottomnav { min-height: 48px; padding-top: 4px; padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px)); }
+  .bottomnav a { font-size: 9px; }
+  .bottomnav a .ic { width: 20px; height: 20px; }
+  body[data-shell="app"] .page,
+  body[data-shell="admin"] .page { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+}

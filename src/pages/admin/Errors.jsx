@@ -41,22 +41,22 @@ export default function AdminErrors() {
 
       <div className="card">
         <div className="table-wrap">
-          <table className="table">
+          <table className="table table--stack">
             <thead><tr><th>Listing</th><th>Reason</th><th>Note</th><th>Reporter</th><th>Age</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
               {loading && <tr><td colSpan={7}><Loader /></td></tr>}
               {!loading && rows.map(r => (
                 <tr key={r.id}>
-                  <td><div className="t-title">{r.listingTitle}</div><div className="cap">{r.listingType} · {r.listingId}</div></td>
-                  <td><span className="tag tag--wn">{REASON[r.reason] || r.reason}</span></td>
-                  <td className="cap" style={{ maxWidth: 260 }}>{r.note || '—'}</td>
-                  <td className="cap">{r.userId || 'anonymous'}</td>
-                  <td className="cap">{Math.max(0, -daysTo(String(r.createdAt).slice(0, 10)))} days</td>
-                  <td>{r.status === 'open' ? <span className="tag tag--er">open</span>
+                  <td data-label="Listing"><div className="t-title">{r.listingTitle}</div><div className="cap">{r.listingType} · {r.listingId}</div></td>
+                  <td data-label="Reason"><span className="tag tag--wn">{REASON[r.reason] || r.reason}</span></td>
+                  <td data-label="Note" className="cap" style={{ maxWidth: 260 }}>{r.note || '—'}</td>
+                  <td data-label="Reporter" className="cap">{r.userId || 'anonymous'}</td>
+                  <td data-label="Age" className="cap">{Math.max(0, -daysTo(String(r.createdAt).slice(0, 10)))} days</td>
+                  <td data-label="Status">{r.status === 'open' ? <span className="tag tag--er">open</span>
                     : r.status === 'fixed' ? <span className="tag tag--ok">fixed</span>
                     : <span className="tag tag--out">dismissed</span>}</td>
-                  <td>
-                    <div className="row" style={{ justifyContent: 'flex-end', gap: 4 }}>
+                  <td data-label="Actions">
+                    <div className="row wr" style={{ justifyContent: 'flex-end', gap: 4 }}>
                       <Link className="btn btn--text btn--sm" to={(r.listingType === 'program' ? '/program/' : '/scholarship/') + r.listingId}>View</Link>
                       {r.status === 'open' && <>
                         <button className="btn btn--outlined btn--sm" type="button" onClick={() => act(r.id, 'resolve')}>Mark fixed</button>

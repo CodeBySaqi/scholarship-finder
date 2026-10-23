@@ -138,6 +138,22 @@ ok('phone: listing cells are all labelled', lcells.length > 0 && lcells.every(td
 ok('phone: listing labels include deadline and actions',
   lcells.some(td => td.getAttribute('data-label') === 'Deadline') && lcells.some(td => td.getAttribute('data-label') === 'Actions'));
 
+mount('/admin/errors');
+await wait(1200);
+const ecells = sel('table.table--stack tbody td');
+ok('phone: error reports stack with labels', ecells.length > 0 && ecells.every(td => td.getAttribute('data-label')),
+  ecells.slice(0, 7).map(td => td.getAttribute('data-label')).join(', '));
+
+mount('/admin/logs');
+await wait(1200);
+const logcells = sel('table.table--stack tbody td');
+ok('phone: audit log stacks with labels', logcells.length > 0 && logcells.every(td => td.getAttribute('data-label')),
+  logcells.slice(0, 5).map(td => td.getAttribute('data-label')).join(', '));
+
+/* no admin table may be left as a sideways-scrolling one on a phone */
+const plainTables = sel('table.table').filter(t => !t.classList.contains('table--stack'));
+ok('phone: every admin table uses the stacked layout', plainTables.length === 0, plainTables.length + ' plain tables');
+
 mount('/admin/universities');
 await wait(1200);
 const ncell = sel('table.table--stack tbody td');
