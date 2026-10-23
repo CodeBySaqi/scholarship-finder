@@ -39,25 +39,36 @@ Verified on the live service: login, save, delete, and admin endpoints all round
 Postgres (row `key = main`, `updated_at` moves on every write), and `/api/health` reports
 `store.mode: "supabase"` with 17 listings.
 
-### Auto-deploy on push — one step left for you
+### Auto-deploy on push — working now
 
-The service was created through the Render API, which does **not** install Render's GitHub
-webhook (verified: the repo had 0 webhooks), so `autoDeploy: yes` alone does not fire on push.
-`.github/workflows/deploy.yml` fills that gap, but it needs one credential on the GitHub side:
+`autoDeploy` is set to `yes` / `On Commit`, but a Render service created through the **API**
+has no GitHub connection behind that switch, so on its own it never fires. Verified on
+2026-10-23: a push to `main` (`ff35a6d`) sat for two minutes with **no** deploy, and every
+deploy in the service history showed `trigger: api` or `trigger: deploy_hook` — never a push.
 
-**Add one repository secret** — GitHub repo → **Settings → Secrets and variables → Actions →
-New repository secret**, name `RENDER_DEPLOY_HOOK`, value = the service's Deploy Hook URL
-(Render → `scholarship-finder` → Settings → **Deploy Hook**). Every push to `main` then
-deploys production in about a minute. `RENDER_API_KEY` also works as a fallback name.
+Push-to-deploy now works through a **GitHub push webhook that points at the service's Render
+Deploy Hook**:
 
-The hook URL is a credential — it is deliberately **not** stored in this repo.
+| | |
+| --- | --- |
+| Webhook | `CodeBySaqi/scholarship-finder` → Settings → Webhooks → id `702097316` |
+| Events | `push` (any branch; Render builds its tracked branch, `main`) |
+| Target | `https://api.render.com/deploy/srv-dbdk3559fdbs73bdghrg?key=…` |
+| Proof | a `ping` delivery returned **200 OK** and immediately triggered a build of `main` |
 
-Prefer the native path? Render → `scholarship-finder` → **Settings → Build & Deploy →
-Connect Repo** → `CodeBySaqi/scholarship-finder`, branch `main`. That installs the webhook and
-makes deploys work with no GitHub Actions at all; delete `.github/workflows/deploy.yml` after.
+So `git push origin main` → GitHub POSTs the deploy hook → Render builds and promotes the
+commit. No GitHub Actions, no secrets, nothing to click.
 
-Until one of those is done, trigger a deploy with the hook (`curl -X POST "$RENDER_DEPLOY_HOOK"`),
-`bash tools/deploy-render.sh`, or the Render dashboard. Live service tracks `main`.
+Caveats worth knowing:
+
+- The hook URL is a credential. It lives in GitHub's webhook config (visible to repo admins,
+  not to the public) and is deliberately **not** in this repo. Regenerating it in Render means
+  updating the webhook URL too.
+- If Render ever disables the hook, GitHub disables the webhook after repeated failures;
+  check Settings → Webhooks → Recent Deliveries.
+- The native alternative is Render → `scholarship-finder` → **Settings → Build & Deploy →
+  Connect Repo**. That installs Render's own GitHub App and makes `autoDeploy` do the work
+  directly; the webhook above then becomes redundant and can be deleted.
 
 ---
 
