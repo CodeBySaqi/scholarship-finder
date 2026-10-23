@@ -387,3 +387,35 @@ body { overflow-x: hidden; }
 /* and a hard guarantee that the drawer is always above its own scrim */
 .side { z-index: 45; }
 .scrim.side-scrim { z-index: 44; }
+
+/* --------------------------------------------- segmented tabs on a phone
+   app.css shrinks .tabs button to 12px/9px below 560px, which made the
+   Scholarships / Programs switch visibly smaller than on tablet and desktop.
+   On a phone they go the other way: equal-width, 46px tall, 14px text — the
+   same weight as the rest of the mobile controls, and a comfortable tap. */
+@media (max-width: 767px) {
+  .tabs {
+    padding: 5px;
+    gap: 4px;
+    border-radius: 14px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs button {
+    min-height: 46px;
+    padding: 0 14px;
+    font-size: 14px;
+    border-radius: 11px;
+    scroll-snap-align: start;
+  }
+  .tabs .count { font-size: 12px; }
+  /* a two-way switch fills the row: both halves are big, obvious targets */
+  .tabs[role="tablist"] > button:only-of-type,
+  .tabs[role="tablist"] { justify-content: stretch; }
+  .tabs[role="tablist"] > button { flex: 1 0 auto; }
+}
+
+/* small phones keep the height, trim only the horizontal padding */
+@media (max-width: 399px) {
+  .tabs button { padding: 0 10px; font-size: 13.5px; min-height: 46px; }
+}

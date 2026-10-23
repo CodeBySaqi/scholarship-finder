@@ -75,9 +75,15 @@ hides while the drawer is open (`body.drawer-open`) and returns when it closes.
 The test harness grew a real `matchMedia` stub that parses min/max-width and fires `change` on
 resize, so a phone → desktop resize is an actual test rather than an assumption.
 
+**Round 4c — the Matches switch looked shrunken.** `app.css` carries
+`@media (max-width:560px) { .tabs button { padding: 0 9px; font-size: 12px } }`, so the
+Scholarships / Programs switch was *smaller* on a phone than on tablet (13px) or desktop. The phone
+layer now sets 46px height, 14px text, 14px padding and equal-width halves — bigger, not smaller —
+with a 399px trim that keeps the height. A CSS-order assertion proves the override wins.
+
 Regression suites re-run after the change: api-matrix 83/83, feature-logic 114/114,
-data-integrity 20/20, dom-smoke 37/37, features-admin 69/69, **responsive 58/58**,
-**responsive-css 21/21**.
+data-integrity 20/20, dom-smoke 37/37, features-admin 69/69, **responsive 63/63**,
+**responsive-css 27/27**.
 
 ## Identities exercised
 

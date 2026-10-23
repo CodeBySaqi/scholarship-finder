@@ -102,5 +102,25 @@ ok('the bottom bar hides while the drawer is open',
 ok('that rule is scoped below the desktop breakpoint', /@media \(max-width: 1023px\)\{?[^@]*body\.drawer-open/.test(css) ||
   media(/max-width:\s*1023px/).some(b => /drawer-open/.test(b.body)));
 
+
+/* --------------------------------------------- the Matches segmented switch
+   app.css shrinks .tabs to 12px/9px under 560px; the phone layer must beat it.
+   Assert the winning declaration, and that it is at least as big as desktop. */
+const tabSizes = [...css.matchAll(/\.tabs button\{([^}]*)\}/g)].map(m => ({ decl: m[1], index: m.index }));
+const shrink = tabSizes.find(t => /font-size:\s*12px/.test(t.decl));
+/* the phone rule we care about lives in the 767px block, not the 399px trim */
+const tabsInPhone = (phoneBody.match(/\.tabs button\{([^}]*)\}/) || [])[1] || '';
+const phoneWin = { decl: tabsInPhone, index: css.indexOf('.tabs button{min-height:46px') };
+ok('the shrink-to-12px rule exists (the reason it looked small)', !!shrink);
+ok('a phone rule restores a 46px tab height', !!phoneWin.decl, phoneWin.decl || 'none');
+ok('that rule is declared after the shrink rule, so it wins', !!phoneWin.decl && !!shrink && phoneWin.index > shrink.index);
+ok('phone tab text is at least as large as desktop (14px vs 13px)',
+  !!phoneWin.decl && Number(/font-size:\s*([\d.]+)px/.exec(phoneWin.decl)[1]) >= 14,
+  phoneWin.decl ? /font-size:\s*([\d.]+)px/.exec(phoneWin.decl)[1] + 'px' : '');
+ok('phone tabs are at least 44px tall (tap target)', !!phoneWin.decl &&
+  Number(/min-height:\s*(\d+)px/.exec(phoneWin.decl)[1]) >= 44);
+ok('the "…/count" badge stays legible at 12px or more',
+  /\.tabs \.count\{font-size:1[2-9]/.test(css.replace(/ /g, '')) || /\.tabs \.count\s*\{[^}]*font-size:\s*1[2-9]/.test(css));
+
 console.log('\n' + results.filter(r => r.pass).length + '/' + results.length + ' stylesheet checks passed');
 process.exit(results.every(r => r.pass) ? 0 : 1);

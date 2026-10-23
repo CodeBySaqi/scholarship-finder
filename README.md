@@ -93,6 +93,9 @@ Details that matter on a real phone:
   the moment it closes. It is `position: fixed` on phones only — it stays on the glass while the page
   scrolls, the page reserves its height so nothing hides behind it, and it disappears entirely
   from 768 px up. The sidebar opens as a drawer with a tap-to-close scrim.
+- The **segmented switch** (Matches → Scholarships / Programs, and the admin filters) is 46px
+  tall with 14px text on a phone — larger than the 13px desktop size rather than smaller.
+  `app.css` trimmed it to 12px/9px below 560px; the phone layer overrides that.
 - **Every** admin table stacks on a phone: users, listings, universities, error reports and the
   audit log. No table scrolls sideways.
 - **Header search** collapses to an icon and expands into a full-width field under the bar.

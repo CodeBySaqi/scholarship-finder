@@ -214,6 +214,24 @@ ok('phone: listing cells are all labelled', lcells.length > 0 && lcells.every(td
 ok('phone: listing labels include deadline and actions',
   lcells.some(td => td.getAttribute('data-label') === 'Deadline') && lcells.some(td => td.getAttribute('data-label') === 'Actions'));
 
+/* the Matches switch: both halves present, labelled, and switching works */
+mount('/matches');
+await wait(1300);
+const tabs = sel('.tabs[role="tablist"] button');
+ok('phone: Matches shows both halves of the switch', tabs.length === 2,
+  tabs.map(b => b.textContent.trim().split(' ')[0]).join(' / '));
+ok('phone: the halves name the two listing types',
+  tabs.some(b => /Scholarships/.test(b.textContent)) && tabs.some(b => /Programs/.test(b.textContent)));
+ok('phone: the halves carry a count badge', sel('.tabs .count').length === 2);
+ok('phone: one half is selected, the other is not',
+  tabs.filter(b => b.getAttribute('aria-selected') === 'true').length === 1);
+const progTab = tabs.find(b => /Programs/.test(b.textContent));
+progTab.click();
+await wait(600);
+ok('phone: tapping Programs switches the list',
+  progTab.getAttribute('aria-selected') === 'true' &&
+  sel('.tabs button').filter(b => b.getAttribute('aria-selected') === 'true').length === 1);
+
 mount('/admin/errors');
 await wait(1200);
 const ecells = sel('table.table--stack tbody td');
