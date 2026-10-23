@@ -13,7 +13,8 @@ services:
     region: frankfurt          # closest free region to Pakistan/EU users
     branch: main
     autoDeploy: true           # ← the "push and it updates" part
-    buildCommand: npm ci && npm run build
+    # --include=dev: vite/react are devDependencies and NODE_ENV=production would skip them
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: node server/index.js
     healthCheckPath: /api/health
     envVars:

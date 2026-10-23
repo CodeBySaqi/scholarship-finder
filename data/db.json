@@ -113,6 +113,14 @@
    "userId": "u-bilal",
    "createdAt": "2026-10-01T09:00:00Z",
    "listingId": "S2"
+  },
+  {
+   "id": "sv-6",
+   "userId": "u-ayesha",
+   "listingId": "S3",
+   "kind": "scholarship",
+   "note": "",
+   "createdAt": "2026-10-23T10:59:44.322Z"
   }
  ],
  "users": [
@@ -122,7 +130,7 @@
    "email": "ayesha@example.com",
    "isActive": true,
    "createdAt": "2026-10-23T10:58:41.849Z",
-   "lastLogin": null,
+   "lastLogin": "2026-10-23T10:59:44.310Z",
    "displayName": "Ayesha Khan",
    "passwordHash": "2c67981657841908acdb50f2bba0c44f:fe26d12712443e66da95aa5a819f084a285d19ace1b27987c1ac1730eedb274f",
    "emailVerified": true

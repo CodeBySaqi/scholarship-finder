@@ -58,7 +58,7 @@ print(json.dumps({
     "region": region,
     "healthCheckPath": "/api/health",
     "envSpecificDetails": {
-      "buildCommand": "npm ci && npm run build",
+      "buildCommand": "npm ci --include=dev && npm run build",
       "startCommand": "node server/index.js"
     }
   }

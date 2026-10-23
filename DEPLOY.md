@@ -84,6 +84,13 @@ git push -u origin main
 From that moment: **push to `main` → Render builds → production is updated.** Pull requests
 get their own preview URL, and every deploy can be rolled back from the dashboard.
 
+### Build note (this bit fails if you skip it)
+
+`NODE_ENV=production` makes `npm ci` skip **devDependencies**, and `vite` is a devDependency —
+so the build command must be `npm ci --include=dev && npm run build`. Without `--include=dev`
+the deploy fails with `sh: 1: vite: not found`. `render.yaml` and `tools/deploy-render.sh` both
+use the correct command.
+
 ### 4. First data load
 
 The database starts empty, and the app refuses to seed itself in production (that would
