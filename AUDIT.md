@@ -81,9 +81,16 @@ Scholarships / Programs switch was *smaller* on a phone than on tablet (13px) or
 layer now sets 46px height, 14px text, 14px padding and equal-width halves — bigger, not smaller —
 with a 399px trim that keeps the height. A CSS-order assertion proves the override wins.
 
+**Round 4d — contextual filters on Matches.** The three switches that used to live in the right
+rail are replaced by a filter card directly under the Scholarship / Program switch. The option
+groups are per tab (scholarship: Funding, Degree level; programme: Language, Degree level, Tuition,
+Intake; shared: Match, Host country, Deadline, Hide needs-recheck), derived from the loaded
+listings, with a live count on every chip and disabled options that would empty the page. Counts
+for the Match group are computed inside the bucket, so "Almost there" no longer reports the total.
+
 Regression suites re-run after the change: api-matrix 83/83, feature-logic 114/114,
-data-integrity 20/20, dom-smoke 37/37, features-admin 69/69, **responsive 63/63**,
-**responsive-css 27/27**.
+data-integrity 20/20, dom-smoke 37/37, features-admin 69/69, **responsive 80/80**,
+**responsive-css 31/31**.
 
 ## Identities exercised
 

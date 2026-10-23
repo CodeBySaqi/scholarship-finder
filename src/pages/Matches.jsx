@@ -4,6 +4,7 @@ import { AppShell } from '../components/Shell.jsx';
 import { Icon, Loader, Empty, Btn, Notice, useAsync, useToast, LoadError } from '../components/ui.jsx';
 import { MatchCard } from '../components/cards.jsx';
 import { Sheet } from '../components/Sheet.jsx';
+import MatchFilters, { defaultFilters, applyFilters } from '../components/MatchFilters.jsx';
 import { api } from '../api.js';
 import { Disclaimer, daysTo } from '../lib.jsx';
 
@@ -12,7 +13,7 @@ const REASONS = ['Deadline is wrong', 'Requirements changed', 'The link does not
 export default function Matches() {
   const [params, setParams] = useSearchParams();
   const [tab, setTab] = useState(params.get('tab') === 'programs' ? 'programs' : 'scholarships');
-  const [filters, setFilters] = useState({ funding: false, days: false, recheck: false });
+  const [filters, setFilters] = useState(() => defaultFilters(tab));
   const [reporting, setReporting] = useState(null);
   const [reason, setReason] = useState(REASONS[0]);
   const toast = useToast();
@@ -22,19 +23,21 @@ export default function Matches() {
   const { data: prog, loading: l2, error: e2, reload: r2 } = useAsync(() => api.get('/matches?kind=programs'), []);
   const active = kind === 'programs' ? prog : sch;
 
+  /* every control lives in the contextual filter card, so the grouping here is
+     just "take what survived the filters and put it back into its three buckets" */
   const groups = useMemo(() => {
     if (!active) return { meets: [], almost: [], next: [] };
-    const apply = (list) => list.filter(r => {
-      const l = r.listing;
-      if (filters.funding && l.fundingType !== 'full' && (l.tuitionPerSemester || 0) > 0) return false;
-      if (filters.days && l.deadline && daysTo(l.deadline) > 90) return false;
-      if (filters.recheck && (r.badges || []).includes('recheck')) return false;
-      return true;
-    });
-    return { meets: apply(active.meets), almost: apply(active.almost), next: apply(active.next_cycle) };
+    const kept = new Set(applyFilters(active, filters).map(r => r.listing && r.listing.id ? r.listing.id : r.listingId));
+    const pick = (list) => list.filter(r => kept.has(r.listing && r.listing.id ? r.listing.id : r.listingId));
+    return { meets: pick(active.meets || []), almost: pick(active.almost || []), next: pick(active.next_cycle || []) };
   }, [active, filters]);
 
-  function switchTab(t) { setTab(t); setParams({ tab: t }); }
+  function switchTab(t) {
+    setTab(t);
+    setParams({ tab: t });
+    /* the two tabs expose different controls: start the new one clean */
+    setFilters(defaultFilters(t));
+  }
 
   async function sendReport() {
     try {
@@ -93,6 +96,9 @@ export default function Matches() {
         </button>
       </div>
 
+      <MatchFilters tab={tab} active={active} filters={filters} setFilters={setFilters}
+        onReset={() => setFilters(defaultFilters(tab))} />
+
       {active && active.provisional && (
         <Notice tone="warning">
           <b className="w500">Provisional — complete your profile.</b> At {active.profilePct}% we are skipping checks we cannot run yet, so some listings may be missing or marked as gaps. <Link to="/wizard">Finish the five steps</Link> to see the final list.
@@ -110,8 +116,8 @@ export default function Matches() {
               {groups.next.length > 0 && <Section title="Next cycle" tone="on-primary-container" list={groups.next} empty={{}} />}
               {!groups.meets.length && !groups.almost.length && !groups.next.length && (
                 <div className="card">
-                  <Empty icon="search" title="No results with these filters" text="Turn off “Fully funded only” or “Within 90 days” and try again."
-                    action={<button className="btn btn--tonal btn--sm" type="button" onClick={() => setFilters({ funding: false, days: false, recheck: false })}>Reset filters</button>} />
+                  <Empty icon="search" title="No results with these filters" text="Loosen the filter card above — the counts on each option show what is available."
+                    action={<button className="btn btn--tonal btn--sm" type="button" onClick={() => setFilters(defaultFilters(tab))}>Reset filters</button>} />
                 </div>
               )}
             </>
@@ -131,20 +137,6 @@ export default function Matches() {
               {!(active && active.targets && active.targets.length) && <p className="cap">No targets yet.</p>}
             </div>
             <p className="cap">A listing is shown once, matched against all your targets.</p>
-          </div>
-
-          <div className="card">
-            <h2 className="h2">Filters</h2>
-            <div className="col-8">
-              {[['funding', 'Fully funded only'], ['days', 'Within 90 days'], ['recheck', 'Hide needs-recheck']].map(([k, label]) => (
-                <div className="switch-row" style={{ minHeight: 38 }} key={k}>
-                  <span className="h3">{label}</span>
-                  <button className={'switch'} type="button" role="switch" aria-checked={filters[k]} aria-label={label}
-                    onClick={() => setFilters(f => ({ ...f, [k]: !f[k] }))} />
-                </div>
-              ))}
-            </div>
-            <Btn variant="outlined" size="sm" block to="/scholarships">Advanced filters</Btn>
           </div>
 
           <div className="card card--tone">
