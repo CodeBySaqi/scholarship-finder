@@ -84,8 +84,8 @@ export function pickAge(line) {
   if (!line) return null;
   const s = String(line);
   const patterns = [
-    /(?:under|below|younger than|not older than|no older than|at most|maximum(?: age)?(?: of)?|max\.?)\s*(\d{2})/i,
-    /(\d{2})\s*(?:years)?\s*(?:old)?\s*(?:or (?:younger|less))/i,
+    /(?:under|below|younger than|not (?:be )?older than|no (?:one )?older than|at most|maximum(?: age)?(?: of)?|max\.?)\s*(\d{2})/i,
+    /(\d{2})\s*(?:years)?\s*(?:old)?\s*(?:or (?:younger|less|under))/i,
     /(?:between|aged)\s*(\d{2})\s*(?:-|–|and|to)\s*(\d{2})/i
   ];
   for (const re of patterns) {
@@ -180,10 +180,12 @@ export function extractFields(kind, page, notes = '') {
     if (sentence) evidence[field] = sentence.slice(0, 300);
   };
 
-  const deadlineLine = findSentence(lines, /deadline|closes|apply by|closing date|application period/i);
+  const deadlineLine = findSentence(lines,
+    /deadline|close[sd]?\b|apply by|closing date|application period|applications? (are )?(accepted|open) (until|through)|submit (it )?by/i);
   const cgpaLine = findSentence(lines, /CGPA|GPA|grade point|minimum grade/i);
   const ieltsLine = findSentence(lines, /IELTS|TOEFL|English (language )?(proficiency|requirement)/i);
-  const ageLine = findSentence(lines, /\bage\b|years old|younger than|older than|under \d{2}|born (after|before)|maximum age|at most \d{2}/i);
+  const ageLine = findSentence(lines,
+    /\bage[sd]?\b|years old|younger than|older than|under \d{2}|\d{2} or (?:under|younger|less)|born (after|before)|maximum age|at most \d{2}/i);
   const tuitionLine = findSentence(lines, /tuition|semester fee|fees of|EUR per semester/i);
   const fundingLine = findSentence(lines, /full(y)? funded|scholarship|stipend|monthly allowance|grant/i);
   const cityLine = findSentence(lines, /located in|in (Berlin|Munich|Cologne|Frankfurt|Hamburg|Freiburg|Tübingen|Dresden|Aachen|Heidelberg|Stuttgart|Bonn|Göttingen|Mannheim|Jena|Leipzig)/i);

@@ -164,6 +164,38 @@ ok('settings: research can be switched on and off', typeof before.researchEnable
   ok('save: a status sent by the client is ignored (stays draft)', sl && sl.status === 'draft', sl && sl.status);
 }
 
+/* ------------------------------- 6a. the phrasings official pages really use
+   Every one of these failed before the extractor was widened: the verb "close"
+   without the -s, a single-digit day, "not BE older than", "30 or under". */
+{
+  const cases = [
+    ['Applications close on 2 February 2028. Candidates must not be older than 28.', '2028-02-02', 28],
+    ['Applications close on 15 January 2028. Candidates must not be older than 28.', '2028-01-15', 28],
+    ['Applications are accepted until 31 May 2027. Applicants must be 30 or under.', '2027-05-31', 30],
+    ['Submit by 1 March 2028. Maximum age of 32 applies.', '2028-03-01', 32],
+    ['The closing date is 15 July 2027. Candidates aged 25-30 qualify.', '2027-07-15', 30]
+  ];
+  for (const [text, deadline, age] of cases) {
+    const r = await call('/api/admin/research', { method: 'POST', as: 'admin', body: { kind: 'scholarship', notes: text } });
+    const f = (r.json || {}).fields || {};
+    ok('extract: ' + JSON.stringify(text.slice(0, 44)) + '…',
+      f.deadline === deadline && f.maxAge === age,
+      'deadline=' + f.deadline + ' maxAge=' + f.maxAge);
+  }
+}
+
+/* ------------------------------- 6b. the key hint is admin-only, by role */
+{
+  const asContributor = await call('/api/admin/settings', { as: 'contributor' });
+  const cs = (asContributor.json || {}).settings || {};
+  ok('a contributor gets no key state and no hint',
+    cs.aiApiKeySet === false && !cs.aiApiKeyHint && !cs.aiApiKey,
+    'aiApiKeySet=' + cs.aiApiKeySet + ' hint="' + cs.aiApiKeyHint + '"');
+  ok('a contributor still reads the site name', typeof cs.siteName === 'string' && cs.siteName.length > 0, cs.siteName);
+  ok('a contributor cannot change settings (403 on PUT)',
+    (await call('/api/admin/settings', { method: 'PUT', as: 'contributor', body: { siteName: 'Hacked' } })).status === 403);
+}
+
 /* --------------------------------------------------------- 7. audit trail */
 {
   const logs = (await call('/api/admin/logs', { as: 'admin' })).json.logs || [];
