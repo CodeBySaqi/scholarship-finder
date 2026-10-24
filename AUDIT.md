@@ -94,7 +94,21 @@ phone, one below 400px; selects are 42px and 16px on phones so the native picker
 
 Regression suites re-run after the change: api-matrix 83/83, feature-logic 114/114,
 data-integrity 20/20, dom-smoke 37/37, features-admin 69/69, **responsive 83/83**,
-**responsive-css 34/34**.
+**responsive-css 34/34**, **research 33/33**.
+
+**Round 5 — the AI research agent, audited (2026-10-24).** `audit/research-check.mjs`
+(new) drives the whole feature: 33/33. It found and fixed three defects:
+(1) age limits written the way official pages actually write them — "under 30",
+"not older than 32", "maximum age of 28", "aged 25-30" — were not extracted at all;
+`pickAge()` now reads every form. (2) The AI key hint (first/last four characters) was
+returned to **contributors**; the key state and hint are now admin-only, contributors get
+the site name and nothing about the key. (3) `/api/health` was registered *inside* the
+`if (dist exists)` block, so a deploy whose client build failed answered 404 instead of
+503; it now answers regardless of the build. Confirmed working: extract from pasted notes
+and from a real URL fetch, graceful fallback when the provider 401s (with the reason shown
+to the admin), save-as-draft that cannot be published even if the client sends
+`status: verified`, and the audit trail. **No AI key is configured on the deployment**, so
+the provider path is dormant there and every run reports "extract".
 
 ## Identities exercised
 

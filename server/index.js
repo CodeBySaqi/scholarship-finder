@@ -980,7 +980,9 @@ app.delete('/api/admin/universities/:id', requireStrictAdmin, (req, res) => {
 
 /* --------------------------------------------------- site settings (admin) */
 app.get('/api/admin/settings', requireAdmin, (req, res) => {
-  res.json({ settings: publicSettings(db()), canEdit: req.user.role === 'admin' });
+  /* contributors may read the site name and tagline, but nothing about the key */
+  const isAdmin = req.user.role === 'admin';
+  res.json({ settings: publicSettings(db(), { includeHint: isAdmin }), canEdit: isAdmin });
 });
 
 app.put('/api/admin/settings', requireStrictAdmin, (req, res) => {
@@ -1134,15 +1136,14 @@ app.get('/api/public/stats', (req, res) => {
   });
 });
 
-/* ================================================================ STATIC */
-const dist = path.join(here, '..', 'dist');
-if (fs.existsSync(dist)) {
-/* Health check for the host (Render pings this) and for an uptime monitor.
+/* Health check for the host (Render pings this) and for any uptime monitor.
    It reads the store, so it also counts as real activity for Supabase, which
-   pauses free projects after a week without database requests. */
+   pauses free projects after a week without database requests. It lives outside
+   the static block on purpose: a deploy whose client build failed must still be
+   able to answer, or the host cannot tell "no client" from "no server". */
 app.get('/api/health', (req, res) => {
   const t = Date.now();
-  let store = storeInfo();
+  const store = storeInfo();
   let listings = null;
   let storeError = null;
   try { listings = db().listings.length; } catch (e) { storeError = e.message; }
@@ -1157,6 +1158,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+/* ================================================================ STATIC */
+const dist = path.join(here, '..', 'dist');
+if (fs.existsSync(dist)) {
   app.use(express.static(dist, { index: false, maxAge: '1h' }));
   app.get('*', (req, res) => {
     if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Not found' });

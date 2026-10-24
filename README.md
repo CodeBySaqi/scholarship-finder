@@ -111,6 +111,10 @@ Details that matter on a real phone:
 - `overflow-x: clip` (with a `hidden` fallback) stops sideways scroll without breaking the sticky
   top bar.
 
+`./audit/run-dom.sh research` drives the AI research agent end to end — 33 checks covering auth,
+extract mode from notes and from a real URL, the provider path with no key and with a bad key,
+masking, save-as-draft and the audit trail.
+
 `./audit/run-dom.sh responsive` checks the phone and tablet behaviour — drawer vs column,
 search expansion, stacked labels, bottom bars, sheet content — **39 checks**.
 `node audit/responsive-css.mjs` checks the built stylesheet itself: that the fixed bar lives in

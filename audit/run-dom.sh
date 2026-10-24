@@ -13,5 +13,6 @@ case "${1:-smoke}" in
   smoke)      node audit/dom-smoke.mjs ;;
   features)   node audit/features-admin.mjs ;;
   responsive) node audit/responsive.mjs ;;
-  *) echo "usage: $0 [smoke|features|responsive]"; exit 2 ;;
+  research) node audit/research-check.mjs ;;
+  *) echo "usage: $0 [smoke|features|responsive|research]"; exit 2 ;;
 esac

@@ -38,15 +38,17 @@ export function readSettings(d) {
   return { ...SETTINGS_DEFAULTS, ...s };
 }
 
-/* what an admin sees: the key is reduced to a hint, never echoed */
-export function publicSettings(d) {
+/* What a browser may see. The key is never echoed; the hint (first/last four
+   characters) is for admins only, because a hint is still part of the key. */
+export function publicSettings(d, { includeHint = true } = {}) {
   const s = readSettings(d);
   const key = String(s.aiApiKey || '');
+  const admin = includeHint;
   return {
     ...s,
     aiApiKey: '',
-    aiApiKeySet: key.length > 0,
-    aiApiKeyHint: key ? key.slice(0, 4) + '…' + key.slice(-4) : ''
+    aiApiKeySet: admin && key.length > 0,
+    aiApiKeyHint: admin && key ? key.slice(0, 4) + '…' + key.slice(-4) : ''
   };
 }
 
@@ -74,6 +76,27 @@ const sentences = (text) => String(text).split(/(?<=[.!?])\s+|\n+/).map(s => s.t
 
 function findSentence(lines, re) {
   return lines.find(s => re.test(s)) || null;
+}
+
+/* Age limits are written many ways: "under 30", "not older than 32",
+   "maximum age of 30", "30 years or younger", "aged 25-30". Read them all. */
+export function pickAge(line) {
+  if (!line) return null;
+  const s = String(line);
+  const patterns = [
+    /(?:under|below|younger than|not older than|no older than|at most|maximum(?: age)?(?: of)?|max\.?)\s*(\d{2})/i,
+    /(\d{2})\s*(?:years)?\s*(?:old)?\s*(?:or (?:younger|less))/i,
+    /(?:between|aged)\s*(\d{2})\s*(?:-|–|and|to)\s*(\d{2})/i
+  ];
+  for (const re of patterns) {
+    const m = s.match(re);
+    if (m) {
+      /* a range means the upper bound is the limit */
+      const n = m[2] ? Number(m[2]) : Number(m[1]);
+      if (Number.isFinite(n) && n >= 15 && n <= 60) return n;
+    }
+  }
+  return null;
 }
 
 function pickNumber(s, re) {
@@ -160,7 +183,7 @@ export function extractFields(kind, page, notes = '') {
   const deadlineLine = findSentence(lines, /deadline|closes|apply by|closing date|application period/i);
   const cgpaLine = findSentence(lines, /CGPA|GPA|grade point|minimum grade/i);
   const ieltsLine = findSentence(lines, /IELTS|TOEFL|English (language )?(proficiency|requirement)/i);
-  const ageLine = findSentence(lines, /age|years old|younger than|born after/i);
+  const ageLine = findSentence(lines, /\bage\b|years old|younger than|older than|under \d{2}|born (after|before)|maximum age|at most \d{2}/i);
   const tuitionLine = findSentence(lines, /tuition|semester fee|fees of|EUR per semester/i);
   const fundingLine = findSentence(lines, /full(y)? funded|scholarship|stipend|monthly allowance|grant/i);
   const cityLine = findSentence(lines, /located in|in (Berlin|Munich|Cologne|Frankfurt|Hamburg|Freiburg|Tübingen|Dresden|Aachen|Heidelberg|Stuttgart|Bonn|Göttingen|Mannheim|Jena|Leipzig)/i);
@@ -186,7 +209,7 @@ export function extractFields(kind, page, notes = '') {
   const ielts = pickNumber(ieltsLine, /IELTS[^0-9]{0,20}(\d(?:[.,]\d)?)/i) || pickNumber(ieltsLine, /(\d(?:[.,]\d)?)\s*(?:overall|band)?\s*IELTS/i);
   keep('minIelts', ieltsLine, ielts);
   if (ieltsLine) fields.ieltsRequired = !!ielts || /required/i.test(ieltsLine);
-  keep('maxAge', ageLine, pickNumber(ageLine, /(\d{2})\s*(?:years|years old|or younger)/i));
+  keep('maxAge', ageLine, pickAge(ageLine));
   if (/fully funded|full funding|covers all|all expenses/i.test(text)) keep('fundingType', fundingLine, 'full');
   else if (/partially funded|partial funding|partial scholarship/i.test(text)) keep('fundingType', fundingLine, 'partial');
   keep('tuitionPerSemester', tuitionLine, pickNumber(tuitionLine, /(\d{3,5})\s*(?:EUR|€)/i));
