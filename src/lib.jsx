@@ -64,9 +64,9 @@ export function BucketTag({ bucket, provisional }) {
 }
 
 export function Disclaimer() {
-  return <p className="cap">{COPY.disclaimer.split('official page')[0]}
-    <a href="https://example.org" target="_blank" rel="noopener">official page</a>
-    {COPY.disclaimer.split('official page')[1]}</p>;
+  /* No placeholder links: "the official page" is the provider's own listing, which
+     each card links to. Sending it to a stand-in domain was a dead end. */
+  return <p className="cap">{COPY.disclaimer}</p>;
 }
 
 export const toneFor = (kind) => (kind === 'scholarship' ? 'tone-green' : 'tone-blue');
