@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Icon } from './ui.jsx';
+import { Icon, Btn, Avatar } from './ui.jsx';
 import { useAuth } from '../auth.jsx';
 import { applyTheme, readTheme } from './theme.js';
 import { NotificationBell, useNotifications } from './notifications.jsx';
@@ -209,13 +209,14 @@ function Sidebar({ mode, counts, drawer, collapsed, onClose }) {
         </div>
         <div className="side__foot">
           <div className="side__user">
-            <span className="avatar" aria-hidden="true">{(user?.displayName || 'A')[0]}</span>
+            <Avatar className="avatar" aria-hidden="true" size="sm" radius="full" color="primary"
+              name={(user?.displayName || 'A')[0].toUpperCase()} />
             <span className="meta">
               <b>{user ? user.displayName : 'Guest'}</b>
               <span>{user ? user.role : 'signed out'}</span>
             </span>
-            <button className="btn btn--icon btn--outlined" type="button" aria-label="Sign out" title="Sign out"
-              onClick={async () => { await logout(); nav('/'); }}><Icon name="logout2" /></button>
+            <Btn isIconOnly aria-label="Sign out" title="Sign out"
+              onClick={async () => { await logout(); nav('/'); }}><Icon name="logout2" /></Btn>
           </div>
         </div>
       </aside>
@@ -278,7 +279,9 @@ export function AppShell({ page, children, counts = {} }) {
           <ThemeToggle />
           <NotificationBell />
           <Link className="iconbtn hide-sm" to="/settings" aria-label="Settings"><Icon name="settings" /></Link>
-          <Link className="avatar" to="/profile" aria-label="Your profile">{(user?.displayName || 'A')[0]}</Link>
+          <Link className="avatar" to="/profile" aria-label="Your profile">
+            <Avatar size="sm" radius="full" color="primary" name={(user?.displayName || 'A')[0].toUpperCase()} />
+          </Link>
         </div>
       </header>
       <main className="page" id="page">{children}</main>
@@ -312,7 +315,9 @@ export function AdminShell({ page, children }) {
           <span className="role-pill hide-sm" data-role={user?.role}>{user?.role || 'guest'}</span>
           <ThemeToggle />
           <NotificationBell />
-          <Link className="avatar" to="/admin/users" aria-label="Your account">{(user?.displayName || 'A')[0]}</Link>
+          <Link className="avatar" to="/admin/users" aria-label="Your account">
+            <Avatar size="sm" radius="full" color="primary" name={(user?.displayName || 'A')[0].toUpperCase()} />
+          </Link>
           {unread > 0 && <span className="sr-only">{unread} unread notifications</span>}
         </div>
       </header>
@@ -341,10 +346,10 @@ export function PublicShell({ page, children, minimal }) {
           <div className="actions">
             <ThemeToggle />
             {user
-              ? <Link className="btn btn--filled btn--sm" to={user.role === 'admin' || user.role === 'contributor' ? '/admin' : '/dashboard'}>Open app</Link>
+              ? <Btn variant="filled" size="sm" to={user.role === 'admin' || user.role === 'contributor' ? '/admin' : '/dashboard'}>Open app</Btn>
               : <>
-                  <Link className="btn btn--text btn--sm" to="/login">Log in</Link>
-                  <Link className="btn btn--filled btn--sm" to="/signup">Get started</Link>
+                  <Btn variant="text" size="sm" to="/login">Log in</Btn>
+                  <Btn variant="filled" size="sm" to="/signup">Get started</Btn>
                 </>}
           </div>
         </div>

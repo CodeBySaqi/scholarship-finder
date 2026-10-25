@@ -1,14 +1,18 @@
 import React, { Component, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { HeroUIProvider } from '@heroui/react';
 import { AuthProvider, useAuth } from './auth.jsx';
-import { ToastProvider, Loader, Icon } from './components/ui.jsx';
+import { Card, ToastProvider, Loader, Icon, Btn } from './components/ui.jsx';
 import { SavedProvider } from './components/saved.jsx';
 import { NotificationsProvider } from './components/notifications.jsx';
-import { applyTheme, readTheme } from './components/theme.js';
+import { applyTheme, readTheme, watchTheme } from './components/theme.js';
 import './styles/tokens.css';
 import './styles/app.css';
 import './styles/react.css';
+/* HeroUI + Tailwind load last: HeroUI paints the components, the app's own
+   stylesheets keep owning the layout (see src/styles/heroui.css). */
+import './styles/heroui.css';
 
 import Landing from './pages/Landing.jsx';
 import { Login, Signup, VerifyEmail, ForgotPassword, ResetSent, ResetPassword } from './pages/AuthPages.jsx';
@@ -50,17 +54,17 @@ class ErrorBoundary extends Component {
     if (!this.state.error) return this.props.children;
     return (
       <div className="boot">
-        <div className="card" style={{ maxWidth: 520, textAlign: 'center' }}>
+        <Card  style={{ maxWidth: 520, textAlign: 'center' }}>
           <Icon name="alert" size={28} style={{ margin: '0 auto 8px', color: 'var(--on-danger)' }} />
           <h1 className="h2">This page could not be shown</h1>
           <p className="cap" style={{ marginTop: 6 }}>
             {String(this.state.error.message || this.state.error)}
           </p>
           <div className="row" style={{ justifyContent: 'center', gap: 8, marginTop: 14 }}>
-            <button className="btn btn--filled btn--sm" type="button" onClick={() => window.location.reload()}>Reload</button>
+            <Btn variant="filled" size="sm" onClick={() => window.location.reload()}>Reload</Btn>
             <a className="btn btn--outlined btn--sm" href="/dashboard">Go to dashboard</a>
           </div>
-        </div>
+        </Card>
       </div>
     );
   }
@@ -70,7 +74,7 @@ function BootError({ kind, onRetry }) {
   const offline = kind === 'offline';
   return (
     <div className="boot">
-      <div className="card" style={{ maxWidth: 520, textAlign: 'center' }}>
+      <Card  style={{ maxWidth: 520, textAlign: 'center' }}>
         <Icon name={offline ? 'globe' : 'alert'} size={28} style={{ margin: '0 auto 8px', color: offline ? 'var(--on-warning)' : 'var(--on-danger)' }} />
         <h1 className="h2">{offline ? 'Cannot reach the server' : 'The server had a problem'}</h1>
         <p className="cap" style={{ marginTop: 6 }}>
@@ -78,8 +82,8 @@ function BootError({ kind, onRetry }) {
             ? 'Your connection or our server dropped the request, so the page could not load. Check your internet connection and try again.'
             : 'The server answered with an error. Nothing was lost — try again in a moment; if it keeps happening, contact support.'}
         </p>
-        <button className="btn btn--filled btn--sm" type="button" style={{ marginTop: 14 }} onClick={onRetry}>Try again</button>
-      </div>
+        <Btn variant="filled" size="sm" style={{ marginTop: 14 }} onClick={onRetry}>Try again</Btn>
+      </Card>
     </div>
   );
 }
@@ -87,7 +91,7 @@ function BootError({ kind, onRetry }) {
 function NoAdminAccess({ role, onSwitch }) {
   return (
     <div className="boot">
-      <div className="card" style={{ maxWidth: 560 }}>
+      <Card  style={{ maxWidth: 560 }}>
         <div className="row" style={{ gap: 10 }}>
           <Icon name="shield" size={22} style={{ color: 'var(--on-warning)' }} />
           <h1 className="h2">Admin access required</h1>
@@ -98,9 +102,9 @@ function NoAdminAccess({ role, onSwitch }) {
         </p>
         <div className="row" style={{ gap: 8, marginTop: 14 }}>
           <a className="btn btn--filled btn--sm" href="/dashboard">Back to your dashboard</a>
-          <button className="btn btn--outlined btn--sm" type="button" onClick={onSwitch}>Sign in as someone else</button>
+          <Btn size="sm" onClick={onSwitch}>Sign in as someone else</Btn>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
@@ -165,9 +169,22 @@ function App() {
   );
 }
 
+/* HeroUI needs to sit inside the router so its own links can navigate with it,
+   and it has to wrap every route — the shells, the pages and the dialogs. */
+function Providers({ children }) {
+  const navigate = useNavigate();
+  return (
+    <HeroUIProvider navigate={navigate} locale="en-GB">
+      {children}
+    </HeroUIProvider>
+  );
+}
+
 applyTheme(readTheme());
+watchTheme();
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
+    <Providers>
     <ErrorBoundary><AuthProvider>
       <ToastProvider>
         <SavedProvider>
@@ -178,5 +195,6 @@ createRoot(document.getElementById('root')).render(
         </SavedProvider>
       </ToastProvider>
     </AuthProvider></ErrorBoundary>
+    </Providers>
   </BrowserRouter>
 );

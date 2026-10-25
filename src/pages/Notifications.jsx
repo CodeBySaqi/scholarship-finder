@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AppShell } from '../components/Shell.jsx';
-import { Icon, Btn, Loader, Empty, useToast } from '../components/ui.jsx';
+import { Card, Icon, Btn, Loader, Empty, useToast } from '../components/ui.jsx';
 import { Sheet } from '../components/Sheet.jsx';
 import { useNotifications, NotificationIcon } from '../components/notifications.jsx';
 
@@ -52,17 +52,17 @@ export default function Notifications() {
       </div>
 
       {error && (
-        <div className="card">
+        <Card>
           <div className="row" style={{ gap: 10 }}>
             <span className="statcard__icon tone-amber"><Icon name="alert" /></span>
             <div><div className="h3">Notifications could not load</div><p className="cap">{error}</p></div>
           </div>
           <Btn variant="filled" size="sm" onClick={reload} style={{ alignSelf: 'flex-start', marginTop: 12 }}>Try again</Btn>
-        </div>
+        </Card>
       )}
 
-      {loading && !items.length ? <div className="card"><Loader label="Loading notifications" /></div> : (
-        <div className="card">
+      {loading && !items.length ? <Card><Loader label="Loading notifications" /></Card> : (
+        <Card>
           <div className="row sp">
             <div className="h2">Inbox</div>
             <span className="tag tag--out">{total} total · {unread} unread</span>
@@ -92,16 +92,16 @@ export default function Notifications() {
               ))}
             </ul>
           )}
-        </div>
+        </Card>
       )}
 
       <Sheet open={!!open} title={open ? open.title : ''} onClose={() => setOpenId(null)}
         footer={open && (
           <div className="row sp wr" style={{ gap: 8, marginTop: 14 }}>
-            <button className="btn btn--text btn--sm" type="button" onClick={async () => { await remove(open.id); setOpenId(null); toast('Notification removed'); }}>Delete</button>
+            <Btn variant="text" size="sm" onClick={async () => { await remove(open.id); setOpenId(null); toast('Notification removed'); }}>Delete</Btn>
             <div className="row" style={{ gap: 8 }}>
-              {open.link && <Link className="btn btn--filled btn--sm" to={open.link} onClick={() => setOpenId(null)}>Open the page <Icon name="chevron" /></Link>}
-              <button className="btn btn--outlined btn--sm" type="button" onClick={() => setOpenId(null)}>Close</button>
+              {open.link && <Btn variant="filled" size="sm" to={open.link} onClick={() => setOpenId(null)}>Open the page <Icon name="chevron" /></Btn>}
+              <Btn size="sm" onClick={() => setOpenId(null)}>Close</Btn>
             </div>
           </div>
         )}>

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { AdminShell } from '../../components/Shell.jsx';
-import { Loader, useAsync, LoadError } from '../../components/ui.jsx';
+import { Card, Loader, useAsync, LoadError } from '../../components/ui.jsx';
 import { api } from '../../api.js';
 import { fmtDate } from '../../lib.jsx';
 
@@ -18,7 +18,7 @@ export default function AdminLogs() {
         <div><h1 className="h1">Audit log</h1><p className="cap">Append-only. The store rejects updates and deletes on these entries, so history cannot be rewritten.</p></div>
       </div>
 
-      <div className="card">
+      <Card>
         <div className="chips">
           {actions.map(a => (
             <button key={a} className={'chip chip--sm' + (filter === a ? ' is-on' : '')} type="button" aria-pressed={filter === a}
@@ -43,7 +43,7 @@ export default function AdminLogs() {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </AdminShell>
   );
 }

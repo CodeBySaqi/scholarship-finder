@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AdminShell } from '../../components/Shell.jsx';
-import { Icon, Loader, Empty, Btn, Notice, useAsync, useToast, LoadError } from '../../components/ui.jsx';
+import { Card, Icon, Loader, Empty, Btn, Notice, useAsync, useToast, LoadError, Input, Textarea } from '../../components/ui.jsx';
 import { api } from '../../api.js';
 import { useAuth } from '../../auth.jsx';
 import { FreshnessTag } from '../../lib.jsx';
@@ -59,20 +59,20 @@ export default function ListingForm() {
     setEcts(l.requiredEcts ? JSON.stringify(l.requiredEcts) : '');
   }, [data, isNew]);
 
-  if (!isNew && loading) return <AdminShell page="admin-form"><div className="card"><Loader /></div></AdminShell>;
+  if (!isNew && loading) return <AdminShell page="admin-form"><Card><Loader /></Card></AdminShell>;
   if (!isNew && error) {
     /* a wrong or deleted id is "not found", not a server failure */
     if (errorObj && errorObj.status === 404) {
-      return <AdminShell page="admin-form"><div className="card">
+      return <AdminShell page="admin-form"><Card>
         <Empty icon="info" title="Listing not found" text="This id does not exist. It may have been deleted, or the link is wrong."
-          action={<Btn variant="filled" size="sm" to="/admin/listings">All listings</Btn>} /></div></AdminShell>;
+          action={<Btn variant="filled" size="sm" to="/admin/listings">All listings</Btn>} /></Card></AdminShell>;
     }
     return <AdminShell page="admin-form"><LoadError error={error} onRetry={reload} what="listing" /></AdminShell>;
   }
   if (!isNew && data && !data.listing) {
-    return <AdminShell page="admin-form"><div className="card">
+    return <AdminShell page="admin-form"><Card>
       <Empty icon="info" title="Listing not found" text="Check the id in the URL."
-        action={<Btn variant="filled" size="sm" to="/admin/listings">All listings</Btn>} /></div></AdminShell>;
+        action={<Btn variant="filled" size="sm" to="/admin/listings">All listings</Btn>} /></Card></AdminShell>;
   }
   if (!form) {
     return <AdminShell page="admin-form"><LoadError onRetry={reload} what="listing"
@@ -184,15 +184,15 @@ export default function ListingForm() {
       <div className="edit-grid">
         <div className="col">
           {/* ---------------------------------------------------- display */}
-          <section className="card">
+          <Card>
             <div className="row sp"><h2 className="h2">Display</h2><span className="tag tag--out">group 1 of 3</span></div>
             <p className="cap">What a student reads. Nothing here changes matching.</p>
             <div className="g2">
               <Field id="title" label="Title" help="Sentence case, no marketing words.">
-                <input className="input" id="title" value={form.title} onChange={e => set('title', e.target.value)} />
+                <Input id="title" value={form.title} onChange={e => set('title', e.target.value)} className="input" />
               </Field>
               <Field id="provider" label="Provider">
-                <input className="input" id="provider" value={form.provider || ''} onChange={e => set('provider', e.target.value)} />
+                <Input id="provider" value={form.provider || ''} onChange={e => set('provider', e.target.value)} className="input" />
               </Field>
             </div>
             <div className="g3">
@@ -207,7 +207,7 @@ export default function ListingForm() {
                 </select>
               </Field>
               <Field id="deadline" label="Deadline" help="Every card shows a countdown.">
-                <input className="input" id="deadline" type="date" value={(form.deadline || '').slice(0, 10)} onChange={e => set('deadline', e.target.value)} />
+                <Input id="deadline" type="date" value={(form.deadline || '').slice(0, 10)} onChange={e => set('deadline', e.target.value)} className="input" />
               </Field>
             </div>
             {form.kind === 'scholarship'
@@ -218,7 +218,7 @@ export default function ListingForm() {
                 </Field>
               : <div className="g2">
                   <Field id="tuitionPerSemester" label="Tuition per semester (EUR)" help="0 means no tuition fee.">
-                    <input className="input" id="tuitionPerSemester" type="number" min="0" step="50" value={form.tuitionPerSemester ?? 0} onChange={e => set('tuitionPerSemester', Num(e.target.value))} />
+                    <Input id="tuitionPerSemester" type="number" min="0" step="50" value={form.tuitionPerSemester ?? 0} onChange={e => set('tuitionPerSemester', Num(e.target.value))} className="input" />
                   </Field>
                   <Field id="languageMode" label="Language">
                     <select className="select" id="languageMode" value={form.languageMode || 'english'} onChange={e => set('languageMode', e.target.value)}>
@@ -227,49 +227,49 @@ export default function ListingForm() {
                   </Field>
                 </div>}
             <Field id="coverage" label="Coverage items" help="Comma separated, shown on the detail page.">
-              <input className="input" id="coverage" value={coverage} onChange={e => setCoverage(e.target.value)} />
+              <Input id="coverage" value={coverage} onChange={e => setCoverage(e.target.value)} className="input" />
             </Field>
             <Field id="description" label="Description" help="Facts only. Do not add claims the source does not make.">
-              <textarea className="input" id="description" rows={3} value={form.description || ''} onChange={e => set('description', e.target.value)} />
+              <Textarea id="description" rows={3} value={form.description || ''} onChange={e => set('description', e.target.value)} className="input" />
             </Field>
             <div className="g2">
               <Field id="officialUrl" label="Official URL">
-                <input className="input" id="officialUrl" type="url" value={form.officialUrl || ''} onChange={e => set('officialUrl', e.target.value)} />
+                <Input id="officialUrl" type="url" value={form.officialUrl || ''} onChange={e => set('officialUrl', e.target.value)} className="input" />
               </Field>
               <Field id="applyUrl" label="Apply URL">
-                <input className="input" id="applyUrl" type="url" value={form.applyUrl || ''} onChange={e => set('applyUrl', e.target.value)} />
+                <Input id="applyUrl" type="url" value={form.applyUrl || ''} onChange={e => set('applyUrl', e.target.value)} className="input" />
               </Field>
             </div>
             <Field id="applySteps" label="How to apply (one step per line)">
-              <textarea className="input" id="applySteps" rows={4} value={steps} onChange={e => setSteps(e.target.value)} />
+              <Textarea id="applySteps" rows={4} value={steps} onChange={e => setSteps(e.target.value)} className="input" />
             </Field>
             <Field id="documents" label="Documents needed (comma separated)">
-              <input className="input" id="documents" value={docs} onChange={e => setDocs(e.target.value)} />
+              <Input id="documents" value={docs} onChange={e => setDocs(e.target.value)} className="input" />
             </Field>
             <label className="check">
               <input type="checkbox" checked={!!form.isAnnual} onChange={e => set('isAnnual', e.target.checked)} />
               <span>Annual listing (returns next cycle instead of disappearing)</span>
             </label>
-          </section>
+          </Card>
 
           {/* ------------------------------------------------ eligibility */}
-          <section className="card">
+          <Card>
             <div className="row sp"><h2 className="h2">Eligibility</h2><span className="tag tag--out">group 2 of 3</span></div>
             <p className="cap">Only what the official page states. Leave a field empty when no restriction is stated — never enter 0 for “none”.</p>
             <div className="g3">
               <Field id="minCgpa" label="Minimum CGPA (on 4.0)">
-                <input className="input" id="minCgpa" type="number" min="0" max="4" step="0.01" value={form.minCgpa ?? ''} onChange={e => set('minCgpa', Num(e.target.value))} />
+                <Input id="minCgpa" type="number" min="0" max="4" step="0.01" value={form.minCgpa ?? ''} onChange={e => set('minCgpa', Num(e.target.value))} className="input" />
               </Field>
               <Field id="germanGradeCutoff" label="German grade cut-off" help="Lower is better.">
-                <input className="input" id="germanGradeCutoff" type="number" min="1" max="4" step="0.1" value={form.germanGradeCutoff ?? ''} onChange={e => set('germanGradeCutoff', Num(e.target.value))} />
+                <Input id="germanGradeCutoff" type="number" min="1" max="4" step="0.1" value={form.germanGradeCutoff ?? ''} onChange={e => set('germanGradeCutoff', Num(e.target.value))} className="input" />
               </Field>
               <Field id="maxAge" label="Maximum age at deadline">
-                <input className="input" id="maxAge" type="number" min="0" max="99" value={form.maxAge ?? ''} onChange={e => set('maxAge', Num(e.target.value))} />
+                <Input id="maxAge" type="number" min="0" max="99" value={form.maxAge ?? ''} onChange={e => set('maxAge', Num(e.target.value))} className="input" />
               </Field>
             </div>
             <div className="g3">
               <Field id="allowedCountries" label="Allowed countries" help="Blank means open to all.">
-                <input className="input" id="allowedCountries" value={countries} onChange={e => setCountries(e.target.value)} />
+                <Input id="allowedCountries" value={countries} onChange={e => setCountries(e.target.value)} className="input" />
               </Field>
               <Field id="ieltsRequired" label="IELTS">
                 <select className="select" id="ieltsRequired" value={form.ieltsRequired ? 'yes' : 'no'} onChange={e => set('ieltsRequired', e.target.value === 'yes')}>
@@ -277,7 +277,7 @@ export default function ListingForm() {
                 </select>
               </Field>
               <Field id="minIelts" label="Minimum IELTS band">
-                <input className="input" id="minIelts" type="number" min="1" max="9" step="0.5" value={form.minIelts ?? ''} onChange={e => set('minIelts', Num(e.target.value))} />
+                <Input id="minIelts" type="number" min="1" max="9" step="0.5" value={form.minIelts ?? ''} onChange={e => set('minIelts', Num(e.target.value))} className="input" />
               </Field>
             </div>
             <div className="g3">
@@ -287,7 +287,7 @@ export default function ListingForm() {
                 </select>
               </Field>
               <Field id="requiredPriorFields" label="Required prior fields">
-                <input className="input" id="requiredPriorFields" value={priorFields} onChange={e => setPriorFields(e.target.value)} />
+                <Input id="requiredPriorFields" value={priorFields} onChange={e => setPriorFields(e.target.value)} className="input" />
               </Field>
               <Field id="apsRequired" label="APS required">
                 <select className="select" id="apsRequired" value={form.apsRequired || 'unknown'} onChange={e => set('apsRequired', e.target.value)}>
@@ -304,17 +304,17 @@ export default function ListingForm() {
                 </select>
               </Field>
               <Field id="hsscGroups" label="Accepted HSSC groups">
-                <input className="input" id="hsscGroups" value={hsscGroups} onChange={e => setHsscGroups(e.target.value)} />
+                <Input id="hsscGroups" value={hsscGroups} onChange={e => setHsscGroups(e.target.value)} className="input" />
               </Field>
               <Field id="requiredEcts" label="Required ECTS (JSON)" help="Example: {“mathematics”:20}">
-                <input className="input" id="requiredEcts" value={ects} onChange={e => setEcts(e.target.value)} />
+                <Input id="requiredEcts" value={ects} onChange={e => setEcts(e.target.value)} className="input" />
               </Field>
             </div>
             <Notice tone="info">A value only reaches students after this group is ticked as reviewed below and a second person publishes.</Notice>
-          </section>
+          </Card>
 
           {/* --------------------------------------- matching requirements */}
-          <section className="card" id="match-requirements">
+          <Card  id="match-requirements">
             <div className="row sp"><h2 className="h2">Matching requirements</h2><span className="tag tag--out">ScholarPath</span></div>
             <p className="cap">
               The hard fields the eligibility engine reads, copied from the university page you have open.
@@ -335,32 +335,31 @@ export default function ListingForm() {
                 </select>
               </Field>
               <Field id="m-acceptedFields" label="Accepted fields (comma separated)" help="computer_science, informatics, software">
-                <input className="input" id="m-acceptedFields" value={(M.acceptedFields || []).join(', ')}
-                  onChange={e => setM('acceptedFields', e.target.value.split(',').map(x => x.trim()).filter(Boolean))} />
+                <Input id="m-acceptedFields" value={(M.acceptedFields || []).join(', ')} onChange={e => setM('acceptedFields', e.target.value.split(',').map(x => x.trim()).filter(Boolean))} className="input" />
               </Field>
             </div>
 
             <div className="g3">
               <Field id="m-minGpa" label="Minimum German grade" help="1.0 best, 4.0 pass. Lower is better.">
-                <input className="input" id="m-minGpa" type="number" min="1" max="4" step="0.1" value={M.minGpaGerman ?? ''} onChange={e => setNum('minGpaGerman', e.target.value)} />
+                <Input id="m-minGpa" type="number" min="1" max="4" step="0.1" value={M.minGpaGerman ?? ''} onChange={e => setNum('minGpaGerman', e.target.value)} className="input" />
               </Field>
               <Field id="m-bachelorEcts" label="Bachelor ECTS required" help="Master programmes only.">
-                <input className="input" id="m-bachelorEcts" type="number" min="0" max="400" step="10" value={M.bachelorEctsRequired ?? ''} onChange={e => setNum('bachelorEctsRequired', e.target.value)} />
+                <Input id="m-bachelorEcts" type="number" min="0" max="400" step="10" value={M.bachelorEctsRequired ?? ''} onChange={e => setNum('bachelorEctsRequired', e.target.value)} className="input" />
               </Field>
               <Field id="m-subjectEcts" label="Subject ECTS required" help="Example: cs:90, maths:30">
-                <input className="input" id="m-subjectEcts" value={subjectEctsText} onChange={e => setSubjectEcts(e.target.value)} />
+                <Input id="m-subjectEcts" value={subjectEctsText} onChange={e => setSubjectEcts(e.target.value)} className="input" />
               </Field>
             </div>
 
             <div className="g3">
               <Field id="m-ielts" label="IELTS Academic required">
-                <input className="input" id="m-ielts" type="number" min="0" max="9" step="0.5" value={M.ieltsReq ?? ''} onChange={e => setNum('ieltsReq', e.target.value)} />
+                <Input id="m-ielts" type="number" min="0" max="9" step="0.5" value={M.ieltsReq ?? ''} onChange={e => setNum('ieltsReq', e.target.value)} className="input" />
               </Field>
               <Field id="m-toefl" label="TOEFL iBT required">
-                <input className="input" id="m-toefl" type="number" min="0" max="120" step="1" value={M.toeflReq ?? ''} onChange={e => setNum('toeflReq', e.target.value)} />
+                <Input id="m-toefl" type="number" min="0" max="120" step="1" value={M.toeflReq ?? ''} onChange={e => setNum('toeflReq', e.target.value)} className="input" />
               </Field>
               <Field id="m-pte" label="PTE Academic required">
-                <input className="input" id="m-pte" type="number" min="0" max="90" step="1" value={M.pteReq ?? ''} onChange={e => setNum('pteReq', e.target.value)} />
+                <Input id="m-pte" type="number" min="0" max="90" step="1" value={M.pteReq ?? ''} onChange={e => setNum('pteReq', e.target.value)} className="input" />
               </Field>
             </div>
 
@@ -374,7 +373,7 @@ export default function ListingForm() {
                 </select>
               </Field>
               <Field id="m-englishOtherText" label="Quote from the page" help="The sentence this choice came from.">
-                <input className="input" id="m-englishOtherText" value={M.englishOtherText || ''} onChange={e => setM('englishOtherText', e.target.value || null)} />
+                <Input id="m-englishOtherText" value={M.englishOtherText || ''} onChange={e => setM('englishOtherText', e.target.value || null)} className="input" />
               </Field>
             </div>
 
@@ -385,7 +384,7 @@ export default function ListingForm() {
                 </select>
               </Field>
               <Field id="m-germanTest" label="German certificate named">
-                <input className="input" id="m-germanTest" placeholder="DSH-2 / TestDaF 4" value={(M.germanReq || {}).test || ''} onChange={e => setInRaw('germanReq', 'test', e.target.value || null)} />
+                <Input id="m-germanTest" placeholder="DSH-2 / TestDaF 4" value={(M.germanReq || {}).test || ''} onChange={e => setInRaw('germanReq', 'test', e.target.value || null)} className="input" />
               </Field>
               <Field id="m-abitur" label="Abitur equivalence required?" help="Bachelor programmes: the school certificate must open a German bachelor.">
                 <select className="select" id="m-abitur" value={M.requiresAbiturEquivalent === false ? 'no' : 'yes'}
@@ -399,52 +398,51 @@ export default function ListingForm() {
             <h3 className="h3">Test gates — only when the page names them</h3>
             <div className="g3">
               <Field id="m-gre-quant" label="GRE Quantitative">
-                <input className="input" id="m-gre-quant" type="number" min="130" max="170" value={(req.gre || {}).quant ?? ''} onChange={e => setIn('otherRequirements', 'gre', { ...(req.gre || {}), quant: e.target.value === '' ? null : Number(e.target.value) })} />
+                <Input id="m-gre-quant" type="number" min="130" max="170" value={(req.gre || {}).quant ?? ''} onChange={e => setIn('otherRequirements', 'gre', { ...(req.gre || {}), quant: e.target.value === '' ? null : Number(e.target.value) })} className="input" />
               </Field>
               <Field id="m-gre-verbal" label="GRE Verbal">
-                <input className="input" id="m-gre-verbal" type="number" min="130" max="170" value={(req.gre || {}).verbal ?? ''} onChange={e => setIn('otherRequirements', 'gre', { ...(req.gre || {}), verbal: e.target.value === '' ? null : Number(e.target.value) })} />
+                <Input id="m-gre-verbal" type="number" min="130" max="170" value={(req.gre || {}).verbal ?? ''} onChange={e => setIn('otherRequirements', 'gre', { ...(req.gre || {}), verbal: e.target.value === '' ? null : Number(e.target.value) })} className="input" />
               </Field>
               <Field id="m-gre-aw" label="GRE Analytical writing">
-                <input className="input" id="m-gre-aw" type="number" min="0" max="6" step="0.5" value={(req.gre || {}).aw ?? ''} onChange={e => setIn('otherRequirements', 'gre', { ...(req.gre || {}), aw: e.target.value === '' ? null : Number(e.target.value) })} />
+                <Input id="m-gre-aw" type="number" min="0" max="6" step="0.5" value={(req.gre || {}).aw ?? ''} onChange={e => setIn('otherRequirements', 'gre', { ...(req.gre || {}), aw: e.target.value === '' ? null : Number(e.target.value) })} className="input" />
               </Field>
             </div>
             <div className="g3">
-              <Field id="m-gmat" label="GMAT total"><input className="input" id="m-gmat" type="number" min="0" max="800" step="10" value={req.gmat ?? ''} onChange={e => setReq('gmat', e.target.value)} /></Field>
-              <Field id="m-gate" label="GATE score"><input className="input" id="m-gate" type="number" min="0" max="1000" value={req.gate ?? ''} onChange={e => setReq('gate', e.target.value)} /></Field>
-              <Field id="m-testas" label="TestAS score"><input className="input" id="m-testas" type="number" min="0" max="200" value={req.testas ?? ''} onChange={e => setReq('testas', e.target.value)} /></Field>
+              <Field id="m-gmat" label="GMAT total"><Input id="m-gmat" type="number" min="0" max="800" step="10" value={req.gmat ?? ''} onChange={e => setReq('gmat', e.target.value)} className="input" /></Field>
+              <Field id="m-gate" label="GATE score"><Input id="m-gate" type="number" min="0" max="1000" value={req.gate ?? ''} onChange={e => setReq('gate', e.target.value)} className="input" /></Field>
+              <Field id="m-testas" label="TestAS score"><Input id="m-testas" type="number" min="0" max="200" value={req.testas ?? ''} onChange={e => setReq('testas', e.target.value)} className="input" /></Field>
             </div>
             <div className="g3">
-              <Field id="m-sat" label="SAT total"><input className="input" id="m-sat" type="number" min="400" max="1600" step="10" value={req.sat ?? ''} onChange={e => setReq('sat', e.target.value)} /></Field>
-              <Field id="m-act" label="ACT composite"><input className="input" id="m-act" type="number" min="1" max="36" value={req.act ?? ''} onChange={e => setReq('act', e.target.value)} /></Field>
-              <Field id="m-work" label="Work experience (months)"><input className="input" id="m-work" type="number" min="0" max="600" value={req.workExperienceMonths ?? ''} onChange={e => setReq('workExperienceMonths', e.target.value)} /></Field>
+              <Field id="m-sat" label="SAT total"><Input id="m-sat" type="number" min="400" max="1600" step="10" value={req.sat ?? ''} onChange={e => setReq('sat', e.target.value)} className="input" /></Field>
+              <Field id="m-act" label="ACT composite"><Input id="m-act" type="number" min="1" max="36" value={req.act ?? ''} onChange={e => setReq('act', e.target.value)} className="input" /></Field>
+              <Field id="m-work" label="Work experience (months)"><Input id="m-work" type="number" min="0" max="600" value={req.workExperienceMonths ?? ''} onChange={e => setReq('workExperienceMonths', e.target.value)} className="input" /></Field>
             </div>
             <div className="g3">
               <Field id="m-intake" label="Intake(s)" help="WS = winter, SS = summer.">
-                <input className="input" id="m-intake" placeholder="WS, SS" value={(form.intakes || []).join(', ')}
-                  onChange={e => set('intakes', e.target.value.split(',').map(x => x.trim().toUpperCase()).filter(Boolean))} />
+                <Input id="m-intake" placeholder="WS, SS" value={(form.intakes || []).join(', ')} onChange={e => set('intakes', e.target.value.split(',').map(x => x.trim().toUpperCase()).filter(Boolean))} className="input" />
               </Field>
               <Field id="m-semesterFee" label="Semester contribution (EUR)" help="Not tuition. Most universities charge €120–460.">
-                <input className="input" id="m-semesterFee" type="number" min="0" max="2000" step="10" value={form.semesterFee ?? ''} onChange={e => set('semesterFee', Num(e.target.value))} />
+                <Input id="m-semesterFee" type="number" min="0" max="2000" step="10" value={form.semesterFee ?? ''} onChange={e => set('semesterFee', Num(e.target.value))} className="input" />
               </Field>
               <Field id="m-source" label="Requirements page" help="Where these 13 fields were read from.">
-                <input className="input" id="m-source" type="url" value={M.sourceUrl || ''} onChange={e => setM('sourceUrl', e.target.value || null)} />
+                <Input id="m-source" type="url" value={M.sourceUrl || ''} onChange={e => setM('sourceUrl', e.target.value || null)} className="input" />
               </Field>
             </div>
             <Notice tone="info">
               A student sees Eligible only when every field above that the programme states is met. Empty means unknown: the verdict is
               “Check yourself”, with the missing fields listed by name. AI drafts may fill these, but a human must tick the eligibility group before publishing.
             </Notice>
-          </section>
+          </Card>
 
           {/* ------------------------------------------------- provenance */}
-          <section className="card">
+          <Card>
             <div className="row sp"><h2 className="h2">Source and provenance</h2><span className="tag tag--out">group 3 of 3</span></div>
             <div className="g2">
               <Field id="sourceUrl" label="Source URL" help="The exact page this listing was read from.">
                 <input className={'input' + (!form.sourceUrl ? ' input--error' : '')} id="sourceUrl" type="url" value={form.sourceUrl || ''} onChange={e => set('sourceUrl', e.target.value)} />
               </Field>
               <Field id="lastVerified" label="Last verified" help="Drives the freshness badge and the stale job.">
-                <input className="input" id="lastVerified" type="date" value={(form.lastVerified || '').slice(0, 10)} onChange={e => set('lastVerified', e.target.value)} />
+                <Input id="lastVerified" type="date" value={(form.lastVerified || '').slice(0, 10)} onChange={e => set('lastVerified', e.target.value)} className="input" />
               </Field>
             </div>
             <table className="kv"><tbody>
@@ -465,12 +463,12 @@ export default function ListingForm() {
               </div>
             )}
             {form.draftedByAi && <Btn variant="outlined" size="sm" to={'/admin/ai-draft?id=' + form.id} icon="sparkle" style={{ alignSelf: 'flex-start' }}>Open AI draft review</Btn>}
-          </section>
+          </Card>
         </div>
 
         {/* ------------------------------------------------------ gate rail */}
         <aside className="rail rail-side rail-side--sticky">
-          <section className="card card--pad-l">
+          <Card className="card card--pad-l">
             <h2 className="h2">Publish gate</h2>
             <p className="cap">All three groups ticked by you, and a different person must be able to publish.</p>
             <div className="col-8">
@@ -487,14 +485,14 @@ export default function ListingForm() {
               <div className="row sp"><span className="cap">Your role</span><span className="role-pill" data-role={user?.role}>{user?.role}</span></div>
               <div className="row sp"><span className="cap">Created by</span><span className="cap">{form.createdBy || 'unknown'}</span></div>
             </div>
-            <button className="btn btn--filled btn--block" type="button" disabled={!canPublish || busy} onClick={publish}>
+            <Btn variant="filled" block disabled={!canPublish || busy} onClick={publish}>
               {alreadyVerified ? 'Already published' : 'Publish'}
-            </button>
-            <button className="btn btn--outlined btn--block" type="button" disabled={busy} onClick={saveDraft}>{isNew ? 'Create draft' : 'Save draft'}</button>
+            </Btn>
+            <Btn block disabled={busy} onClick={saveDraft}>{isNew ? 'Create draft' : 'Save draft'}</Btn>
             <p className="cap">{note}</p>
-          </section>
+          </Card>
 
-          <section className="card">
+          <Card>
             <h2 className="h2">This session</h2>
             <div className="rows">
               {session.length ? session.map((s, i) => (
@@ -502,15 +500,15 @@ export default function ListingForm() {
               )) : <p className="cap">No writes yet.</p>}
             </div>
             <p className="cap">Every write appends to the audit log with your id, the entity and the action.</p>
-          </section>
+          </Card>
 
-          <section className="card">
+          <Card>
             <h2 className="h2">Freshness</h2>
             <div className="col-8">
               <FreshnessTag iso={form.lastVerified} />
               <p className="cap">Verified 0-30 days: green tag. 31-89: neutral date. 90-179: needs recheck. 180+: returned to draft by the nightly job.</p>
             </div>
-          </section>
+          </Card>
         </aside>
       </div>
     </AdminShell>

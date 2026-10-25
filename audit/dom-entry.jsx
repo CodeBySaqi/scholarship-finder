@@ -1,12 +1,14 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { MemoryRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import { HeroUIProvider } from '@heroui/react';
 import { AuthProvider } from '../src/auth.jsx';
 import { ToastProvider } from '../src/components/ui.jsx';
 import { SavedProvider } from '../src/components/saved.jsx';
 import { NotificationsProvider } from '../src/components/notifications.jsx';
 
 import Landing from '../src/pages/Landing.jsx';
+import { Login } from '../src/pages/AuthPages.jsx';
 import Notifications from '../src/pages/Notifications.jsx';
 import Settings from '../src/pages/Settings.jsx';
 import Browse from '../src/pages/Browse.jsx';
@@ -28,18 +30,27 @@ import AdminLogs from '../src/pages/admin/Logs.jsx';
 import ListingForm from '../src/pages/admin/ListingForm.jsx';
 import AiDraft from '../src/pages/admin/AiDraft.jsx';
 
+/* HeroUI context, exactly like src/main.jsx — without it the components fall
+   back to their defaults and the harness would test a different app. */
+function Providers({ children }) {
+  const navigate = useNavigate();
+  return <HeroUIProvider navigate={navigate} locale="en-GB">{children}</HeroUIProvider>;
+}
+
 let root = null;
 export function mount(route) {
   const el = document.getElementById('root');
   if (!root) root = createRoot(el);
   root.render(
     <MemoryRouter key={route} initialEntries={[route]}>
+      <Providers>
       <AuthProvider>
         <ToastProvider>
           <SavedProvider>
             <NotificationsProvider>
               <Routes>
                 <Route path="/" element={<Landing />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/scholarships" element={<Browse kind="scholarship" />} />
@@ -68,6 +79,7 @@ export function mount(route) {
           </SavedProvider>
         </ToastProvider>
       </AuthProvider>
+      </Providers>
     </MemoryRouter>
   );
   return root;

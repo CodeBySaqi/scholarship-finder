@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { EligibilityBadge } from './PathFields.jsx';
-import { Icon } from './ui.jsx';
+import { Card, Icon, Btn } from './ui.jsx';
 import { COPY, fmtDate, fundingLabel, listingPath, FreshnessTag, CountdownTag, BucketTag } from '../lib.jsx';
 import { useSaved } from './saved.jsx';
 
@@ -61,7 +61,7 @@ export function GapBox({ gaps }) {
 export function MatchCard({ listing: l, match, showReport, onReport, verdict }) {
   const saved = l.saved;
   return (
-    <article className="card">
+    <Card>
       <div className="row sp wr" style={{ gap: 6 }}>
         <div className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
           <BucketTag bucket={match.bucket} provisional={match.provisional} />
@@ -85,16 +85,16 @@ export function MatchCard({ listing: l, match, showReport, onReport, verdict }) 
       {match.bucket === 'next_cycle' && <p className="cap">The deadline for this intake has passed. It is annual, so it comes back in the next cycle.</p>}
       <div className="row wr" style={{ marginTop: 4 }}>
         <SaveButton listingId={l.id} saved={saved} />
-        <Link className="btn btn--tonal btn--sm" to={listingPath(l)}>View details</Link>
-        {showReport && <button className="btn btn--text btn--sm" type="button" onClick={() => onReport && onReport(l)}><Icon name="flag" />Report an error</button>}
+        <Btn variant="tonal" size="sm" to={listingPath(l)}>View details</Btn>
+        {showReport && <Btn variant="text" size="sm" onClick={() => onReport && onReport(l)}><Icon name="flag" />Report an error</Btn>}
       </div>
-    </article>
+    </Card>
   );
 }
 
 export function PlainCard({ listing: l, verdict }) {
   return (
-    <article className="card">
+    <Card>
       <div className="row wr" style={{ gap: 6 }}>
         <span className="tag tag--pr">{l.kind === 'scholarship' ? 'Scholarship' : 'Program'}</span>
         <EligibilityBadge result={verdict} compact />
@@ -111,9 +111,9 @@ export function PlainCard({ listing: l, verdict }) {
       <p className="cap">Sign in with a profile to see which requirements you meet.</p>
       <div className="row wr" style={{ marginTop: 2 }}>
         <SaveButton listingId={l.id} saved={l.saved} />
-        <Link className="btn btn--tonal btn--sm" to={listingPath(l)}>View details</Link>
+        <Btn variant="tonal" size="sm" to={listingPath(l)}>View details</Btn>
       </div>
-    </article>
+    </Card>
   );
 }
 

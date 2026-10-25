@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AdminShell } from '../../components/Shell.jsx';
-import { Icon, Loader, Empty, Btn, Notice, Field, useAsync, useToast, LoadError } from '../../components/ui.jsx';
+import { Card, Icon, Loader, Empty, Btn, Notice, Field, useAsync, useToast, LoadError, Input, Textarea } from '../../components/ui.jsx';
 import { api } from '../../api.js';
 import { fmtDate, plural } from '../../lib.jsx';
 
@@ -42,11 +42,11 @@ export default function AiDraft() {
     } catch (e) { toast(e.message); } finally { setBusy(false); }
   }
 
-  if (id && loading) return <AdminShell page="admin-ai-draft"><div className="card"><Loader /></div></AdminShell>;
+  if (id && loading) return <AdminShell page="admin-ai-draft"><Card><Loader /></Card></AdminShell>;
   if (id && error) return <AdminShell page="admin-ai-draft"><LoadError error={error} onRetry={reload} what="draft" /></AdminShell>;
-  if (id && data && !listing) return <AdminShell page="admin-ai-draft"><div className="card">
+  if (id && data && !listing) return <AdminShell page="admin-ai-draft"><Card>
     <Empty icon="info" title="Draft not found" text="Open the queue and pick a draft."
-      action={<Btn variant="filled" size="sm" to="/admin/queue">Open the queue</Btn>} /></div></AdminShell>;
+      action={<Btn variant="filled" size="sm" to="/admin/queue">Open the queue</Btn>} /></Card></AdminShell>;
 
   /* ---------------------------------------------------- create-from-URL mode */
   if (!id) {
@@ -63,25 +63,25 @@ export default function AiDraft() {
         <Notice tone="warning"><b className="w500">This endpoint can never publish.</b> It writes a draft with the flag drafted by AI and the evidence sentence for each field. A human accepts the fields, ticks the groups in the form, and a second person publishes.</Notice>
 
         <div className="split">
-          <section className="card">
+          <Card>
             <h2 className="h2">Source page text</h2>
             <p className="cap">Only one page is used: no crawling. Paste what the official page says, verbatim.</p>
-            <Field label="Source URL" htmlFor="url"><input className="input" id="url" type="url" value={url} onChange={e => setUrl(e.target.value)} /></Field>
+            <Field label="Source URL" htmlFor="url"><Input id="url" type="url" value={url} onChange={e => setUrl(e.target.value)} className="input" /></Field>
             <Field label="Page text" htmlFor="snap" help="At least 40 characters. Numbers and dates are read from these sentences.">
-              <textarea className="input" id="snap" rows={16} value={snapshot} onChange={e => setSnapshot(e.target.value)} />
+              <Textarea id="snap" rows={16} value={snapshot} onChange={e => setSnapshot(e.target.value)} className="input" />
             </Field>
             <div className="row wr" style={{ marginTop: 4 }}>
               <Btn variant="filled" size="sm" onClick={create} disabled={busy} icon="sparkle">{busy ? 'Extracting…' : 'Extract a draft'}</Btn>
               <Btn variant="text" size="sm" onClick={() => setSnapshot(SAMPLE)}>Reset the sample text</Btn>
             </div>
             <p className="cap">The extracted draft appears in the queue as a draft. It cannot set status or who verified it.</p>
-          </section>
+          </Card>
 
-          <section className="card">
+          <Card>
             <h2 className="h2">Existing AI drafts</h2>
             <p className="cap">Open one to review the evidence field by field.</p>
             <RecentAiDrafts />
-          </section>
+          </Card>
         </div>
       </AdminShell>
     );
@@ -115,7 +115,7 @@ export default function AiDraft() {
       <Notice tone="warning"><b className="w500">This endpoint can never publish.</b> It writes a draft with <span className="mono">drafted by AI = true</span> and evidence per field. A human must accept the fields, tick the groups in the form, and a second person must publish.</Notice>
 
       <div className="split">
-        <section className="card">
+        <Card>
           <div className="row sp"><h2 className="h2">Source page text</h2><span className="tag tag--out">{withEvidence} sentences matched</span></div>
           <p className="cap">Stored as the source snapshot. Only this page is used: no crawling.</p>
           <div className="src">
@@ -126,9 +126,9 @@ export default function AiDraft() {
                 })
               : <span className="cap">No snapshot stored for this listing. Drafts created through the URL screen store their text here.</span>}
           </div>
-        </section>
+        </Card>
 
-        <section className="card">
+        <Card>
           <h2 className="h2">Extracted fields</h2>
           <p className="cap">A value is kept only when its evidence sentence appears word for word in the page text. Otherwise the field is dropped to empty and flagged.</p>
           <div className="col">
@@ -138,7 +138,7 @@ export default function AiDraft() {
               const word = f.value == null ? 'Empty' : verified ? 'Evidence found' : 'No evidence';
               const isAccepted = accepted.includes(f.key);
               return (
-                <div className="card card--flat" key={f.key} style={isAccepted ? { opacity: .72 } : undefined}>
+                <Card  key={f.key} style={isAccepted ? { opacity: .72 } : undefined} className="card card--flat">
                   <div className="row sp"><span className="h3">{f.label}</span><span className={'tag ' + tone}>{word}</span></div>
                   <div className="row sp" style={{ gap: 8 }}>
                     <span className="cap">Value</span>
@@ -152,18 +152,18 @@ export default function AiDraft() {
                       onClick={() => { setAccepted(a => [...a, f.key]); toast('Accepted. Nothing is published from here.'); }}>
                       {isAccepted ? 'Accepted' : 'Accept'}
                     </button>
-                    <Link className="btn btn--text btn--sm" to={'/admin/listings/' + listing.id}>Edit</Link>
+                    <Btn variant="text" size="sm" to={'/admin/listings/' + listing.id}>Edit</Btn>
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>
           <div className="row wr" style={{ marginTop: 4 }}>
-            <button className="btn btn--outlined btn--sm" type="button" onClick={() => { setAccepted([]); toast('Unreviewed fields dropped — the draft stays unpublished'); }}>Drop all unreviewed</button>
+            <Btn size="sm" onClick={() => { setAccepted([]); toast('Unreviewed fields dropped — the draft stays unpublished'); }}>Drop all unreviewed</Btn>
             <Btn variant="text" size="sm" to={'/admin/listings/' + listing.id}>Open in the form</Btn>
           </div>
           <p className="cap">{accepted.length} field{accepted.length === 1 ? '' : 's'} accepted in this session. Nothing is published from here. Open the form to tick the groups and hand it to a second reviewer.</p>
-        </section>
+        </Card>
       </div>
     </AdminShell>
   );

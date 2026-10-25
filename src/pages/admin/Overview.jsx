@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AdminShell } from '../../components/Shell.jsx';
-import { Icon, StatCard, Donut, Loader, Btn, Notice, useAsync, LoadError } from '../../components/ui.jsx';
+import { Card, Icon, StatCard, Donut, Loader, Btn, Notice, useAsync, LoadError } from '../../components/ui.jsx';
 import { api } from '../../api.js';
 import { useAuth } from '../../auth.jsx';
 import { fmtDate, plural } from '../../lib.jsx';
@@ -29,7 +29,7 @@ export default function AdminOverview() {
         </div>
       </div>
 
-      {loading ? <div className="card"><Loader /></div>
+      {loading ? <Card><Loader /></Card>
         : (!data || !data.counts) ? <LoadError error={error} onRetry={reload} what="overview" />
         : (
         <>
@@ -40,7 +40,7 @@ export default function AdminOverview() {
             <StatCard label="Stale past 180 days" value={data.counts.stale} sub="returns to draft nightly" icon="alert" tone="tone-purple" to="/admin/queue?tab=stale" />
           </div>
 
-          <section className="card">
+          <Card>
             <div className="chart-head">
               <div><div className="h2">Verification health</div>
                 <p className="cap">How much of the directory a human has checked recently</p></div>
@@ -54,11 +54,11 @@ export default function AdminOverview() {
               { label: 'Stale (180+ days)', value: data.counts.stale, color: 'var(--c1)' },
               { label: 'Drafts', value: data.counts.drafts, color: 'var(--c6)' }
             ]} centerValue={data.counts.listings} centerLabel="listings" />
-          </section>
+          </Card>
 
           <div className="dash-grid">
             <div className="dash-main">
-              <section className="card">
+              <Card>
                 <div className="row sp"><h2 className="h2">Queue</h2><Link className="link-quiet" to="/admin/queue">Open the queue</Link></div>
                 <div className="rows">
                   {data.queue.map(l => (
@@ -72,20 +72,20 @@ export default function AdminOverview() {
                   ))}
                   {!data.queue.length && <p className="cap">Nothing in the queue.</p>}
                 </div>
-              </section>
+              </Card>
 
-              <section className="card">
+              <Card>
                 <div className="row sp"><h2 className="h2">Data quality</h2><Link className="link-quiet" to="/admin/listings">All listings</Link></div>
                 <div className="rows">
                   {data.quality.map(r => (
                     <div className="row sp" key={r.key}><span className="cap" style={{ flex: 1 }}>{r.key}</span><span className="tag tag--out">{r.value}</span></div>
                   ))}
                 </div>
-              </section>
+              </Card>
             </div>
 
             <div className="dash-side">
-              <section className="card">
+              <Card>
                 <div className="row sp"><h2 className="h2">Recent activity</h2><Link className="link-quiet" to="/admin/logs">Full log</Link></div>
                 <div className="rows">
                   {data.activity.map(a => (
@@ -99,9 +99,9 @@ export default function AdminOverview() {
                   ))}
                 </div>
                 <p className="cap">The audit log is append-only: the store rejects updates and deletes.</p>
-              </section>
+              </Card>
 
-              <section className="card card--tone">
+              <Card className="card card--tone">
                 <h2 className="h2" style={{ color: 'inherit' }}>Rules baked into the admin</h2>
                 <div className="col-8" style={{ color: 'inherit', fontSize: 13 }}>
                   <span><b className="w500">Four eyes.</b> A listing can only be published by someone other than its creator.</span>
@@ -109,7 +109,7 @@ export default function AdminOverview() {
                   <span><b className="w500">Evidence per field.</b> Every extracted eligibility value stores the sentence it came from.</span>
                   <span><b className="w500">Stale to draft.</b> The nightly job returns listings unverified for 180+ days to draft.</span>
                 </div>
-              </section>
+              </Card>
             </div>
           </div>
         </>

@@ -1,6 +1,28 @@
 import React, { createContext, useContext, useCallback, useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  Alert, Button, Card as HeroCard, CardBody as HeroCardBody, Chip as HeroChip,
+  Input as HeroInput, Textarea as HeroTextarea,
+  Progress as HeroProgress, Skeleton as HeroSkeleton, Spinner, Switch as HeroSwitch, Tooltip
+} from '@heroui/react';
 import { ICONS } from './icons.js';
+
+/* ==========================================================================
+   Shared primitives — HeroUI components, app layout.
+
+   Every page of the app imports its buttons, cards, chips, tags, progress
+   bars, notices, switches and loaders from this file. The public API (names
+   and props) has not changed in the move to HeroUI, so pages, the shells and
+   the audit suites keep working; what changed is that the paint now comes
+   from HeroUI components themed with the app's own tokens in tailwind.config.js.
+
+   The legacy class names (`card`, `btn`, `btn--filled`, `chip`, `tag`, …) are
+   kept on the rendered elements: they are stable hooks used by the audit
+   suites and by the few legacy anchors that still style themselves, and they
+   carry the layout geometry (padding, gap, radius) HeroUI leaves to the
+   consumer. Where both set a property, the HeroUI stylesheet loads last and
+   wins — see src/styles/heroui.css.
+   ========================================================================== */
 
 /* ------------------------------------------------------------------ icons */
 export function Icon({ name, size, style, className = '' }) {
@@ -16,11 +38,35 @@ export function Icon({ name, size, style, className = '' }) {
 
 /* ---------------------------------------------------------------- surface */
 export function Card({ as: Tag = 'div', className = '', children, ...rest }) {
-  return <Tag className={'card ' + className} {...rest}>{children}</Tag>;
+  return (
+    <HeroCard as={Tag} shadow="none" radius="lg" className={'card ' + className} {...rest}>
+      {children}
+    </HeroCard>
+  );
 }
 
+/* CardBody is HeroUI's padding/typography wrapper — exported so pages can opt in
+   without importing HeroUI directly. */
+export function CardSection({ className = '', children, ...rest }) {
+  return <HeroCardBody className={className} {...rest}>{children}</HeroCardBody>;
+}
+
+const TAG_COLOR = {
+  blue: 'primary', primary: 'primary', purple: 'secondary', secondary: 'secondary',
+  green: 'success', success: 'success', ok: 'success',
+  amber: 'warning', warning: 'warning', warn: 'warning',
+  red: 'danger', danger: 'danger', error: 'danger',
+  gray: 'default', grey: 'default', neutral: 'default', default: 'default'
+};
+
 export function Tag({ tone = '', children, icon }) {
-  return <span className={'tag ' + (tone ? 'tag--' + tone : '')}>{icon ? <Icon name={icon} /> : null}{children}</span>;
+  const color = TAG_COLOR[tone] || 'default';
+  return (
+    <HeroChip className={'tag ' + (tone ? 'tag--' + tone : '')} color={color} variant="flat"
+      size="sm" radius="sm" startContent={icon ? <Icon name={icon} /> : undefined}>
+      {children}
+    </HeroChip>
+  );
 }
 
 export function Delta({ value, dir = 'up' }) {
@@ -39,24 +85,37 @@ export function StatCard({ label, value, sub, icon = 'bars', tone = 'tone-blue',
       <div className="row sp" style={{ gap: 8 }}>
         <span className="statcard__sub">{sub}</span>{delta ? <Delta value={delta} dir={dir} /> : null}
       </div>
-      {progress !== undefined && <div className="progress progress--grad"><i style={{ width: Math.max(2, Math.min(100, progress)) + '%' }} /></div>}
+      {progress !== undefined && <Progress value={progress} tone="grad" />}
     </>
   );
   return to
-    ? <Link to={to} className="card statcard card--link" style={{ color: 'inherit' }}>{inner}</Link>
-    : <div className="card statcard">{inner}</div>;
+    ? <Card as={Link} to={to} className="statcard card--link" style={{ color: 'inherit' }}>{inner}</Card>
+    : <Card className="statcard">{inner}</Card>;
 }
 
-export function Progress({ value, tone = '' }) {
-  return <div className={'progress ' + tone}><i style={{ width: Math.max(0, Math.min(100, value)) + '%' }} /></div>;
+export function Progress({ value, tone = '', label }) {
+  const v = Math.max(0, Math.min(100, Number(value) || 0));
+  return (
+    <HeroProgress aria-label={label || 'Progress'} value={v} size="sm" radius="full"
+      color="primary" className={'progress ' + tone}
+      classNames={{
+        base: 'progress__base',
+        track: 'progress__track',
+        indicator: tone.includes('grad') ? 'progress__indicator progress--grad' : 'progress__indicator',
+        label: 'hidden'
+      }} />
+  );
 }
+
+const NOTICE_COLOR = { info: 'primary', warning: 'warning', danger: 'danger', success: 'success', error: 'danger' };
 
 export function Notice({ tone = 'info', icon, children }) {
   return (
-    <div className={'notice ' + (tone === 'info' ? 'notice--info' : 'notice--' + tone)}>
-      <Icon name={icon || (tone === 'warning' || tone === 'danger' ? 'alert' : 'info')} />
+    <Alert className="app-alert" color={NOTICE_COLOR[tone] || 'primary'} variant="flat"
+      radius="md" hideIcon={false}
+      icon={<Icon name={icon || (tone === 'warning' || tone === 'danger' ? 'alert' : 'info')} />}>
       <span>{children}</span>
-    </div>
+    </Alert>
   );
 }
 
@@ -71,12 +130,27 @@ export function Empty({ icon = 'search', title, text, action }) {
   );
 }
 
-export function Btn({ as, to, href, variant = 'outlined', size, block, children, icon, ...rest }) {
-  const cls = ['btn', 'btn--' + variant, size === 'sm' ? 'btn--sm' : '', block ? 'btn--block' : ''].filter(Boolean).join(' ');
-  const content = <>{icon ? <Icon name={icon} /> : null}{children}</>;
-  if (to) return <Link className={cls} to={to} {...rest}>{content}</Link>;
-  if (href) return <a className={cls} href={href} {...rest}>{content}</a>;
-  return <button className={cls} type={rest.type || 'button'} {...rest}>{content}</button>;
+/* Variant names are the app's own (filled / tonal / outlined / text / danger /
+   success) and map onto HeroUI's Button variants + colours. */
+const BTN_VARIANT = { filled: 'solid', tonal: 'flat', outlined: 'bordered', text: 'light', danger: 'flat', success: 'flat' };
+const BTN_COLOR = { filled: 'primary', tonal: 'primary', outlined: 'default', text: 'default', danger: 'danger', success: 'success' };
+
+export function Btn({ as, to, href, variant = 'outlined', size, block, children, icon, isIconOnly, className = '', ...rest }) {
+  const cls = ['btn', 'btn--' + variant, size === 'sm' ? 'btn--sm' : '', block ? 'btn--block' : '', className].filter(Boolean).join(' ');
+  const props = {
+    variant: BTN_VARIANT[variant] || 'bordered',
+    color: BTN_COLOR[variant] || 'default',
+    size: size === 'sm' ? 'sm' : 'md',
+    radius: 'md',
+    className: cls,
+    fullWidth: !!block,
+    isIconOnly: !!isIconOnly,
+    startContent: icon && !isIconOnly ? <Icon name={icon} /> : undefined,
+    ...rest
+  };
+  if (to) return <Button as={Link} to={to} {...props}>{children}</Button>;
+  if (href) return <Button as="a" href={href} {...props}>{children}</Button>;
+  return <Button type={rest.type || 'button'} {...props}>{children}</Button>;
 }
 
 export function Field({ label, help, error, children, htmlFor }) {
@@ -94,23 +168,42 @@ export function SwitchRow({ title, sub, checked, onChange }) {
   return (
     <div className="switch-row">
       <div className="t"><b>{title}</b>{sub && <span>{sub}</span>}</div>
-      <button type="button" className="switch" role="switch" aria-checked={!!checked} aria-label={title} onClick={() => onChange(!checked)} />
+      <HeroSwitch className="switch" size="sm" color="primary" isSelected={!!checked}
+        aria-label={title} onValueChange={onChange} />
     </div>
   );
+}
+
+/* A bare toggle for the places that draw their own row (filter panels, admin
+   forms). Same component SwitchRow uses underneath. */
+export function Switch({ checked, onChange, label, disabled, className = 'switch' }) {
+  return <HeroSwitch className={className} size="sm" color="primary" isSelected={!!checked}
+    isDisabled={!!disabled} aria-label={label} onValueChange={onChange} />;
 }
 
 export function Chip({ active, children, onClick, as, to }) {
   const cls = 'chip' + (active ? ' is-on' : '');
   if (to) return <Link className={cls} to={to} aria-pressed={active}>{children}</Link>;
-  return <button type="button" className={cls} aria-pressed={!!active} onClick={onClick}>{children}</button>;
+  return (
+    <HeroChip as="button" type="button" className={cls} aria-pressed={!!active} onClick={onClick}
+      size="sm" radius="sm" variant={active ? 'flat' : 'bordered'} color={active ? 'primary' : 'default'}>
+      {children}
+    </HeroChip>
+  );
 }
 
 export function Skeleton({ rows = 3 }) {
-  return <div className="col-8">{Array.from({ length: rows }).map((_, i) => <div key={i} className="sk sk--line" />)}</div>;
+  return <div className="col-8">{Array.from({ length: rows }).map((_, i) => (
+    <HeroSkeleton key={i} className="sk sk--line" />
+  ))}</div>;
 }
 
 export function Loader({ label = 'Loading' }) {
-  return <div className="boot"><Icon name="refresh" className="spin" /><span className="cap">{label}…</span></div>;
+  return (
+    <div className="boot">
+      <Spinner size="sm" color="primary" label={label + '…'} classNames={{ label: 'cap' }} />
+    </div>
+  );
 }
 
 /* ----------------------------------------------------------------- charts */
@@ -254,7 +347,7 @@ export function useAsync(fn, deps = []) {
 export function LoadError({ error, onRetry, title = 'This could not load', what = 'page' }) {
   const offline = /reach the server|too long/i.test(String(error || ''));
   return (
-    <div className="card">
+    <Card>
       <div className="row" style={{ gap: 10 }}>
         <span className="statcard__icon tone-amber"><Icon name={offline ? 'globe' : 'alert'} /></span>
         <div>
@@ -273,10 +366,34 @@ export function LoadError({ error, onRetry, title = 'This could not load', what 
           <Btn variant="outlined" size="sm" to="/dashboard">Go to dashboard</Btn>
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 
 export const Disclosure = ({ children }) => <>{children}</>;
 
 export const useTitle = (t) => useMemo(() => { if (typeof document !== 'undefined') document.title = t; return t; }, [t]);
+
+/* Re-exported so pages that want the raw HeroUI primitives (Tooltip, CardBody,
+   Avatar, Tabs…) can take them from here instead of adding a second import. */
+export { Tooltip };
+
+/* HeroUI form controls, re-pointed so pages never import HeroUI themselves.
+   `classNames.inputWrapper` carries the app's own `input` class (styling in
+   src/styles/heroui.css), which keeps every existing selector — including
+   `#ai-key`, `.path-fields input`, `input--error` — working unchanged. */
+export function Input({ className = '', classNames, ...rest }) {
+  return (
+    <HeroInput variant="bordered" radius="md" size="md" {...rest}
+      classNames={{ inputWrapper: ['input', className].filter(Boolean).join(' '), input: 'app-input__el', ...(classNames || {}) }} />
+  );
+}
+
+export function Textarea({ className = '', classNames, ...rest }) {
+  return (
+    <HeroTextarea variant="bordered" radius="md" size="md" minRows={3} {...rest}
+      classNames={{ inputWrapper: ['input', 'input--area', className].filter(Boolean).join(' '), input: 'app-input__el', ...(classNames || {}) }} />
+  );
+}
+
+export { Avatar, Badge, Checkbox, RadioGroup, Radio, Select, SelectItem } from '@heroui/react';

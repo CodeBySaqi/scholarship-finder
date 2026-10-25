@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { PublicShell } from '../components/Shell.jsx';
-import { Icon, Field, Btn, Notice, useToast } from '../components/ui.jsx';
+import { Card, Icon, Field, Btn, Notice, useToast, Input } from '../components/ui.jsx';
 import { useAuth } from '../auth.jsx';
 import { api } from '../api.js';
 
@@ -42,12 +42,10 @@ export function Login() {
         <form className="card card--pad-l" noValidate style={{ marginTop: 'var(--gap)' }}
           onSubmit={(e) => { e.preventDefault(); go(email); }}>
           <Field label="Email" htmlFor="email">
-            <input className="input" id="email" type="email" inputMode="email" autoComplete="email"
-              value={email} onChange={e => setEmail(e.target.value)} />
+            <Input id="email" type="email" inputMode="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} className="input" />
           </Field>
           <Field label="Password" htmlFor="password" help={<Link to="/forgot-password">Forgot password?</Link>}>
-            <input className="input" id="password" type="password" autoComplete="current-password"
-              value={password} onChange={e => setPassword(e.target.value)} />
+            <Input id="password" type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} className="input" />
           </Field>
           {err && <div className="form-error" role="alert">{err}</div>}
           {needsVerify && (
@@ -59,18 +57,18 @@ export function Login() {
           <Btn variant="filled" block type="submit" disabled={busy}>{busy ? 'Signing in…' : 'Log in'}</Btn>
           <div className="divider-v" style={{ height: 1, width: 'auto', margin: '2px 0' }} />
           <p className="cap">Demo accounts — every one uses the password <b className="w500">demo1234</b>.</p>
-          <button className="btn btn--outlined btn--block" type="button" disabled={busy} onClick={() => go('ayesha@example.com')}>Continue as demo student (Ayesha)</button>
-          <button className="btn btn--outlined btn--block" type="button" disabled={busy} onClick={() => go('admin@example.com')}>Continue as demo admin</button>
-          <button className="btn btn--outlined btn--block" type="button" disabled={busy} onClick={() => go('contributor@example.com')}>Continue as demo contributor</button>
+          <Btn block disabled={busy} onClick={() => go('ayesha@example.com')}>Continue as demo student (Ayesha)</Btn>
+          <Btn block disabled={busy} onClick={() => go('admin@example.com')}>Continue as demo admin</Btn>
+          <Btn block disabled={busy} onClick={() => go('contributor@example.com')}>Continue as demo contributor</Btn>
           <p className="cap center">New here? <Link to="/signup">Create an account</Link></p>
         </form>
 
-        <div className="card" style={{ marginTop: 'var(--gap)' }}>
+        <Card  style={{ marginTop: 'var(--gap)' }}>
           <div className="row" style={{ gap: 8 }}>
             <Icon name="shield" size={18} style={{ color: 'var(--text-2)' }} />
             <p className="cap" style={{ flex: 1 }}>Unverified accounts cannot reach the dashboard. The verification email is sent right after sign-up.</p>
           </div>
-        </div>
+        </Card>
       </div>
     </PublicShell>
   );
@@ -104,13 +102,13 @@ export function Signup() {
         <AuthHead title="Create your account" sub="Two minutes now, then every listing shows what you meet." />
         <form className="card card--pad-l" noValidate style={{ marginTop: 'var(--gap)' }} onSubmit={submit}>
           <Field label="Full name" htmlFor="name">
-            <input className="input" id="name" autoComplete="name" placeholder="As printed on your documents" value={form.fullName} onChange={set('fullName')} required />
+            <Input id="name" autoComplete="name" placeholder="As printed on your documents" value={form.fullName} onChange={set('fullName')} required className="input" />
           </Field>
           <Field label="Email" htmlFor="email" help="We send one verification link and, if you want them, deadline alerts.">
-            <input className="input" id="email" type="email" inputMode="email" autoComplete="email" placeholder="you@example.com" value={form.email} onChange={set('email')} required />
+            <Input id="email" type="email" inputMode="email" autoComplete="email" placeholder="you@example.com" value={form.email} onChange={set('email')} required className="input" />
           </Field>
           <Field label="Password" htmlFor="password" help="Use 8 or more characters. A passphrase works well.">
-            <input className="input" id="password" type="password" autoComplete="new-password" placeholder="At least 8 characters" value={form.password} onChange={set('password')} required />
+            <Input id="password" type="password" autoComplete="new-password" placeholder="At least 8 characters" value={form.password} onChange={set('password')} required className="input" />
           </Field>
           <div className="check" style={{ marginTop: 2 }}>
             <input type="checkbox" id="consent" checked={consent} onChange={e => setConsent(e.target.checked)} />
@@ -147,25 +145,25 @@ export function VerifyEmail() {
   return (
     <PublicShell minimal page="verify">
       <div style={{ maxWidth: 440, margin: '0 auto', width: '100%' }}>
-        <div className="card card--pad-l" style={{ textAlign: 'center', alignItems: 'center', marginTop: 16 }}>
+        <Card  style={{ textAlign: 'center', alignItems: 'center', marginTop: 16 }} className="card card--pad-l">
           <span className="brand__mark" style={{ width: 52, height: 52, borderRadius: 14 }}><Icon name="mail" size={26} /></span>
           <h1 className="h1">Check your inbox</h1>
           <p className="cap" style={{ maxWidth: '36ch' }}>We sent a verification link to <b className="w500">{email}</b>. Open it on this device to finish setting up your account.</p>
           {msg && <div className="form-error" role="alert" style={{ width: '100%' }}>{msg}</div>}
           {token
             ? <Btn variant="filled" block onClick={doVerify} disabled={state === 'busy'} style={{ marginTop: 6 }}>{state === 'busy' ? 'Verifying…' : 'I have verified my email'}</Btn>
-            : <Link className="btn btn--filled btn--block" to="/dashboard" style={{ marginTop: 6 }}>I have verified my email</Link>}
+            : <Btn variant="filled" block to="/dashboard" style={{ marginTop: 6 }}>I have verified my email</Btn>}
           <p className="cap" style={{ margin: 0 }}>No mail server here: this link is the verification step itself.</p>
-        </div>
+        </Card>
 
-        <div className="card" style={{ marginTop: 'var(--gap)' }}>
+        <Card  style={{ marginTop: 'var(--gap)' }}>
           <h2 className="h2">Nothing arrived?</h2>
           <div className="rows">
             <div className="row-top"><span className="tag tag--out">1</span><p className="cap">Wait a minute: delivery can lag. Check the spam or promotions folder.</p></div>
             <div className="row-top"><span className="tag tag--out">2</span><p className="cap">Make sure the address has no typos. You can change it and sign up again.</p></div>
             <div className="row-top"><span className="tag tag--out">3</span><p className="cap">Still stuck? Email the address on the privacy page and we will verify manually.</p></div>
           </div>
-        </div>
+        </Card>
       </div>
     </PublicShell>
   );
@@ -191,7 +189,7 @@ export function ForgotPassword() {
         <AuthHead title="Reset your password" sub="Enter the email you signed up with. We send a link that expires in one hour." />
         <form className="card card--pad-l" style={{ marginTop: 'var(--gap)' }} onSubmit={submit}>
           <Field label="Email" htmlFor="email">
-            <input className="input" id="email" type="email" inputMode="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required />
+            <Input id="email" type="email" inputMode="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required className="input" />
           </Field>
           <Btn variant="filled" block type="submit" disabled={busy}>{busy ? 'Sending…' : 'Send reset link'}</Btn>
           <Btn variant="text" block to="/login">Back to log in</Btn>
@@ -208,13 +206,13 @@ export function ResetSent() {
   return (
     <PublicShell minimal page="reset-sent">
       <div style={{ maxWidth: 440, margin: '0 auto', width: '100%' }}>
-        <div className="card card--pad-l" style={{ textAlign: 'center', alignItems: 'center', marginTop: 16 }}>
+        <Card  style={{ textAlign: 'center', alignItems: 'center', marginTop: 16 }} className="card card--pad-l">
           <span className="brand__mark" style={{ width: 52, height: 52, borderRadius: 14 }}><Icon name="check" size={26} /></span>
           <h1 className="h1">Reset link sent</h1>
           <p className="cap" style={{ maxWidth: '36ch' }}>If an account exists for <b className="w500">{email}</b>, the link is on its way. It expires in one hour.</p>
-          <Link className="btn btn--filled btn--block" to={reset ? '/reset-password?token=' + new URLSearchParams(reset.split('?')[1] || '').get('token') : '/reset-password'} style={{ marginTop: 6 }}>Open the reset screen</Link>
-          <Link className="btn btn--text btn--block" to="/login">Back to log in</Link>
-        </div>
+          <Btn variant="filled" block to={reset ? '/reset-password?token=' + new URLSearchParams(reset.split('?')[1] || '').get('token') : '/reset-password'} style={{ marginTop: 6 }}>Open the reset screen</Btn>
+          <Btn variant="text" block to="/login">Back to log in</Btn>
+        </Card>
         <p className="cap center" style={{ marginTop: 'var(--gap)' }}>We do not say whether an address is registered. That would let anyone test emails against the platform.</p>
       </div>
     </PublicShell>
@@ -245,18 +243,18 @@ export function ResetPassword() {
       <div style={{ maxWidth: 440, margin: '0 auto', width: '100%' }}>
         <AuthHead title="Choose a new password" sub="Signing in again everywhere else will need this new password." />
         {ok
-          ? <div className="card card--pad-l" style={{ textAlign: 'center', alignItems: 'center', marginTop: 'var(--gap)' }}>
+          ? <Card  style={{ textAlign: 'center', alignItems: 'center', marginTop: 'var(--gap)' }} className="card card--pad-l">
               <span className="brand__mark" style={{ width: 52, height: 52, borderRadius: 14 }}><Icon name="check" size={26} /></span>
               <h2 className="h2">Password saved</h2>
               <p className="cap">You can sign in with the new password now.</p>
               <Btn variant="filled" block to="/login">Go to log in</Btn>
-            </div>
+            </Card>
           : <form className="card card--pad-l" noValidate style={{ marginTop: 'var(--gap)' }} onSubmit={submit}>
               <Field label="New password" htmlFor="p1" help="8 or more characters. Avoid your name, email or birth year.">
-                <input className="input" id="p1" type="password" autoComplete="new-password" value={p1} onChange={e => setP1(e.target.value)} />
+                <Input id="p1" type="password" autoComplete="new-password" value={p1} onChange={e => setP1(e.target.value)} className="input" />
               </Field>
               <Field label="Repeat new password" htmlFor="p2">
-                <input className="input" id="p2" type="password" autoComplete="new-password" value={p2} onChange={e => setP2(e.target.value)} />
+                <Input id="p2" type="password" autoComplete="new-password" value={p2} onChange={e => setP2(e.target.value)} className="input" />
               </Field>
               {err && <p className="err" role="alert"><Icon name="alert" size={13} />{err}</p>}
               <Btn variant="filled" block type="submit" disabled={busy}>{busy ? 'Saving…' : 'Save password'}</Btn>

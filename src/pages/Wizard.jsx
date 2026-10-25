@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { AppShell } from '../components/Shell.jsx';
-import { Icon, Loader, Notice, useAsync, useToast, LoadError, Progress } from '../components/ui.jsx';
+import { Card, Icon, Loader, Notice, useAsync, useToast, LoadError, Progress, Btn, Input } from '../components/ui.jsx';
 import { api } from '../api.js';
 import { PathStepFields, get } from '../components/pathSteps.jsx';
 import { educationSummary } from '../path/education.js';
@@ -82,13 +82,13 @@ export default function Wizard() {
     if (matching.data) { setDraft(matching.data.profile || {}); setMeta(matching.data.completeness || null); }
   }, [matching.data]);
 
-  if (personal.loading || matching.loading) return <AppShell page="profile"><div className="card"><Loader /></div></AppShell>;
+  if (personal.loading || matching.loading) return <AppShell page="profile"><Card><Loader /></Card></AppShell>;
   if (personal.error || matching.error) {
     return <AppShell page="profile">
       <LoadError error={personal.error || matching.error} onRetry={() => { personal.reload(); matching.reload(); }} what="your profile" />
     </AppShell>;
   }
-  if (!form || !draft) return <AppShell page="profile"><div className="card"><Loader /></div></AppShell>;
+  if (!form || !draft) return <AppShell page="profile"><Card><Loader /></Card></AppShell>;
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const pct = (meta && meta.pct) || 0;
@@ -128,16 +128,16 @@ export default function Wizard() {
         <>
           <div className="g2">
             <Field label="Full name" id="fullName" help="As printed on your documents. Used only on your profile.">
-              <input className="input" id="fullName" autoComplete="name" value={form.fullName || ''} onChange={e => set('fullName', e.target.value)} />
+              <Input id="fullName" autoComplete="name" value={form.fullName || ''} onChange={e => set('fullName', e.target.value)} className="input" />
             </Field>
             <Field label="Date of birth" id="dateOfBirth" help="Some scholarships have an age limit. We check your age at the deadline, not today.">
-              <input className="input" id="dateOfBirth" type="date" value={(form.dateOfBirth || '').slice(0, 10)} onChange={e => set('dateOfBirth', e.target.value)} />
+              <Input id="dateOfBirth" type="date" value={(form.dateOfBirth || '').slice(0, 10)} onChange={e => set('dateOfBirth', e.target.value)} className="input" />
             </Field>
             <Field label="Gender" id="gender">
               <Chips aria="Gender" value={form.gender} options={GENDERS} onChange={v => set('gender', v)} />
             </Field>
             <Field label="City" id="city">
-              <input className="input" id="city" value={form.city || ''} onChange={e => set('city', e.target.value)} />
+              <Input id="city" value={form.city || ''} onChange={e => set('city', e.target.value)} className="input" />
             </Field>
             <Field label="Province" id="province">
               <select className="select" id="province" value={form.province || ''} onChange={e => set('province', e.target.value)}>
@@ -146,7 +146,7 @@ export default function Wizard() {
               </select>
             </Field>
             <Field label="WhatsApp number" id="whatsapp" help="Optional, for deadline reminders. Never shown publicly.">
-              <input className="input" id="whatsapp" value={form.whatsapp || ''} onChange={e => set('whatsapp', e.target.value)} />
+              <Input id="whatsapp" value={form.whatsapp || ''} onChange={e => set('whatsapp', e.target.value)} className="input" />
             </Field>
           </div>
           <div className="g2">
@@ -198,21 +198,21 @@ export default function Wizard() {
           <div style={{ marginTop: 8 }}><Progress value={pct} /></div>
         </div>
 
-        <div className="card card--pad-l">{renderStep()}</div>
+        <Card className="card card--pad-l">{renderStep()}</Card>
 
-        <div className="card" style={{ position: 'sticky', bottom: 64, zIndex: 15 }}>
+        <Card  style={{ position: 'sticky', bottom: 64, zIndex: 15 }}>
           <div className="row sp wr" style={{ gap: 8 }}>
             {step > 1
-              ? <button className="btn btn--text" type="button" onClick={() => goto(step - 1)}><Icon name="back" />Back</button>
+              ? <Btn variant="text" onClick={() => goto(step - 1)}><Icon name="back" />Back</Btn>
               : <span />}
             <div className="row" style={{ gap: 8, marginLeft: 'auto' }}>
-              <Link className="btn btn--text" to="/profile">Finish later</Link>
-              <button className="btn btn--filled" type="button" disabled={saving} onClick={() => save(true)}>
+              <Btn variant="text" to="/profile">Finish later</Btn>
+              <Btn variant="filled" disabled={saving} onClick={() => save(true)}>
                 {saving ? 'Saving…' : step === LAST ? 'Save and finish' : 'Save and continue'}
-              </button>
+              </Btn>
             </div>
           </div>
-        </div>
+        </Card>
 
         <div className="row wr" style={{ gap: 6 }}>
           {STEPS.map(x => (
@@ -224,7 +224,7 @@ export default function Wizard() {
         <p className="cap">Your answers save as you go. Nothing is uploaded and no CNIC, passport or bank details are ever requested.</p>
         {step === 2 && (
           <Notice tone="info">
-            Two steps are enough for a first verdict: this one and <button className="btn btn--text btn--sm" type="button" onClick={() => goto(4)}>Education</button>.
+            Two steps are enough for a first verdict: this one and <Btn variant="text" size="sm" onClick={() => goto(4)}>Education</Btn>.
             Languages and money sharpen it.
           </Notice>
         )}

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AppShell } from '../components/Shell.jsx';
-import { Icon, Empty, Btn, useToast, Field, LoadError } from '../components/ui.jsx';
+import { Card, Icon, Empty, Btn, useToast, Field, LoadError, Textarea } from '../components/ui.jsx';
 import { Sheet } from '../components/Sheet.jsx';
 import { SaveButton } from '../components/cards.jsx';
 import { useSaved } from '../components/saved.jsx';
@@ -62,14 +62,14 @@ export default function Saved() {
       </div>
 
       {!list.length ? (
-        <div className="card">
+        <Card>
           <Empty icon="bookmark" title="Your saved list is empty"
             text="Tap Save on any scholarship or program card. Saved items appear here with a countdown, and you can add a private note to each one."
             action={<div className="row wr" style={{ justifyContent: 'center' }}>
               <Btn variant="filled" size="sm" to="/matches">See my matches</Btn>
               <Btn variant="outlined" size="sm" to="/scholarships">Browse scholarships</Btn>
             </div>} />
-        </div>
+        </Card>
       ) : ORDER.filter(g => groups[g]).map(g => (
         <section className="col-8" key={g}>
           <div className="sect-head">
@@ -79,7 +79,7 @@ export default function Saved() {
             {groups[g].map(x => {
               const l = x.listing;
               return (
-                <article className="card" key={x.id}>
+                <Card  key={x.id}>
                   <div className="row sp wr" style={{ gap: 6 }}>
                     <div className="row wr" style={{ gap: 6 }}>
                       <span className="tag tag--out">{l.kind === 'scholarship' ? 'Scholarship' : 'Program'}</span>
@@ -93,14 +93,14 @@ export default function Saved() {
                   </div>
                   {x.note
                     ? <div className="gapbox gapbox--info"><Icon name="file" /><span>{x.note}</span></div>
-                    : <button className="btn btn--text btn--sm" type="button" style={{ alignSelf: 'flex-start', paddingLeft: 0 }}
-                        onClick={() => { setEditing(x); setNote(x.note || ''); }}><Icon name="plus" />Add a note</button>}
+                    : <Btn variant="text" size="sm" style={{ alignSelf: 'flex-start', paddingLeft: 0 }}
+                        onClick={() => { setEditing(x); setNote(x.note || ''); }}><Icon name="plus" />Add a note</Btn>}
                   <div className="row wr" style={{ marginTop: 2 }}>
                     <Btn variant="tonal" size="sm" to={(l.kind === 'scholarship' ? '/scholarship/' : '/program/') + l.id}>View details</Btn>
                     <SaveButton listingId={l.id} saved size="sm" onChange={() => reload()} />
-                    {x.note && <button className="btn btn--text btn--sm" type="button" onClick={() => { setEditing(x); setNote(x.note || ''); }}><Icon name="edit" />Edit note</button>}
+                    {x.note && <Btn variant="text" size="sm" onClick={() => { setEditing(x); setNote(x.note || ''); }}><Icon name="edit" />Edit note</Btn>}
                   </div>
-                </article>
+                </Card>
               );
             })}
           </div>
@@ -111,11 +111,11 @@ export default function Saved() {
 
       <Sheet open={!!editing} title="Note for yourself" onClose={() => setEditing(null)}
         footer={<div className="row" style={{ justifyContent: 'flex-end', gap: 8, marginTop: 10 }}>
-          <button className="btn btn--text" type="button" onClick={() => setEditing(null)}>Cancel</button>
-          <button className="btn btn--filled" type="button" onClick={saveNote}>Save note</button>
+          <Btn variant="text" onClick={() => setEditing(null)}>Cancel</Btn>
+          <Btn variant="filled" onClick={saveNote}>Save note</Btn>
         </div>}>
         <Field label="Private note" htmlFor="note" help="Only you can see this. Notes are not sent anywhere.">
-          <textarea className="input" id="note" rows={3} placeholder="Documents to gather, a question for your referee…" value={note} onChange={e => setNote(e.target.value)} />
+          <Textarea id="note" rows={3} placeholder="Documents to gather, a question for your referee…" value={note} onChange={e => setNote(e.target.value)} className="input" />
         </Field>
       </Sheet>
     </AppShell>

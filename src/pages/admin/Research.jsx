@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AdminShell } from '../../components/Shell.jsx';
-import { Icon, Btn, Field, Loader, Notice, useAsync, useToast, LoadError } from '../../components/ui.jsx';
+import { Card, Icon, Btn, Field, Loader, Notice, useAsync, useToast, LoadError, Input, Textarea, Switch } from '../../components/ui.jsx';
 import { api } from '../../api.js';
 import { fmtDate } from '../../lib.jsx';
 
@@ -118,7 +118,7 @@ export default function Research() {
       </div>
 
       <div className="split">
-        <section className="card card--pad-l">
+        <Card className="card card--pad-l">
           <h2 className="h2">1. What are you adding?</h2>
           <div className="radios">
             {KINDS.map(k => (
@@ -131,21 +131,21 @@ export default function Research() {
 
           <h2 className="h2">2. Where should it look?</h2>
           <Field label="Official page URL" htmlFor="res-url" help="The page you would cite. The agent reads it and keeps the URL as the source.">
-            <input className="input" id="res-url" type="url" placeholder="https://www.daad.de/en/…" value={url} onChange={e => setUrl(e.target.value)} />
+            <Input id="res-url" type="url" placeholder="https://www.daad.de/en/…" value={url} onChange={e => setUrl(e.target.value)} className="input" />
           </Field>
           <Field label="Extra notes or pasted text (optional)" htmlFor="res-notes"
             help="Needed when the page is behind a script or a login. Paste the text you can see and the agent works from that.">
-            <textarea className="input" id="res-notes" rows={5} value={notes} onChange={e => setNotes(e.target.value)}
-              placeholder={'Deadline: 16 November 2026\nMinimum CGPA 3.0/4, IELTS 6.5'} />
+            <Textarea id="res-notes" rows={5} value={notes} onChange={e => setNotes(e.target.value)}
+              placeholder={'Deadline: 16 November 2026\nMinimum CGPA 3.0/4, IELTS 6.5'} className="input" />
           </Field>
 
           <div className="row sp wr" style={{ gap: 8 }}>
             <span className="cap">
               {keyReady ? 'Using your configured model for extraction.' : 'The built-in extractor will run. Add a key in Settings → AI research for better coverage.'}
             </span>
-            <button className="btn btn--filled" type="button" onClick={run} disabled={busy || (!url.trim() && !notes.trim())}>
+            <Btn variant="filled" onClick={run} disabled={busy || (!url.trim() && !notes.trim())}>
               <Icon name="sparkle" />{busy ? 'Researching…' : 'Run research'}
-            </button>
+            </Btn>
           </div>
 
           {error && <Notice tone="danger" icon="alert">{error}</Notice>}
@@ -166,9 +166,9 @@ export default function Research() {
               )}
             </div>
           )}
-        </section>
+        </Card>
 
-        <section className="card">
+        <Card>
           <div className="row sp">
             <div><h2 className="h2">3. Confirm the fields</h2><p className="cap">Everything here is editable. Nothing is published.</p></div>
             <span className={'statcard__icon ' + kindMeta.tone} style={{ width: 38, height: 38, borderRadius: 11 }}><Icon name={kindMeta.icon} /></span>
@@ -189,7 +189,7 @@ export default function Research() {
                     <div key={key}>
                       <Field label={label} htmlFor={'rf-' + key}>
                         {type === 'textarea' ? (
-                          <textarea className="input" id={'rf-' + key} rows={3} value={form[key] || ''} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} />
+                          <Textarea id={'rf-' + key} rows={3} value={form[key] || ''} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} className="input" />
                         ) : type === 'select' ? (
                           <select className="select" id={'rf-' + key} value={form[key] || ''} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}>
                             <option value="">— not stated —</option>
@@ -198,12 +198,11 @@ export default function Research() {
                         ) : type === 'bool' ? (
                           <div className="switch-row">
                             <span className="cap">{form[key] ? 'Yes' : 'No'}</span>
-                            <button className="switch" type="button" role="switch" aria-checked={!!form[key]} aria-label={label}
-                              onClick={() => setForm(f => ({ ...f, [key]: !f[key] }))} />
+                            <Switch checked={!!form[key]} label={label}
+                              onChange={v => setForm(f => ({ ...f, [key]: v }))} />
                           </div>
                         ) : (
-                          <input className="input" id={'rf-' + key} type={type === 'number' ? 'number' : type === 'date' ? 'date' : 'text'}
-                            value={form[key] ?? ''} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} />
+                          <Input id={'rf-' + key} type={type === 'number' ? 'number' : type === 'date' ? 'date' : 'text'} value={form[key] ?? ''} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} className="input" />
                         )}
                       </Field>
                       {evidenceKey && <p className="cap" style={{ marginTop: -4 }}>“{String(evidenceKey).slice(0, 160)}”</p>}
@@ -214,16 +213,16 @@ export default function Research() {
 
               <div className="row sp wr" style={{ gap: 8, marginTop: 12 }}>
                 <span className="cap">Saving creates a <b className="w500">draft</b>. A second admin still has to publish it.</span>
-                <button className="btn btn--filled" type="button" onClick={save} disabled={saving || !(form.title || form.name)}>
+                <Btn variant="filled" onClick={save} disabled={saving || !(form.title || form.name)}>
                   {saving ? 'Saving…' : 'Save as draft'}
-                </button>
+                </Btn>
               </div>
             </>
           )}
-        </section>
+        </Card>
       </div>
 
-      <div className="card">
+      <Card>
         <div className="row sp wr" style={{ gap: 10 }}>
           <div>
             <div className="h3">Model and key</div>
@@ -238,7 +237,7 @@ export default function Research() {
             <Btn variant="text" size="sm" to="/admin/listings/new">Enter a listing by hand</Btn>
           </div>
         </div>
-      </div>
+      </Card>
     </AdminShell>
   );
 }

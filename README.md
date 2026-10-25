@@ -62,6 +62,11 @@ node audit/data-integrity.mjs    #  20 data-set checks
 npm install --no-save happy-dom
 ./audit/run-dom.sh smoke         # every route × student / admin / contributor
 ./audit/run-dom.sh features      # notifications, admin CRUD, broadcast, research, search
+./audit/run-dom.sh path          # ScholarPath steps, verdicts, summary
+./audit/run-dom.sh responsive    # phone + tablet behaviour
+./audit/run-dom.sh heroui        # the HeroUI adoption itself (41 checks)
+node audit/responsive-css.mjs    # the built stylesheet's breakpoints
+node audit/path-tests.mjs        # the matching engine
 ```
 
 The Playwright suites (`ui-roles`, `wizard-e2e`, `flows`, `failure-modes`, `page-crawl`) need a
@@ -150,6 +155,29 @@ search expansion, stacked labels, bottom bars, sheet content — **39 checks**.
 `node audit/responsive-css.mjs` checks the built stylesheet itself: that the fixed bar lives in
 the phone breakpoint, that it is declared after the sticky rule, that it is hidden from 768 px,
 and that the page reserves its height — **17 checks**.
+
+## Design system — HeroUI
+
+The components are [HeroUI](https://heroui.com) (`@heroui/react`) on Tailwind CSS. **The layout
+is still ours**: the sidebar, the floating top bar, the mobile bottom tab bar, the public header
+and the page grids are hand-written CSS in `src/styles/app.css` + `react.css` against the tokens
+in `src/styles/tokens.css`. HeroUI supplies the widgets — Button, Card, Input, Textarea, Chip,
+Alert, Progress, Switch, Avatar, Badge — and their paint.
+
+| File | Role |
+| --- | --- |
+| `tailwind.config.js` | the `heroui()` plugin, with the app's own palette, radii and shadows mapped onto HeroUI's theme tokens (primary `#1B84FF`, canvas `#F2F4F9`, radius 16px, light + dark). Every installed `@heroui/*` dist is scanned, so no utility is dropped. |
+| `postcss.config.js` | `tailwindcss` + `autoprefixer`. |
+| `src/styles/heroui.css` | `@tailwind base/components/utilities`, loaded **last** (after `tokens.css`, `app.css`, `react.css`) so HeroUI wins on the components it paints and the app keeps winning on layout. Preflight is off — `app.css` owns the reset the layout depends on. |
+| `src/components/ui.jsx` | every page's primitives (`Card`, `Btn`, `Chip`, `Input`, `Switch`, `Notice`, `Progress`, `Tag`, `Loader`…) are now thin wrappers over HeroUI. **Same names, same props** — pages didn't change shape. |
+| `src/main.jsx` | `<HeroUIProvider>` inside the router, with `useNavigate()` so HeroUI links route properly. `applyTheme()` flips `data-theme` **and** `html.dark`, so one switch drives both themes. |
+
+Legacy class names (`card`, `btn`, `btn--filled`, `chip`, `tag`, `progress`, `switch`) are kept on
+the rendered elements: they are the stable hooks the audit suites select on and they carry the
+layout geometry HeroUI leaves to the consumer. `./audit/run-dom.sh heroui` proves the swap — that
+inputs are HeroUI `data-slot` fields, buttons carry `data-react-aria-pressable`, cards use
+`bg-content1`, progress bars are HeroUI `role="progressbar"` with a translating indicator, dark
+mode flips both systems, and the shell markup is untouched.
 
 ## Run it
 

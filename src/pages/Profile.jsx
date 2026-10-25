@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppShell } from '../components/Shell.jsx';
-import { Icon, Loader, Btn, useAsync, useToast, Field, LoadError } from '../components/ui.jsx';
+import { Card, Icon, Loader, Btn, useAsync, useToast, Field, LoadError, Input } from '../components/ui.jsx';
 import { Sheet } from '../components/Sheet.jsx';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
@@ -51,7 +51,7 @@ export default function Profile() {
   const p = data ? data.profile : null;
   const targets = (data && data.targets) || [];
 
-  if (loading) return <AppShell page="profile"><div className="card"><Loader /></div></AppShell>;
+  if (loading) return <AppShell page="profile"><Card><Loader /></Card></AppShell>;
   if (error || !p) return <AppShell page="profile"><LoadError error={error} onRetry={reload} what="profile" /></AppShell>;
 
   const row = (label, value, note) => (
@@ -62,7 +62,7 @@ export default function Profile() {
 
   return (
     <AppShell page="profile">
-      <div className="card card--pad-l">
+      <Card className="card card--pad-l">
         <div className="row wr sp" style={{ gap: 12 }}>
           <div className="avatar-row">
             <span className="avatar avatar--lg">{(p.firstName || 'A')[0]}</span>
@@ -85,14 +85,14 @@ export default function Profile() {
           <p className="cap">{p.completenessPct >= 100 ? 'Everything is filled in. Keep IELTS and APS dates current.' : 'Add the missing items to remove the “Provisional” label from your counts.'}</p>
           <Link className="link-quiet" to="/wizard">Resume where you left off</Link>
         </div>
-      </div>
+      </Card>
 
       <div className="dash-grid">
         <div className="dash-main">
           <MatchSummary profile={matching.data && matching.data.profile}
             completeness={matching.data && matching.data.completeness}
             counts={verdicts.data && verdicts.data.counts} />
-          <section className="card">
+          <Card>
             <div className="row sp"><h2 className="h2">Personal</h2><Link className="link-quiet" to="/wizard?step=1">Edit</Link></div>
             <table className="kv"><tbody>
               {row('Date of birth', fmtDate(p.dateOfBirth), 'Age is checked at each deadline')}
@@ -102,12 +102,12 @@ export default function Profile() {
               {row('Nationality', 'Pakistan', 'Used for listings restricted to certain countries')}
               {row('WhatsApp', p.whatsapp || null, 'Optional, for reminders')}
             </tbody></table>
-          </section>
+          </Card>
 
         </div>
 
         <div className="dash-side">
-          <section className="card">
+          <Card>
             <h2 className="h2">Documents ready</h2>
             <div className="chips">
               {Object.keys(DOCMAP).map(k => {
@@ -116,9 +116,9 @@ export default function Profile() {
               })}
             </div>
             <p className="cap">A checklist for you only. No files are uploaded or stored.</p>
-          </section>
+          </Card>
 
-          <section className="card card--tone">
+          <Card className="card card--tone">
             <div className="row" style={{ gap: 8 }}>
               <Icon name="shield" style={{ flex: 'none' }} />
               <h2 className="h2" style={{ color: 'inherit' }}>What we never ask for</h2>
@@ -130,9 +130,9 @@ export default function Profile() {
               <span>Your password in plain text</span>
             </div>
             <Btn variant="outlined" size="sm" block to="/privacy">Read the privacy policy</Btn>
-          </section>
+          </Card>
 
-          <section className="card">
+          <Card>
             <h2 className="h2">Account</h2>
             <Link className="row sp" to="/settings" style={{ color: 'inherit', textDecoration: 'none', padding: '6px 0' }}>
               <span className="h3">Settings and alerts</span><Icon name="chevron" size={18} />
@@ -148,7 +148,7 @@ export default function Profile() {
               onClick={() => setDel(true)}>
               <span className="h3">Delete my account</span><Icon name="trash" size={18} />
             </button>
-          </section>
+          </Card>
         </div>
       </div>
 
@@ -156,15 +156,15 @@ export default function Profile() {
 
       <Sheet open={del} title="Delete your account?" onClose={() => setDel(false)}
         footer={<div className="row" style={{ justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
-          <button className="btn btn--text" type="button" onClick={() => setDel(false)}>Cancel</button>
-          <button className="btn btn--danger" type="button" onClick={() => {
+          <Btn variant="text" onClick={() => setDel(false)}>Cancel</Btn>
+          <Btn variant="danger" onClick={() => {
             if (confirm.trim().toUpperCase() !== 'DELETE') return toast('Type DELETE to confirm');
             setDel(false); toast('Account deletion is disabled in this build'); setConfirm('');
-          }}>Delete account</button>
+          }}>Delete account</Btn>
         </div>}>
         <p className="cap" style={{ marginBottom: 10 }}>This removes your profile, targets, saved list and notes. Once deleted it cannot be restored. Your match history and error reports stay anonymous.</p>
         <Field label="Type DELETE to confirm" htmlFor="confirm">
-          <input className="input" id="confirm" placeholder="DELETE" value={confirm} onChange={e => setConfirm(e.target.value)} />
+          <Input id="confirm" placeholder="DELETE" value={confirm} onChange={e => setConfirm(e.target.value)} className="input" />
         </Field>
       </Sheet>
     </AppShell>

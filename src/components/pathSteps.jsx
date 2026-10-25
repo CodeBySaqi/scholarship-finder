@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Field, Notice, Icon } from './ui.jsx';
+import { Field, Notice, Icon, Btn, Input } from './ui.jsx';
 import { api } from '../api.js';
 import { germanGpa } from '../path/engine.js';
 import { educationSummary, zabRule, EDU_LABEL, entryYears, APS_NOTE } from '../path/education.js';
@@ -54,9 +54,8 @@ export const Chips = ({ value, onChange, options, aria }) => (
 
 export const Num = ({ label, help, value, onChange, min = 0, max = 1000, step = 0.01, placeholder, id }) => (
   <Field label={label} help={help} htmlFor={id}>
-    <input className="input" id={id} type="number" inputMode="decimal" min={min} max={max} step={step}
-      placeholder={placeholder} value={value == null ? '' : value}
-      onChange={e => onChange(e.target.value === '' ? null : Number(e.target.value))} />
+    <Input id={id} type="number" inputMode="decimal" min={min} max={max} step={step} placeholder={placeholder} value={value == null ? '' : value}
+      onChange={e => onChange(e.target.value === '' ? null : Number(e.target.value))} className="input" />
   </Field>
 );
 
@@ -127,9 +126,8 @@ export function PathStepFields({ id, draft, setDraft }) {
           <Chips aria="Intended intake" value={get(draft, 'target.intake')} onChange={v => set('target.intake', v)} options={INTAKES} />
         </Field>
         <Field label="Nationality" help="Non-EU tuition and deadlines depend on this. APS is never required for Pakistan.">
-          <input className="input" list="country-list" placeholder="PK" maxLength={2}
-            value={get(draft, 'nationality.nationality') || ''}
-            onChange={e => set('nationality.nationality', e.target.value.toUpperCase())} />
+          <Input list="country-list" placeholder="PK" maxLength={2} value={get(draft, 'nationality.nationality') || ''}
+            onChange={e => set('nationality.nationality', e.target.value.toUpperCase())} className="input" />
           <datalist id="country-list">
             {['PK', 'IN', 'BD', 'NG', 'EG', 'CN', 'VN', 'ID', 'DE'].map(x => <option key={x} value={x} />)}
           </datalist>
@@ -157,8 +155,7 @@ export function PathStepFields({ id, draft, setDraft }) {
             options={GERMAN.map(g => ({ id: g, label: g === 'none' ? 'None' : g.toUpperCase() }))} />
         </Field>
         <Field label="German test, if taken">
-          <input className="input" placeholder="TestDaF 4 / DSH-2 / Goethe C1 / Telc C1" value={get(draft, 'language.germanTest') || ''}
-            onChange={e => set('language.germanTest', e.target.value)} />
+          <Input placeholder="TestDaF 4 / DSH-2 / Goethe C1 / Telc C1" value={get(draft, 'language.germanTest') || ''} onChange={e => set('language.germanTest', e.target.value)} className="input" />
         </Field>
         <p className="cap">A score is only ever compared with what a programme states. Nothing here is assumed.</p>
       </div>
@@ -237,8 +234,7 @@ export function PathStepFields({ id, draft, setDraft }) {
           options={[{ id: 'yes', label: 'Yes' }, { id: 'no', label: 'No' }, { id: 'unsure', label: 'Not sure' }]} />
       </Field>
       <Field label="Date of birth" help="Used only for scholarships with an age limit.">
-        <input className="input" type="date" value={(get(draft, 'scholarshipExtras.dateOfBirth') || '').slice(0, 10)}
-          onChange={e => set('scholarshipExtras.dateOfBirth', e.target.value || null)} />
+        <Input type="date" value={(get(draft, 'scholarshipExtras.dateOfBirth') || '').slice(0, 10)} onChange={e => set('scholarshipExtras.dateOfBirth', e.target.value || null)} className="input" />
       </Field>
     </div>
   );
@@ -318,14 +314,14 @@ function EducationStep({ draft, setDraft, edu }) {
             <b className="w500">{EDU_LABEL[e.level] || e.level}{e.institution ? ' · ' + e.institution : ''}</b>
             <span className="row" style={{ gap: 6 }}>
               <span className="cap">{entryYears(e)} years</span>
-              <button className="btn btn--text btn--sm" type="button" onClick={() => setDraft(d => removeEducationEntry(d, e.id))}>Remove</button>
+              <Btn variant="text" size="sm" onClick={() => setDraft(d => removeEducationEntry(d, e.id))}>Remove</Btn>
             </span>
           </div>
 
           {(e.level === 'matric' || e.level === 'hssc') && (
             <div className="g2">
               <Field label={e.level === 'hssc' ? 'School / college' : 'School'}>
-                <input className="input" value={e.institution || ''} onChange={ev => setEntry(e.id, { institution: ev.target.value })} />
+                <Input value={e.institution || ''} onChange={ev => setEntry(e.id, { institution: ev.target.value })} className="input" />
               </Field>
               <Num label="Percentage" value={e.percentage} onChange={v => setEntry(e.id, { percentage: v })} max={100} step={0.1} />
               {e.level === 'hssc' && (
@@ -334,7 +330,7 @@ function EducationStep({ draft, setDraft, edu }) {
                 </Field>
               )}
               <Field label="Group / subjects">
-                <input className="input" placeholder="pre_engineering" value={e.field || ''} onChange={ev => setEntry(e.id, { field: ev.target.value })} />
+                <Input placeholder="pre_engineering" value={e.field || ''} onChange={ev => setEntry(e.id, { field: ev.target.value })} className="input" />
               </Field>
             </div>
           )}
@@ -342,8 +338,7 @@ function EducationStep({ draft, setDraft, edu }) {
           {(e.level === 'bachelor' || e.level === 'master') && (
             <>
               <Field label="University" help="Type to search the anabin list of Pakistani institutions.">
-                <input className="input" value={e.institution || ''}
-                  onChange={ev => { setEntry(e.id, { institution: ev.target.value, anabinId: null, anabinStatus: null }); searchAnabin(ev.target.value); }} />
+                <Input value={e.institution || ''} onChange={ev => { setEntry(e.id, { institution: ev.target.value, anabinId: null, anabinStatus: null }); searchAnabin(ev.target.value); }} className="input" />
               </Field>
               {search.q && search.q === e.institution && search.rows.length > 0 && (
                 <div className="path-anabin-list">
@@ -366,10 +361,10 @@ function EducationStep({ draft, setDraft, edu }) {
                 <div className={'path-anabin is-' + (e.anabinStatus || 'none').replace(/[+/]/g, '')}>
                   <div className="row sp wr" style={{ gap: 8 }}>
                     <span><b className="w500">anabin {e.anabinStatus}</b> — {zabRule(e.anabinStatus).text}</span>
-                    <button className="btn btn--outlined btn--sm" type="button" disabled={!!(live[e.id] || {}).busy}
+                    <Btn size="sm" disabled={!!(live[e.id] || {}).busy}
                       onClick={() => checkLive(e)}>
                       {(live[e.id] || {}).busy ? 'Checking…' : 'Check live'}
-                    </button>
+                    </Btn>
                   </div>
                   {e.anabinCheckedAt && <span className="cap">Stored status from {String(e.anabinCheckedAt).slice(0, 10)}</span>}
                   {(live[e.id] || {}).text && <span className="cap">{live[e.id].text}</span>}
@@ -397,7 +392,7 @@ function EducationStep({ draft, setDraft, edu }) {
 
               <div className="g3">
                 <Field label="Field of study" help="This is what field fit is derived from.">
-                  <input className="input" placeholder="computer_science" value={e.field || ''} onChange={ev => setEntry(e.id, { field: ev.target.value })} />
+                  <Input placeholder="computer_science" value={e.field || ''} onChange={ev => setEntry(e.id, { field: ev.target.value })} className="input" />
                 </Field>
                 <Num label="Semesters completed" help="Half a year each." value={e.semestersDone} onChange={v => setEntry(e.id, { semestersDone: v })} max={12} step={1} />
                 <Num label="Semesters in total" value={e.totalSemesters} onChange={v => setEntry(e.id, { totalSemesters: v })} max={12} step={1} />

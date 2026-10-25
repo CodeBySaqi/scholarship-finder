@@ -85,24 +85,24 @@ export default function Landing() {
               </div>
             </Link>
           ) : (
-            <div className="card card--pad-l" style={{ gap: 14 }}>
+            <Card  style={{ gap: 14 }} className="card card--pad-l">
               <div className="row" style={{ gap: 10 }}>
                 <span className="statcard__icon tone-green"><Icon name="cap" /></span>
                 <div><div className="h3">{loading ? 'Loading the newest listing…' : 'No verified listing yet'}</div><div className="cap">Germany · checked by an editor</div></div>
               </div>
               <p className="cap">The card on this spot shows the most recently verified scholarship or program. Nothing is shown until an editor has checked it against an official page.</p>
-            </div>
+            </Card>
           )}
         </div>
       </section>
 
       {error && (
-        <div className="card" style={{ gap: 8 }}>
+        <Card  style={{ gap: 8 }}>
           <div className="row sp wr" style={{ gap: 10 }}>
             <span className="cap"><b className="w500">The live numbers could not load.</b> The rest of the page still works; the counts come from the same API.</span>
             <Btn variant="outlined" size="sm" onClick={reload}>Try again</Btn>
           </div>
-        </div>
+        </Card>
       )}
 
       <section className="statgrid">
@@ -114,21 +114,21 @@ export default function Landing() {
 
       <div className="dash-grid">
         <div className="dash-main">
-          <section className="card" id="how">
+          <Card  id="how">
             <div className="row sp"><div><div className="h2">How it works</div><p className="cap">Three steps, about five minutes</p></div>
               <span className="tag tag--pr">Free</span></div>
             <div className="cards-3">
               {STEPS.map(s => (
-                <div className="card card--flat" style={{ gap: 10 }} key={s.n}>
+                <Card  style={{ gap: 10 }} key={s.n} className="card card--flat">
                   <div className="row sp"><span className={'statcard__icon ' + s.tone}><Icon name={s.icon} /></span>
                     <span className="eyebrow">{s.n}</span></div>
                   <div className="h3">{s.t}</div><p className="cap">{s.d}</p>
-                </div>
+                </Card>
               ))}
             </div>
-          </section>
+          </Card>
 
-          <section className="card">
+          <Card>
             <div className="row sp">
               <div><div className="h2">Recently verified</div><p className="cap">Newest human checks first — nothing older than 90 days is shown as current</p></div>
               <Btn variant="outlined" size="sm" to="/scholarships">All scholarships</Btn>
@@ -153,28 +153,28 @@ export default function Landing() {
                 ))}
               </div>
             )}
-          </section>
+          </Card>
         </div>
 
         <div className="dash-side">
-          <section className="card">
+          <Card>
             <div className="row sp"><div><div className="h2">Deadlines ahead</div><p className="cap">Verified listings, next six months</p></div>
               <span className="tag tag--pr">{counts.reduce((a, b) => a + b, 0)} total</span></div>
             <BarChart values={counts} labels={months.map(m => m.label)} height={140} />
-          </section>
+          </Card>
 
-          <section className="card">
+          <Card>
             <div className="row sp"><div className="h2">What every card checks</div><span className="tag tag--out">{stats.verifiedList.length} listings</span></div>
             <p className="cap">Six kinds of check, and how many listings publish each one</p>
             <Donut segments={Object.keys(checks).map((k, i) => ({ label: k, value: checks[k], color: palette[i % palette.length] }))}
               centerValue={String(stats.verifiedList.length)} centerLabel="listings" />
-          </section>
+          </Card>
 
-          <section className="card card--tone" style={{ gap: 10 }}>
+          <Card  style={{ gap: 10 }} className="card card--tone">
             <div className="h2" style={{ color: 'inherit' }}>Never the word “eligible”</div>
             <p className="cap" style={{ opacity: .92 }}>We say you meet the published minimums and name what is missing. Selection is the provider’s decision, and grades we convert are always estimates.</p>
             <Btn variant="filled" size="sm" to="/signup" style={{ alignSelf: 'flex-start' }}>Start your profile</Btn>
-          </section>
+          </Card>
         </div>
       </div>
 

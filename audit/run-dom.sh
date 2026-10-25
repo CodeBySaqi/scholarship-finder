@@ -4,6 +4,7 @@
 #   ./audit/run-dom.sh features    notifications, admin CRUD, broadcast, research, search
 #   ./audit/run-dom.sh responsive  phone + tablet layout behaviour
 #   ./audit/run-dom.sh path        ScholarPath profile steps + results pages
+#   ./audit/run-dom.sh heroui      the HeroUI adoption (components + theme + css)
 # Needs happy-dom (`npm i --no-save happy-dom`) and a server on :8000.
 set -e
 mkdir -p /tmp/sf-dom
@@ -16,5 +17,6 @@ case "${1:-smoke}" in
   responsive) node audit/responsive.mjs ;;
   research) node audit/research-check.mjs ;;
   path)       node audit/path-pages.mjs ;;
-  *) echo "usage: $0 [smoke|features|responsive|research|path]"; exit 2 ;;
+  heroui)     node audit/heroui-ui.mjs ;;
+  *) echo "usage: $0 [smoke|features|responsive|research|path|heroui]"; exit 2 ;;
 esac

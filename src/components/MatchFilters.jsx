@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Btn } from './ui.jsx';
+import { Card, Btn } from './ui.jsx';
 
 /* Compact filter bar for Matches.
    Two rows only: the match bucket as pills, the rest as selects. Every option
@@ -140,7 +140,7 @@ export default function MatchFilters({ tab, active, filters, setFilters, onReset
   ].filter(Boolean);
 
   return (
-    <section className="card mfilter" aria-label="Match filters">
+    <Card  aria-label="Match filters" className="card mfilter">
       <div className="mfilter__head">
         <div className="mfilter__count">
           <h2 className="h2">Filters</h2>
@@ -189,6 +189,6 @@ export default function MatchFilters({ tab, active, filters, setFilters, onReset
         </label>
         <Btn variant="text" size="sm" to={isProgram ? '/programs' : '/scholarships'}>Not finding it? Browse all</Btn>
       </div>
-    </section>
+    </Card>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppShell } from '../components/Shell.jsx';
-import { Icon, StatCard, BarChart, Donut, Loader, Empty, Btn, Progress, useAsync, LoadError } from '../components/ui.jsx';
+import { Card, Chip, Icon, StatCard, BarChart, Donut, Loader, Empty, Btn, Progress, useAsync, LoadError } from '../components/ui.jsx';
 import { ListingRow } from '../components/cards.jsx';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
@@ -50,7 +50,7 @@ export default function Dashboard() {
 
   const near = [...sch.almost, ...prog.almost].slice(0, 3);
 
-  if (loading) return <AppShell page="dashboard"><div className="card"><Loader label="Loading your dashboard" /></div></AppShell>;
+  if (loading) return <AppShell page="dashboard"><Card><Loader label="Loading your dashboard" /></Card></AppShell>;
   if (!data || !data.profile || !data.profile.profile) {
     return <AppShell page="dashboard"><LoadError error={error} onRetry={reload} what="dashboard" /></AppShell>;
   }
@@ -79,12 +79,12 @@ export default function Dashboard() {
               {t.isPrimary ? <Icon name="star" /> : null}{t.label || (t.isPrimary ? 'Primary' : 'Backup')} · {t.intakeYear}
             </span>
           ))}
-          <Link className="chip" to="/wizard?step=4">Edit targets</Link>
+          <Chip to="/wizard?step=4">Edit targets</Chip>
         </div>
       </div>
 
       {pct < 100 && (
-        <section className="card card--pad-l">
+        <Card className="card card--pad-l">
           <div className="row sp wr" style={{ gap: 12 }}>
             <div className="row" style={{ gap: 12, minWidth: 0 }}>
               <span className="statcard__icon tone-amber"><Icon name="alert" /></span>
@@ -101,7 +101,7 @@ export default function Dashboard() {
             </div>
           </div>
           <Progress value={pct} tone="progress--grad" />
-        </section>
+        </Card>
       )}
 
       <div className="statgrid">
@@ -117,7 +117,7 @@ export default function Dashboard() {
 
       <div className="dash-grid">
         <div className="dash-main">
-          <section className="card">
+          <Card>
             <div className="chart-head">
               <div><div className="h2">Deadlines ahead</div><p className="cap">Verified listings closing in the next five months</p></div>
               <span className="tag tag--pr">{soon.length} due in 30 days</span>
@@ -128,9 +128,9 @@ export default function Dashboard() {
               <span className="legend__item"><span className="legend__dot" style={{ background: 'var(--chart-track)' }} />Later months</span>
               <span className="legend__item" style={{ marginLeft: 'auto' }}><Link className="link-quiet" to="/saved">Track your saved list →</Link></span>
             </div>
-          </section>
+          </Card>
 
-          <section className="card">
+          <Card>
             {soon.length ? (
               <>
                 <div className="row sp">
@@ -157,9 +157,9 @@ export default function Dashboard() {
                   action={<Btn variant="tonal" size="sm" to="/scholarships">Browse scholarships</Btn>} />
               </>
             )}
-          </section>
+          </Card>
 
-          <section className="card">
+          <Card>
             {near.length ? (
               <>
                 <div className="row sp">
@@ -187,11 +187,11 @@ export default function Dashboard() {
                 <Empty icon="checkCircle" title="No gaps right now" text="Every listing you can see is either a full match or outside your targets." />
               </>
             )}
-          </section>
+          </Card>
         </div>
 
         <div className="dash-side">
-          <section className="card">
+          <Card>
             <div className="row sp"><div className="h2">Match breakdown</div><span className="tag tag--out">{meets + almost} listings</span></div>
             <p className="cap">Across scholarships and German programs</p>
             <Donut segments={[
@@ -200,9 +200,9 @@ export default function Dashboard() {
               { label: 'Next cycle', value: sch.next_cycle.length + prog.next_cycle.length, color: 'var(--c1)' }
             ]} centerValue={meets + almost} centerLabel="in reach" />
             <Btn variant="tonal" size="sm" block to="/matches">Open matches</Btn>
-          </section>
+          </Card>
 
-          <section className="card">
+          <Card>
             <div className="h2">Next steps</div>
             <p className="cap">The order that unlocks the most listings</p>
             <div className="rows">
@@ -216,9 +216,9 @@ export default function Dashboard() {
                 </Link>
               )) : <p className="cap">Nothing outstanding. Your profile is complete.</p>}
             </div>
-          </section>
+          </Card>
 
-          <section className="card">
+          <Card>
             <div className="row sp"><div className="h2">Saved list</div><Link className="link-quiet" to="/saved">All →</Link></div>
             {saved.rows.length ? (
               <div className="rows">
@@ -230,9 +230,9 @@ export default function Dashboard() {
                 ) : null)}
               </div>
             ) : <p className="cap">Nothing saved yet. Save a listing to track its deadline here.</p>}
-          </section>
+          </Card>
 
-          <section className="card card--tone">
+          <Card className="card card--tone">
             <div className="row-top" style={{ gap: 10 }}>
               <span className="statcard__icon tone-blue" style={{ background: 'rgba(255,255,255,.55)', width: 36, height: 36 }}><Icon name="refresh" /></span>
               <div>
@@ -240,7 +240,7 @@ export default function Dashboard() {
                 <p className="cap" style={{ opacity: .9 }}>A listing not rechecked for 90 days shows “Needs recheck”. After 180 days it leaves the results until a human verifies it again.</p>
               </div>
             </div>
-          </section>
+          </Card>
         </div>
       </div>
 

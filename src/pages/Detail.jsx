@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { AppShell } from '../components/Shell.jsx';
-import { Icon, Loader, Empty, Btn, useAsync, useToast, Field, Notice, LoadError } from '../components/ui.jsx';
+import { Card, Icon, Loader, Empty, Btn, useAsync, useToast, Field, Notice, LoadError, Textarea } from '../components/ui.jsx';
 import { Sheet } from '../components/Sheet.jsx';
 import { SaveButton, GapBox, fmtReason } from '../components/cards.jsx';
 import { EligibilityPanel } from '../components/PathFields.jsx';
@@ -35,12 +35,12 @@ function ReportSheet({ listing, open, onClose, onDone }) {
         </select>
       </div>
       <Field label="Anything else? (optional)" htmlFor="note">
-        <textarea className="input" id="note" rows={3} value={note} onChange={e => setNote(e.target.value)} placeholder="A line about what you saw on the official page" />
+        <Textarea id="note" rows={3} value={note} onChange={e => setNote(e.target.value)} placeholder="A line about what you saw on the official page" className="input" />
       </Field>
       {err && <p className="err"><Icon name="alert" size={13} />{err}</p>}
       <div className="row" style={{ justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
-        <button className="btn btn--text" type="button" onClick={onClose}>Cancel</button>
-        <button className="btn btn--filled" type="button" onClick={submit} disabled={busy}>{busy ? 'Sending…' : 'Send report'}</button>
+        <Btn variant="text" onClick={onClose}>Cancel</Btn>
+        <Btn variant="filled" onClick={submit} disabled={busy}>{busy ? 'Sending…' : 'Send report'}</Btn>
       </div>
     </Sheet>
   );
@@ -62,15 +62,15 @@ export default function Detail({ kind }) {
     api.get('/listings?kind=' + kind)
   ]).then(([one, list]) => ({ listing: one.listing, all: list.listings })), [id]);
 
-  if (loading) return <AppShell page="browse"><div className="card"><Loader /></div></AppShell>;
+  if (loading) return <AppShell page="browse"><Card><Loader /></Card></AppShell>;
   if (error) return <AppShell page="browse"><LoadError error={error} onRetry={reload} what="listing" /></AppShell>;
   if (!data || !data.listing) {
     return (
       <AppShell page="browse">
-        <div className="card">
+        <Card>
           <Empty icon="info" title="This listing is not available" text="It may have been returned to draft for rechecking, or the link is wrong."
             action={<Btn variant="filled" size="sm" to={kind === 'scholarship' ? '/scholarships' : '/programs'}>Browse {kind}s</Btn>} />
-        </div>
+        </Card>
       </AppShell>
     );
   }
@@ -86,7 +86,7 @@ export default function Detail({ kind }) {
 
   const railFacts = (
     <>
-      <div className="card">
+      <Card>
         <div className="row sp"><h2 className="h2">Key facts</h2><FreshnessTag iso={l.lastVerified} freshness={l.freshness} /></div>
         <table className="kv">
           <tbody>
@@ -101,21 +101,21 @@ export default function Detail({ kind }) {
             <tr><th>Annual</th><td>{l.isAnnual ? 'Yes, repeats each intake' : 'One-off'}</td></tr>
           </tbody>
         </table>
-      </div>
-      <div className="card">
+      </Card>
+      <Card>
         <h2 className="h2">Need to prepare</h2>
         <div className="col-8">
           {(l.documents || []).map(d => (
             <div className="row" style={{ gap: 8 }} key={d}><Icon name="file" size={16} style={{ color: 'var(--text-2)' }} /><span style={{ fontSize: 13 }}>{d}</span></div>
           ))}
         </div>
-      </div>
-      <div className="card">
+      </Card>
+      <Card>
         <h2 className="h2">Source</h2>
         <p className="cap">Last verified {fmtDate(l.lastVerified)} against the official requirements page.</p>
         <a className="btn btn--outlined btn--sm btn--block" href={l.sourceUrl || l.officialUrl} target="_blank" rel="noopener"><Icon name="external" />Open source page</a>
         <p className="cap">Problems with this listing? Use “Report an error”. Two open reports add a recheck tag for everyone.</p>
-      </div>
+      </Card>
     </>
   );
 
@@ -143,19 +143,19 @@ export default function Detail({ kind }) {
       <div className="detail-grid">
         <div className="col">
           <div className="g2">
-            <div className="card card--tone">
+            <Card className="card card--tone">
               <span className="cap" style={{ color: 'inherit' }}>Deadline</span>
               <span className="h2" style={{ color: 'inherit' }}>{fmtDate(l.deadline)}</span>
               <span className="cap" style={{ color: 'inherit' }}>{days == null ? 'No deadline stated' : days < 0 ? 'Closed for this intake' : 'in ' + plural(days, 'day')}</span>
-            </div>
-            <div className="card">
+            </Card>
+            <Card>
               <span className="cap">{kind === 'scholarship' ? 'Covers' : 'Costs'}</span>
               <span className="h2">{cov[0] || 'Not stated'}</span>
               <span className="cap">{cov.slice(1).join(', ') || (l.semesterFee ? 'Semester fee ' + l.semesterFee + ' EUR' : '')}</span>
-            </div>
+            </Card>
           </div>
 
-          <div className="card">
+          <Card>
             <h2 className="h2">About</h2>
             <p className="body">{l.description}</p>
             <div className="row wr" style={{ gap: 6, marginTop: 2 }}>
@@ -163,18 +163,18 @@ export default function Detail({ kind }) {
               <span className="tag tag--out"><Icon name="school" />{(l.degreeLevels || []).map(d => GRADES[d]).join(' / ')}</span>
               <span className="tag tag--out"><Icon name="clock" />{l.isAnnual ? 'Annual intake' : 'One-off intake'}</span>
             </div>
-          </div>
+          </Card>
 
           {!user && (
-            <div className="card card--tone">
+            <Card className="card card--tone">
               <h2 className="h2" style={{ color: 'inherit' }}>See your own fit</h2>
               <p className="cap">Create a profile and this block becomes a table of every requirement, your value and the result.</p>
               <div className="row wr"><Btn variant="filled" size="sm" to="/signup">Create profile</Btn><Btn variant="outlined" size="sm" to="/login">Log in</Btn></div>
-            </div>
+            </Card>
           )}
 
           {user && match && (
-            <div className="card">
+            <Card>
               <div className="row sp wr">
                 <h2 className="h2">Your match</h2>
                 <div className="row wr" style={{ gap: 6 }}>
@@ -198,11 +198,11 @@ export default function Detail({ kind }) {
               <GapBox gaps={match.gaps} />
               {match.bucket === 'meets' && <p className="cap">{COPY.meetsLine}</p>}
               {match.bucket === 'next_cycle' && <p className="cap">This intake has closed. The listing is annual, so it returns in the next cycle - we will keep it in your list.</p>}
-            </div>
+            </Card>
           )}
 
           {isBachelorProgram && (
-            <div className="card card--warning">
+            <Card className="card card--warning">
               <div className="row" style={{ gap: 8 }}><Icon name="info" /><h2 className="h2" style={{ color: 'inherit' }}>Pakistani applicants</h2></div>
               <p style={{ color: 'inherit', fontSize: 13 }}>
                 HSSC alone is usually {l.hsscEntryRoute === 'direct' ? 'accepted for this program, but confirm the subject group.'
@@ -211,15 +211,15 @@ export default function Detail({ kind }) {
                       : 'not enough, and the entry route is not confirmed on the official page yet.'}
               </p>
               {l.hsscGroups && <p style={{ color: 'inherit', fontSize: 13 }}>Accepted HSSC groups: <b className="w500">{l.hsscGroups.join(', ').replace(/_/g, ' ')}</b>.</p>}
-            </div>
+            </Card>
           )}
 
-          <div className="card">
+          <Card>
             <h2 className="h2">How to apply</h2>
             <ol className="steps">{(l.applySteps || []).map(s => <li key={s}><span>{s}</span></li>)}</ol>
-          </div>
+          </Card>
 
-          <div className="card">
+          <Card>
             <h2 className="h2">Before you apply</h2>
             <div className="rows">
               <div className="row sp"><div><div className="h3">APS certificate</div><div className="cap">Required for Pakistani applicants in most cases</div></div>
@@ -233,16 +233,16 @@ export default function Detail({ kind }) {
               <div className="row sp"><div><div className="h3">Passport</div><div className="cap">Valid for at least the length of the program</div></div>
                 <span className="tag tag--out">Check expiry</span></div>
             </div>
-          </div>
+          </Card>
 
-          <div className="card">
+          <Card>
             <div className="row wr" style={{ gap: 8 }}>
               <a className="btn btn--filled" href={l.applyUrl} target="_blank" rel="noopener">Apply on official site<Icon name="external" /></a>
               <SaveButton listingId={l.id} saved={l.saved} size="md" />
-              {user && <button className="btn btn--text" type="button" onClick={() => setReport(true)}><Icon name="flag" />Report an error</button>}
+              {user && <Btn variant="text" onClick={() => setReport(true)}><Icon name="flag" />Report an error</Btn>}
             </div>
             <p className="cap">Verified {plural(freshness(l.lastVerified).days, 'day')} ago from the official page. {COPY.disclaimer}</p>
-          </div>
+          </Card>
         </div>
 
         <aside className="rail rail-side rail-side--sticky">{railFacts}</aside>

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AppShell } from '../components/Shell.jsx';
-import { Icon, Empty, Loader, Btn, Chip, LoadError } from '../components/ui.jsx';
+import { Card, Icon, Empty, Loader, Btn, Chip, LoadError, Input, Switch } from '../components/ui.jsx';
 import { Sheet } from '../components/Sheet.jsx';
 import { MatchCard, PlainCard } from '../components/cards.jsx';
 import { EligibilityBadge } from '../components/PathFields.jsx';
@@ -35,8 +35,7 @@ function Filters({ kind, state, set, clear }) {
   const sw = (key, title, sub, disabled) => (
     <div className="switch-row">
       <span className="t"><span className="h3">{title}</span><span className="cap">{sub}</span></span>
-      <button className="switch" type="button" role="switch" aria-checked={state[key]} aria-label={title} disabled={disabled}
-        onClick={() => set({ [key]: !state[key] })} />
+      <Switch checked={state[key]} disabled={disabled} label={title} onChange={v => set({ [key]: v })} />
     </div>
   );
 
@@ -45,8 +44,7 @@ function Filters({ kind, state, set, clear }) {
       <h2 className="h2">Filters</h2>
       <div className="field">
         <label htmlFor={'fq' + kind}>Search</label>
-        <input className="input" id={'fq' + kind} type="search" placeholder={kind === 'scholarship' ? 'Provider or scholarship name' : 'Program or university'}
-          value={state.q} onChange={e => set({ q: e.target.value })} />
+        <Input id={'fq' + kind} type="search" placeholder={kind === 'scholarship' ? 'Provider or scholarship name' : 'Program or university'} value={state.q} onChange={e => set({ q: e.target.value })} className="input" />
       </div>
       {group('degree', { label: 'Degree level', items: [{ id: 'bachelor', label: 'Bachelor' }, { id: 'master', label: 'Master' }, { id: 'phd', label: 'PhD' }] })}
       {group('funding', {
@@ -60,7 +58,7 @@ function Filters({ kind, state, set, clear }) {
       {kind === 'scholarship' && sw('ieltsFree', 'IELTS not required', 'Skips listings that need a test')}
       {sw('freshOnly', 'Verified in last 30 days', 'Fresh listings only')}
       {sw('mineOnly', 'Only what I meet', 'Uses your profile and targets')}
-      <button className="btn btn--text btn--sm" type="button" style={{ alignSelf: 'flex-start', marginTop: 2 }} onClick={clear}>Clear all filters</button>
+      <Btn variant="text" size="sm" style={{ alignSelf: 'flex-start', marginTop: 2 }} onClick={clear}>Clear all filters</Btn>
     </>
   );
 }
@@ -150,9 +148,9 @@ export default function Browse({ kind = 'scholarship' }) {
             </p>
           </div>
           <div className="row" style={{ gap: 8 }}>
-            <button className="btn btn--outlined btn--sm" type="button" onClick={() => setMobile(true)} style={{ display: 'inline-flex' }}>
+            <Btn size="sm" onClick={() => setMobile(true)} style={{ display: 'inline-flex' }}>
               <Icon name="filter" />Filters
-            </button>
+            </Btn>
             <select className="select" aria-label="Sort results" style={{ width: 'auto', minHeight: 38, fontSize: 13 }}
               value={sort} onChange={e => setSort(e.target.value)}>
               <option value="deadline">Deadline soonest</option>
@@ -172,7 +170,7 @@ export default function Browse({ kind = 'scholarship' }) {
           </span>
           <div className="chips">
             {activeChips.map(c => (
-              <button className="chip chip--sm is-on" type="button" key={c.label} onClick={c.clear}>{c.label} ✕</button>
+              <Chip key={c.label} active onClick={c.clear}>{c.label} ✕</Chip>
             ))}
           </div>
         </div>
@@ -180,23 +178,23 @@ export default function Browse({ kind = 'scholarship' }) {
 
       <div className="with-rail with-rail--left">
         <div className="cards-2 with-rail__main">
-          {loading ? <div className="card"><Loader /></div>
+          {loading ? <Card><Loader /></Card>
             : rows.length === 0
-              ? <div className="card">
+              ? <Card>
                   <Empty icon="search" title="No results with these filters"
                     text="Try removing the deadline window or the degree filter. Listings older than 90 days are hidden until someone rechecks them."
-                    action={<button className="btn btn--tonal btn--sm" type="button" onClick={clear}>Clear all filters</button>} />
-                </div>
+                    action={<Btn variant="tonal" size="sm" onClick={clear}>Clear all filters</Btn>} />
+                </Card>
               : rows.map(l => l.match
                   ? <MatchCard key={l.id} listing={l} match={l.match} verdict={byListing[l.id]} />
                   : <PlainCard key={l.id} listing={l} verdict={byListing[l.id]} />)}
         </div>
 
         <aside className="rail">
-          <div className="card filters-panel">
+          <Card className="card filters-panel">
             <Filters kind={kind} state={state} set={set} clear={clear} />
-          </div>
-          <div className="card card--tone">
+          </Card>
+          <Card className="card card--tone">
             <span className="h3" style={{ color: 'inherit' }}>Can I apply to this?</span>
             <p className="cap">
               Each card carries a verdict from your profile: eligible, check yourself, or not eligible — with the reason.
@@ -204,7 +202,7 @@ export default function Browse({ kind = 'scholarship' }) {
             <Btn variant="outlined" size="sm" block to="/wizard?step=2">
               {(verdicts.data && verdicts.data.completeness && verdicts.data.completeness.steps[1] > 0) ? 'Update my details' : 'Add my details'}
             </Btn>
-          </div>
+          </Card>
         </aside>
       </div>
 
@@ -212,7 +210,7 @@ export default function Browse({ kind = 'scholarship' }) {
 
       <Sheet open={mobile} title="Filters" onClose={() => setMobile(false)}
         footer={<div className="row" style={{ justifyContent: 'flex-end', marginTop: 12 }}>
-          <button className="btn btn--filled" type="button" onClick={() => setMobile(false)}>Done</button></div>}>
+          <Btn variant="filled" onClick={() => setMobile(false)}>Done</Btn></div>}>
         <p className="cap" style={{ marginBottom: 10 }}>The same filters as the desktop sidebar.</p>
         <Filters kind={kind} state={state} set={set} clear={clear} />
       </Sheet>

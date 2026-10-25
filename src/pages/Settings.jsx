@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AppShell } from '../components/Shell.jsx';
-import { Icon, Btn, Loader, Notice, Field, useAsync, useToast, LoadError } from '../components/ui.jsx';
+import { Card, Icon, Btn, Loader, Notice, Field, useAsync, useToast, LoadError, Input, Switch } from '../components/ui.jsx';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { applyTheme, readTheme } from '../components/theme.js';
@@ -15,7 +15,7 @@ const THEMES = [
 ];
 const ALERT_DAYS = [30, 14, 7, 1];
 const Sw = ({ on, onChange, label, disabled }) => (
-  <button className="switch" type="button" role="switch" aria-checked={!!on} aria-label={label} disabled={disabled} onClick={() => onChange(!on)} />
+  <Switch checked={!!on} disabled={disabled} label={label} onChange={onChange} />
 );
 const RadioCards = ({ name, list, value, onChange }) => (
   <div className="radios">
@@ -53,7 +53,7 @@ export default function Settings() {
     try { await api.put('/profile', { profile: patch }); } catch (e) { toast(e.message); }
   }
 
-  if (loading) return <AppShell page="settings"><div className="card"><Loader /></div></AppShell>;
+  if (loading) return <AppShell page="settings"><Card><Loader /></Card></AppShell>;
   if (error) return <AppShell page="settings"><LoadError error={error} onRetry={reload} what="settings" /></AppShell>;
   const p = data.profile;
 
@@ -72,7 +72,7 @@ export default function Settings() {
         </div>
 
         {tab === 'prefs' && (
-          <div className="card card--pad-l">
+          <Card className="card card--pad-l">
             <h2 className="h2">Appearance</h2>
             <p className="cap">Auto follows your operating system. The moon icon in the top bar flips between light and dark from anywhere.</p>
             <RadioCards name="theme" list={THEMES} value={theme} onChange={v => { setTheme(v); applyTheme(v); toast('Theme: ' + v); }} />
@@ -89,12 +89,12 @@ export default function Settings() {
               { id: 'english', label: 'English-taught only', sub: 'IELTS usually required' },
               { id: 'german', label: 'German-taught only', sub: 'B2 or C1 usually required' }
             ]} />
-          </div>
+          </Card>
         )}
 
         {tab === 'alerts' && (
           <>
-            <div className="card card--pad-l">
+            <Card className="card card--pad-l">
               <h2 className="h2">Deadline alerts</h2>
               <p className="cap">Alerts only cover listings you saved, plus a weekly digest of new matches. Every email has a one-click unsubscribe.</p>
               <div className="switch-row">
@@ -120,19 +120,19 @@ export default function Settings() {
                 <span className="help">Default is 30, 14, 7 and 1 day before the deadline.</span>
               </div>
               <Notice tone="info" icon="bell">One email per listing per alert day. A unique key in the database stops duplicates if a job runs twice.</Notice>
-            </div>
-            <div className="card">
+            </Card>
+            <Card>
               <h2 className="h2">Preview the email</h2>
               {nextSaved ? (
                 <>
                   <p className="cap">The next deadline on your saved list, as the reminder email shows it.</p>
-                  <div className="card card--flat" style={{ gap: 6 }}>
+                  <Card  style={{ gap: 6 }} className="card card--flat">
                     <span className="tag tag--wn">{daysTo(nextSaved.listing.deadline)} days left</span>
                     <span className="h3">{nextSaved.listing.title} closes on {fmtDate(nextSaved.listing.deadline)}</span>
                     <p className="cap">Saved on {fmtDate((nextSaved.createdAt || '').slice(0, 10))} · {nextSaved.listing.provider} · {fundingLabel(nextSaved.listing)}</p>
                     {nextSaved.note && <p className="cap">Your note: {nextSaved.note}</p>}
                     <Link className="link-quiet" to={'/' + (nextSaved.listing.kind === 'program' ? 'program' : 'scholarship') + '/' + nextSaved.listing.id}>Open the listing</Link>
-                  </div>
+                  </Card>
                 </>
               ) : (
                 <>
@@ -141,17 +141,17 @@ export default function Settings() {
                   <Btn variant="outlined" size="sm" to="/scholarships" style={{ alignSelf: 'flex-start', marginTop: 6 }}>Browse scholarships</Btn>
                 </>
               )}
-            </div>
+            </Card>
           </>
         )}
 
         {tab === 'account' && (
           <>
-            <div className="card card--pad-l">
+            <Card className="card card--pad-l">
               <h2 className="h2">Email address</h2>
               <div className="field">
                 <label htmlFor="acct-email">Email</label>
-                <input className="input" id="acct-email" defaultValue={p.email} />
+                <Input id="acct-email" defaultValue={p.email} className="input" />
                 <span className="help">Changing this sends a verification link to the new address. The old address keeps access until it is confirmed.</span>
               </div>
               <Btn variant="outlined" size="sm" onClick={() => toast('Verification link sent to the new address')} style={{ alignSelf: 'flex-start' }}>Update email</Btn>
@@ -165,36 +165,36 @@ export default function Settings() {
                 <div className="row sp"><div><div className="h3">This device</div><div className="cap">{p.city || 'Lahore'}, Pakistan · active now</div></div><span className="tag tag--ok">Current</span></div>
                 <div className="row sp"><div><div className="h3">Signed in as</div><div className="cap">{user?.email} · {user?.role}</div></div><span className="tag tag--out">14-day cookie</span></div>
               </div>
-            </div>
-            <div className="card">
+            </Card>
+            <Card>
               <h2 className="h2">Danger zone</h2>
               <p className="cap">Deleting removes your profile, targets, saved list and notes. Error reports stay, without your name.</p>
               <Btn variant="danger" size="sm" to="/profile" style={{ alignSelf: 'flex-start' }}>Delete my account</Btn>
-            </div>
+            </Card>
           </>
         )}
 
         {tab === 'site' && isAdmin && (
           <>
-            <div className="card card--pad-l">
+            <Card className="card card--pad-l">
               <h2 className="h2">Site</h2>
               <p className="cap">These values are used by the app itself and in messages the server sends.</p>
               {!siteForm ? <Loader /> : (
                 <>
                   <Field label="Site name" htmlFor="site-name">
-                    <input className="input" id="site-name" value={siteForm.siteName || ''} onChange={e => setSiteForm(f => ({ ...f, siteName: e.target.value }))} />
+                    <Input id="site-name" value={siteForm.siteName || ''} onChange={e => setSiteForm(f => ({ ...f, siteName: e.target.value }))} className="input" />
                   </Field>
                   <Field label="Tagline" htmlFor="site-tagline">
-                    <input className="input" id="site-tagline" value={siteForm.tagline || ''} onChange={e => setSiteForm(f => ({ ...f, tagline: e.target.value }))} />
+                    <Input id="site-tagline" value={siteForm.tagline || ''} onChange={e => setSiteForm(f => ({ ...f, tagline: e.target.value }))} className="input" />
                   </Field>
                   <Field label="Support email" htmlFor="site-support" help="Shown in suspension messages and on the privacy page.">
-                    <input className="input" id="site-support" type="email" value={siteForm.supportEmail || ''} onChange={e => setSiteForm(f => ({ ...f, supportEmail: e.target.value }))} />
+                    <Input id="site-support" type="email" value={siteForm.supportEmail || ''} onChange={e => setSiteForm(f => ({ ...f, supportEmail: e.target.value }))} className="input" />
                   </Field>
                 </>
               )}
-            </div>
+            </Card>
 
-            <div className="card card--pad-l">
+            <Card className="card card--pad-l">
               <div className="row sp wr">
                 <div>
                   <h2 className="h2">AI research</h2>
@@ -216,25 +216,24 @@ export default function Settings() {
                       </select>
                     </Field>
                     <Field label="Model" htmlFor="ai-model">
-                      <input className="input" id="ai-model" value={siteForm.aiModel || ''} onChange={e => setSiteForm(f => ({ ...f, aiModel: e.target.value }))} placeholder="gpt-4o-mini" />
+                      <Input id="ai-model" value={siteForm.aiModel || ''} onChange={e => setSiteForm(f => ({ ...f, aiModel: e.target.value }))} placeholder="gpt-4o-mini" className="input" />
                     </Field>
                   </div>
                   <Field label="API base URL" htmlFor="ai-base" help="Change this for a compatible gateway. The path /chat/completions is appended.">
-                    <input className="input" id="ai-base" value={siteForm.aiBaseUrl || ''} onChange={e => setSiteForm(f => ({ ...f, aiBaseUrl: e.target.value }))} placeholder="https://api.openai.com/v1" />
+                    <Input id="ai-base" value={siteForm.aiBaseUrl || ''} onChange={e => setSiteForm(f => ({ ...f, aiBaseUrl: e.target.value }))} placeholder="https://api.openai.com/v1" className="input" />
                   </Field>
                   <Field label="API key" htmlFor="ai-key"
                     help={siteForm.aiApiKeySet ? 'A key is stored (' + siteForm.aiApiKeyHint + '). It is never sent back to the browser — type a new one only to replace it.' : 'Stored on the server. Only admins can set or change it.'}>
-                    <input className="input" id="ai-key" type="password" autoComplete="off" value={siteForm.aiApiKey || ''}
-                      onChange={e => setSiteForm(f => ({ ...f, aiApiKey: e.target.value }))}
-                      placeholder={siteForm.aiApiKeySet ? '•••••••••••• stored — leave blank to keep' : 'sk-…'} />
+                    <Input id="ai-key" type="password" autoComplete="off" value={siteForm.aiApiKey || ''} onChange={e => setSiteForm(f => ({ ...f, aiApiKey: e.target.value }))}
+                      placeholder={siteForm.aiApiKeySet ? '•••••••••••• stored — leave blank to keep' : 'sk-…'} className="input" />
                   </Field>
                   <div className="switch-row">
                     <span className="t"><span className="h3">Research agent enabled</span><span className="cap">Turning this off blocks the AI research page for everyone.</span></span>
-                    <button className="switch" type="button" role="switch" aria-checked={!!siteForm.researchEnabled}
-                      aria-label="Research agent enabled" onClick={() => setSiteForm(f => ({ ...f, researchEnabled: !f.researchEnabled }))} />
+                    <Switch checked={!!siteForm.researchEnabled} label="Research agent enabled"
+                      onChange={v => setSiteForm(f => ({ ...f, researchEnabled: v }))} />
                   </div>
                   <div className="row wr" style={{ gap: 8 }}>
-                    <button className="btn btn--filled btn--sm" type="button" disabled={siteBusy} onClick={async () => {
+                    <Btn variant="filled" size="sm" disabled={siteBusy} onClick={async () => {
                       setSiteBusy(true);
                       try {
                         const r = await api.put('/admin/settings', {
@@ -247,27 +246,27 @@ export default function Settings() {
                         site.reload();
                         toast('Site settings saved');
                       } catch (e) { toast(e.message); } finally { setSiteBusy(false); }
-                    }}>{siteBusy ? 'Saving…' : 'Save settings'}</button>
+                    }}>{siteBusy ? 'Saving…' : 'Save settings'}</Btn>
                     {siteForm.aiApiKeySet && (
-                      <button className="btn btn--outlined btn--sm" type="button" onClick={async () => {
+                      <Btn size="sm" onClick={async () => {
                         try {
                           const r = await api.put('/admin/settings', { aiApiKey: null });
                           setSiteForm({ ...r.settings, aiApiKey: '' }); site.reload(); toast('API key removed');
                         } catch (e) { toast(e.message); }
-                      }}>Remove key</button>
+                      }}>Remove key</Btn>
                     )}
                     <Btn variant="text" size="sm" to="/admin/research">Open AI research</Btn>
                   </div>
                   <Notice tone="info" icon="shield">The key is read only by the server and is masked in every response. Only an admin can open this tab; contributors and students never see it.</Notice>
                 </>
               )}
-            </div>
+            </Card>
           </>
         )}
 
         {tab === 'privacy' && (
           <>
-            <div className="card card--pad-l">
+            <Card className="card card--pad-l">
               <h2 className="h2">Your data</h2>
               <table className="kv"><tbody>
                 <tr><th>Consent given</th><td>{p.consentAt ? fmtDate(p.consentAt.slice(0, 10)) : 'On sign-up'}</td></tr>
@@ -290,15 +289,15 @@ export default function Settings() {
                 <Btn variant="text" size="sm" to="/privacy">Read the policy</Btn>
               </div>
               <p className="cap">Privacy contact: <b className="w500">privacy@example.org</b></p>
-            </div>
-            <div className="card">
+            </Card>
+            <Card>
               <h2 className="h2">What this build stores</h2>
               <div className="rows">
                 <div className="row sp"><div><div className="h3">This server</div><div className="cap">Accounts, profiles, saves and the audit log</div></div><span className="tag tag--out">data/db.json</span></div>
                 <div className="row sp"><div><div className="h3">Your browser</div><div className="cap">Theme choice only</div></div><span className="tag tag--out">localStorage</span></div>
                 <div className="row sp"><div><div className="h3">No third parties</div><div className="cap">No analytics, no CDN, no tracking pixels</div></div><span className="tag tag--ok">None</span></div>
               </div>
-            </div>
+            </Card>
           </>
         )}
       </div>

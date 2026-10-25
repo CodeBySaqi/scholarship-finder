@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AdminShell } from '../../components/Shell.jsx';
-import { Icon, Loader, Empty, Notice, Btn, useAsync, useToast, LoadError } from '../../components/ui.jsx';
+import { Card, Icon, Loader, Empty, Notice, Btn, useAsync, useToast, LoadError } from '../../components/ui.jsx';
 import { api } from '../../api.js';
 import { fmtDate, plural } from '../../lib.jsx';
 
@@ -20,7 +20,7 @@ export default function AdminQueue() {
     catch (e) { toast(e.message); }
   }
 
-  if (loading) return <AdminShell page="admin-queue"><div className="card"><Loader /></div></AdminShell>;
+  if (loading) return <AdminShell page="admin-queue"><Card><Loader /></Card></AdminShell>;
   const q = data || { drafts: [], recheck: [], stale: [], errors: [] };
   const staleRows = q.recheck.concat(q.stale).sort((a, b) => b.age - a.age);
 
@@ -47,7 +47,7 @@ export default function AdminQueue() {
 
       <div className="col">
         {tab === 'verify' && (q.drafts.length ? (
-          <div className="card"><div className="rows">
+          <Card><div className="rows">
             {q.drafts.map(l => (
               <Row key={l.id} title={l.title}
                 sub={'Created by ' + (l.createdBy || 'unknown') + ' · ' + l.kind + ' · drafted ' + plural(l.age, 'day') + ' ago'}
@@ -58,24 +58,24 @@ export default function AdminQueue() {
                   {l.draftedByAi && <Btn variant="text" size="sm" to={'/admin/ai-draft?id=' + l.id}>AI evidence</Btn>}
                 </>} />
             ))}
-          </div></div>
-        ) : <div className="card"><Empty icon="checkCircle" title="Nothing awaiting verification" text="New drafts from the AI endpoint or from contributors land here first." /></div>)}
+          </div></Card>
+        ) : <Card><Empty icon="checkCircle" title="Nothing awaiting verification" text="New drafts from the AI endpoint or from contributors land here first." /></Card>)}
 
         {tab === 'errors' && (q.errors.length ? (
-          <div className="card"><div className="rows">
+          <Card><div className="rows">
             {q.errors.map(r => (
               <Row key={r.id} title={r.listingTitle}
                 sub={'“' + (r.note || r.reason) + '” · ' + (r.userId || 'anonymous') + ' · ' + r.reason}
                 right={<><span className="tag tag--wn">{r.reason}</span><Btn variant="outlined" size="sm" to="/admin/errors">Open</Btn></>} />
             ))}
-          </div></div>
-        ) : <div className="card"><Empty icon="checkCircle" title="No open error reports" text="Reports arrive from the “Report an error” button on every listing." /></div>)}
+          </div></Card>
+        ) : <Card><Empty icon="checkCircle" title="No open error reports" text="Reports arrive from the “Report an error” button on every listing." /></Card>)}
 
         {tab === 'stale' && (
           <>
             <Notice tone="info"><b className="w500">Two thresholds.</b> At 90 days a listing shows “Needs recheck”. At 180 days the nightly job sets it back to draft and logs the change, so it leaves student results until someone verifies it again.</Notice>
             {staleRows.length ? (
-              <div className="card"><div className="rows">
+              <Card><div className="rows">
                 {staleRows.map(l => (
                   <Row key={l.id} title={l.title} sub={'Last verified ' + plural(l.age, 'day') + ' ago · status ' + (l.status || 'verified')}
                     right={<>
@@ -84,8 +84,8 @@ export default function AdminQueue() {
                       <Btn variant="text" size="sm" onClick={() => markVerified(l.id)}>Mark verified</Btn>
                     </>} />
                 ))}
-              </div></div>
-            ) : <div className="card"><Empty icon="checkCircle" title="Nothing older than 90 days" text="Every live listing has been checked recently." /></div>}
+              </div></Card>
+            ) : <Card><Empty icon="checkCircle" title="Nothing older than 90 days" text="Every live listing has been checked recently." /></Card>}
           </>
         )}
       </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AdminShell } from '../../components/Shell.jsx';
-import { Icon, Loader, Btn, Field, Notice, useAsync, useToast, LoadError } from '../../components/ui.jsx';
+import { Card, Icon, Loader, Btn, Field, Notice, useAsync, useToast, LoadError, Input, Switch } from '../../components/ui.jsx';
 import { Sheet } from '../../components/Sheet.jsx';
 import { api } from '../../api.js';
 import { useAuth } from '../../auth.jsx';
@@ -67,7 +67,7 @@ export default function AdminUniversities() {
         </div>
       </div>
 
-      <div className="card">
+      <Card>
         <div className="table-wrap">
           <table className="table table--stack">
             <thead><tr><th>University</th><th>City</th><th>Type</th><th>Funding</th><th>uni-assist</th><th>Programs</th><th style={{ textAlign: 'right' }}>Actions</th></tr></thead>
@@ -95,36 +95,36 @@ export default function AdminUniversities() {
           </table>
         </div>
         <p className="cap">Name and city must be unique together, so duplicate records fail at the database level.</p>
-      </div>
+      </Card>
 
       <Sheet open={open} title={editId ? 'Edit university' : 'Add a university'} onClose={() => { setOpen(false); setEditId(null); }}
         footer={<div className="row" style={{ justifyContent: 'flex-end', gap: 8, marginTop: 10 }}>
-          <button className="btn btn--text" type="button" onClick={() => { setOpen(false); setEditId(null); }}>Cancel</button>
-          <button className="btn btn--filled" type="button" onClick={save} disabled={user?.role !== 'admin' || busy}>{busy ? 'Saving…' : 'Save university'}</button>
+          <Btn variant="text" onClick={() => { setOpen(false); setEditId(null); }}>Cancel</Btn>
+          <Btn variant="filled" onClick={save} disabled={user?.role !== 'admin' || busy}>{busy ? 'Saving…' : 'Save university'}</Btn>
         </div>}>
-        <Field label="Name" htmlFor="u-name"><input className="input" id="u-name" value={form.name} onChange={e => set('name', e.target.value)} /></Field>
+        <Field label="Name" htmlFor="u-name"><Input id="u-name" value={form.name} onChange={e => set('name', e.target.value)} className="input" /></Field>
         <div className="g2">
-          <Field label="City" htmlFor="u-city"><input className="input" id="u-city" value={form.city} onChange={e => set('city', e.target.value)} /></Field>
-          <Field label="State" htmlFor="u-state"><input className="input" id="u-state" value={form.state} onChange={e => set('state', e.target.value)} /></Field>
+          <Field label="City" htmlFor="u-city"><Input id="u-city" value={form.city} onChange={e => set('city', e.target.value)} className="input" /></Field>
+          <Field label="State" htmlFor="u-state"><Input id="u-state" value={form.state} onChange={e => set('state', e.target.value)} className="input" /></Field>
         </div>
         <Field label="Type" htmlFor="u-type">
           <select className="select" id="u-type" value={form.type} onChange={e => set('type', e.target.value)}>
             <option value="university">University</option><option value="uas">Applied sciences</option><option value="tu">Technical university</option>
           </select>
         </Field>
-        <Field label="Website" htmlFor="u-web"><input className="input" id="u-web" type="url" placeholder="https://" value={form.websiteUrl} onChange={e => set('websiteUrl', e.target.value)} /></Field>
+        <Field label="Website" htmlFor="u-web"><Input id="u-web" type="url" placeholder="https://" value={form.websiteUrl} onChange={e => set('websiteUrl', e.target.value)} className="input" /></Field>
         <div className="switch-row">
           <span className="t"><span className="h3">uni-assist member</span><span className="cap">Applications go through uni-assist</span></span>
-          <button className="switch" type="button" role="switch" aria-checked={form.uniAssistMember} aria-label="uni-assist member"
-            onClick={() => set('uniAssistMember', !form.uniAssistMember)} />
+          <Switch checked={form.uniAssistMember} label="uni-assist member"
+            onChange={v => set('uniAssistMember', v)} />
         </div>
         <p className="cap">Adding a university is an admin action and is written to the audit log.</p>
       </Sheet>
 
       <Sheet open={!!confirmDelete} title="Delete this university?" onClose={() => setConfirmDelete(null)}
         footer={<div className="row" style={{ justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
-          <button className="btn btn--text" type="button" onClick={() => setConfirmDelete(null)}>Cancel</button>
-          <button className="btn btn--danger" type="button" disabled={busy} onClick={() => remove(confirmDelete)}>{busy ? 'Deleting…' : 'Delete'}</button>
+          <Btn variant="text" onClick={() => setConfirmDelete(null)}>Cancel</Btn>
+          <Btn variant="danger" disabled={busy} onClick={() => remove(confirmDelete)}>{busy ? 'Deleting…' : 'Delete'}</Btn>
         </div>}>
         {confirmDelete && (
           <div className="col" style={{ gap: 10 }}>

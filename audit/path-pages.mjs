@@ -7,17 +7,15 @@ import { Window } from 'happy-dom';
 const API = 'http://localhost:8000';
 const win = new Window({ url: API + '/profile', settings: { disableJavaScriptEvaluation: false, disableCSSFileLoading: true } });
 
+/* HeroUI + framer-motion touch more of the DOM than React alone: hand the
+   harness every class happy-dom actually implements. */
+for (const k of ['window','document','navigator','HTMLElement','HTMLInputElement','HTMLButtonElement','HTMLSelectElement','HTMLTextAreaElement','HTMLAnchorElement','Element','Node','NodeList','Event','MouseEvent','KeyboardEvent','PointerEvent','FocusEvent','CustomEvent','SVGElement','SVGSVGElement','DocumentFragment','localStorage','MutationObserver','ResizeObserver','IntersectionObserver']) {
+  if (win[k] !== undefined) globalThis[k] = win[k];
+}
 globalThis.window = win;
 globalThis.document = win.document;
-globalThis.navigator = win.navigator;
-globalThis.HTMLElement = win.HTMLElement;
-globalThis.Element = win.Element;
-globalThis.Node = win.Node;
-globalThis.Event = win.Event;
-globalThis.MouseEvent = win.MouseEvent;
-globalThis.KeyboardEvent = win.KeyboardEvent;
 globalThis.getComputedStyle = win.getComputedStyle.bind(win);
-globalThis.localStorage = win.localStorage;
+globalThis.self = win;
 globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(Date.now()), 0);
 globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
 globalThis.matchMedia = () => ({ matches: false, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} });

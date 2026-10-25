@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AdminShell } from '../../components/Shell.jsx';
-import { Loader, Btn, useAsync, useToast, LoadError } from '../../components/ui.jsx';
+import { Card, Loader, Btn, useAsync, useToast, LoadError } from '../../components/ui.jsx';
 import { api } from '../../api.js';
 import { fmtDate, daysTo } from '../../lib.jsx';
 
@@ -39,7 +39,7 @@ export default function AdminErrors() {
         </div>
       </div>
 
-      <div className="card">
+      <Card>
         <div className="table-wrap">
           <table className="table table--stack">
             <thead><tr><th>Listing</th><th>Reason</th><th>Note</th><th>Reporter</th><th>Age</th><th>Status</th><th>Actions</th></tr></thead>
@@ -57,10 +57,10 @@ export default function AdminErrors() {
                     : <span className="tag tag--out">dismissed</span>}</td>
                   <td data-label="Actions">
                     <div className="row wr" style={{ justifyContent: 'flex-end', gap: 4 }}>
-                      <Link className="btn btn--text btn--sm" to={(r.listingType === 'program' ? '/program/' : '/scholarship/') + r.listingId}>View</Link>
+                      <Btn variant="text" size="sm" to={(r.listingType === 'program' ? '/program/' : '/scholarship/') + r.listingId}>View</Btn>
                       {r.status === 'open' && <>
-                        <button className="btn btn--outlined btn--sm" type="button" onClick={() => act(r.id, 'resolve')}>Mark fixed</button>
-                        <button className="btn btn--text btn--sm" type="button" onClick={() => act(r.id, 'dismiss')}>Dismiss</button>
+                        <Btn size="sm" onClick={() => act(r.id, 'resolve')}>Mark fixed</Btn>
+                        <Btn variant="text" size="sm" onClick={() => act(r.id, 'dismiss')}>Dismiss</Btn>
                       </>}
                     </div>
                   </td>
@@ -71,7 +71,7 @@ export default function AdminErrors() {
           </table>
         </div>
         <p className="cap">Reports arrive from the “Report an error” button on every saved or matched listing.</p>
-      </div>
+      </Card>
     </AdminShell>
   );
 }

@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Icon } from './ui.jsx';
+import { Icon, Btn, Badge } from './ui.jsx';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 
@@ -120,12 +120,15 @@ export function NotificationBell({ label = 'Notifications' }) {
 
   return (
     <div className="notif" ref={wrap}>
-      <button className="iconbtn notif__btn" type="button" aria-label={label + (unread ? ', ' + unread + ' unread' : '')}
-        aria-expanded={open} aria-haspopup="dialog" title={unread ? unread + ' unread notifications' : 'Notifications'}
-        onClick={() => setOpen(o => !o)}>
-        <Icon name="bell" />
-        {unread > 0 && <span className="notif__count" aria-hidden="true">{unread > 9 ? '9+' : unread}</span>}
-      </button>
+      <Badge content={unread > 9 ? '9+' : unread} isInvisible={!(unread > 0)} color="danger" size="sm"
+        shape="circle" placement="top-right" classNames={{ badge: 'notif__count' }}>
+        <Btn isIconOnly variant="text" className="iconbtn notif__btn"
+          aria-label={label + (unread ? ', ' + unread + ' unread' : '')}
+          aria-expanded={open} aria-haspopup="dialog" title={unread ? unread + ' unread notifications' : 'Notifications'}
+          onClick={() => setOpen(o => !o)}>
+          <Icon name="bell" />
+        </Btn>
+      </Badge>
 
       {open && (
         <div className="notif__pop" role="dialog" aria-label="Notifications">
@@ -134,7 +137,7 @@ export function NotificationBell({ label = 'Notifications' }) {
               <b>Notifications</b>
               <span className="cap">{unread > 0 ? unread + ' unread' : 'You are all caught up'}</span>
             </div>
-            {unread > 0 && <button className="btn btn--text btn--sm" type="button" onClick={markAll}>Mark all read</button>}
+            {unread > 0 && <Btn variant="text" size="sm" onClick={markAll}>Mark all read</Btn>}
           </div>
 
           {preview.length === 0 ? (

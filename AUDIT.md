@@ -428,3 +428,86 @@ blank-screen class of bug this suite exists to catch.
 Final state: **83 + 114 + 20 + 93 + 19 + 19 = 348 identity checks**, failure modes 75/75,
 page crawl 43 routes × 3 viewports = 0 findings, a11y 0 findings, empty states 28/28 —
 **451 automated checks, all green.**
+
+## Round 9 — HeroUI as the component system (2026-10-25)
+
+**Request:** use HeroUI React components for the design. **Constraint:** the structure — sidebar,
+topbar, bottom bar, footer, page composition — must not change. Library swap for the design only.
+
+**What changed**
+
+| Layer | Before | After |
+| --- | --- | --- |
+| Buttons | `<button className="btn btn--filled">` in 24 files | `<Btn variant="filled">` → HeroUI `Button` (solid/primary) |
+| Cards | `<div className="card">` in 29 files, 119 blocks | `<Card>` → HeroUI `Card` (`bg-content1`, `rounded-large`, `shadow-none`) |
+| Text fields | 84 hand-styled `<input className="input">` | HeroUI `Input` / `Textarea`, wrapper keeps the app's `.input` skin |
+| Chips, tags | `.chip`, `.tag` spans/buttons | HeroUI `Chip` (flat/bordered, primary/default) |
+| Notices | `.notice` divs | HeroUI `Alert` (flat, colour per tone, app icon) |
+| Progress | `.progress > i` | HeroUI `Progress`, indicator moved with `translateX` |
+| Switches | `<button class="switch" role="switch">` in 7 places | HeroUI `Switch` (`role="switch"` kept on the input) |
+| Bell + avatar | emoji-free span badges | HeroUI `Badge` + `Avatar` |
+| Theme | `data-theme` only | `data-theme` **and** `html.dark`, one call |
+| Build | vite + plain CSS | + `tailwindcss`, `postcss`, `autoprefixer`, `tailwind.config.js` with the `heroui()` plugin |
+
+**Not changed (checked, not assumed):** `aside.side` (sidebar, rail and drawer), `header.topbar`,
+`nav.bottomnav`, `header.pubhead`, the `.page` grid, the wizard's segmented bar, the mobile drawer
+and scrim, and every route. Grid wrappers that happened to carry a `card` class (`cards-2`,
+`cards-3`) were separated from the card component so the multi-column grids keep their own
+`display: grid` — a HeroUI `Card` is a flex column and cannot be used as a grid container.
+
+**New suite — `audit/heroui-ui.mjs`, 41 checks** (`./audit/run-dom.sh heroui`):
+
+- `/login` fields are HeroUI `data-slot="input"` elements that keep `id` + `<label for>`; the submit
+  and demo buttons carry `data-react-aria-pressable`; submit is still `type="submit"`
+- `/dashboard` cards use `bg-content1`, progress bars are HeroUI `role="progressbar"` with a
+  translating indicator and the **real** value (96 / 67 / 71)
+- `/matches` verdict tags are HeroUI chips and keep their icon slot; the two tabs are untouched
+- `/scholarships` filter chips are HeroUI chips; the compact selects stay native
+- `/wizard` text fields are HeroUI inputs, no bare legacy input left (only radio/checkbox/hidden),
+  one-tap answers are chips, the date field keeps its native picker
+- `/profile` summary still has **0 inputs**
+- the shell still renders `aside.side`, `header.topbar`, `nav.bottomnav` with ≥5 links
+- dark mode sets `data-theme="dark"` **and** `html.dark`; light clears both; `auto` removes both
+- the built stylesheet: HeroUI tokens present and mapped to `#1B84FF`, utilities really emitted
+  (not just the theme), `app.css` layout rules intact, preflight off, `.grow` keeping `min-width:0`
+
+**Defects this round found and fixed**
+
+1. **HeroUI utilities were missing.** `content` scanned only the umbrella package, so utilities that
+   live in the nested `@heroui/*` dists were never emitted — progress indicators had `h-full` but no
+   painted fill. The config now globs every installed `@heroui/*/dist` (81 patterns).
+2. **A `.grow` class collision.** Tailwind emits `.grow{flex-grow:1}`; the app's `.grow` also carries
+   `min-width:0` (what stops long titles blowing out a row). The app's version is re-declared in
+   `heroui.css`, after the utilities, and the suite asserts that order.
+3. **Legacy `.progress` rules ate the component.** The old pill painted the HeroUI root
+   (`height:8px; overflow:hidden`) and collapsed the indicator to 0 px. Neutralised on the root only;
+   the track keeps the 8 px bar.
+4. **Browser default input chrome** showed through HeroUI wrappers (preflight is off) — `[data-slot="input"]`
+   is now borderless/transparent, with the app's field skin on the wrapper and 16 px on phones so
+   iOS does not zoom on focus.
+5. **Date fields drew double borders** (`.field input` used to paint every input). Removed on the inner
+   element; the wrapper is the field.
+6. **Grid wrappers became cards** in the first pass of the codemod (`cards-2`, `cards-3`) — the
+   matches grid collapsed to one column. Reverted to plain grids.
+7. **The `/profile` status strip printed "EnglishEdit"** — the `Edit` link hugged the value. Now spaced.
+
+**Full sweep at the end of the round (all green)**
+
+| Suite | Result |
+| --- | --- |
+| `audit/path-tests.mjs` (engine) | 73 / 73 |
+| `audit/path-pages.mjs` (ScholarPath UI) | 59 / 59 |
+| `audit/dom-smoke.mjs` (13 routes × 3 roles) | all rendered cleanly |
+| `audit/features-admin.mjs` | 69 / 69 |
+| `audit/responsive.mjs` (phone, tablet, desktop) | 83 / 83 |
+| `audit/research-check.mjs` | 41 / 41 |
+| `audit/heroui-ui.mjs` (new) | 41 / 41 |
+| `audit/api-matrix.mjs` | 83 / 83 |
+| `audit/feature-logic.mjs` | 114 / 114 |
+| `audit/data-integrity.mjs` | 20 / 20 |
+| `audit/responsive-css.mjs` | 34 / 34 |
+
+**Bundle cost, stated plainly:** the stylesheet goes from ~41 kB raw to **296 kB raw / 38.6 kB
+gzipped** (HeroUI's component utilities are now emitted), and the main JS chunk from ~197 kB to
+**216 kB gzipped** (HeroUI + framer-motion + react-aria). Acceptable for an app that is a dashboard
+first, and the only way to get the library's real components rather than a look-alike.

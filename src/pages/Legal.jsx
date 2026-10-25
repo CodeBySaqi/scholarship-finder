@@ -1,3 +1,4 @@
+import { Card, Btn } from '../components/ui.jsx';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { PublicShell } from '../components/Shell.jsx';
@@ -12,10 +13,10 @@ export function Terms() {
           <p className="cap">Last updated 21 October 2026.</p>
         </div>
 
-        <section className="card card--warning">
+        <Card className="card card--warning">
           <h2 className="h2" style={{ color: 'inherit' }}>The important one, first</h2>
           <p style={{ color: 'inherit', fontSize: 14 }}>This service is guidance, not an admission decision and not legal advice. “Meets published minimums” means the checks we could run against the provider’s published requirements passed on the date shown. It does not mean you will be selected, and it does not replace the provider’s own rules.</p>
-        </section>
+        </Card>
 
         {[
           ['1. Who we are and what this is', <p className="body">Scholarship Finder is an independent directory and matching tool for Pakistani students looking at scholarships and German university programs. We are not affiliated with any provider, university, uni-assist, APS or IBCC.</p>],
@@ -35,12 +36,12 @@ export function Terms() {
           ['7. Availability and liability', <p className="body">We work to keep the service online but cannot promise uninterrupted access. To the extent the law allows, we are not liable for decisions made by providers, missed deadlines, or losses from relying on a listing without checking the official page.</p>],
           ['8. Changes to these terms', <p className="body">If these terms change in a way that matters, we email registered users before the change takes effect. Continuing to use the service after that means you accept the new version.</p>]
         ].map(([title, body]) => (
-          <section className="card" key={title}><h2 className="h1">{title}</h2>{body}</section>
+          <Card  key={title}><h2 className="h1">{title}</h2>{body}</Card>
         ))}
 
         <div className="row wr">
-          <Link className="btn btn--outlined btn--sm" to="/privacy">Privacy policy</Link>
-          <Link className="btn btn--text btn--sm" to="/">Back to home</Link>
+          <Btn size="sm" to="/privacy">Privacy policy</Btn>
+          <Btn variant="text" size="sm" to="/">Back to home</Btn>
         </div>
       </div>
     </PublicShell>
@@ -121,8 +122,8 @@ export function Privacy() {
         ))}
 
         <div className="row wr">
-          <Link className="btn btn--outlined btn--sm" to="/terms">Terms of use</Link>
-          <Link className="btn btn--text btn--sm" to="/">Back to home</Link>
+          <Btn size="sm" to="/terms">Terms of use</Btn>
+          <Btn variant="text" size="sm" to="/">Back to home</Btn>
         </div>
       </div>
     </PublicShell>

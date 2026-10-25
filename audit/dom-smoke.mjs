@@ -1,7 +1,13 @@
 import { Window } from 'happy-dom';
 const API = 'http://localhost:8000';
 const win = new Window({ url: API + '/' });
-for (const k of ['window','document','navigator','HTMLElement','Element','Node','Event','MouseEvent','KeyboardEvent','localStorage']) globalThis[k] = win[k] ?? win;
+/* HeroUI + framer-motion reach for a wider slice of the DOM than React alone:
+   SVGElement, CSS, ResizeObserver, PointerEvent… Give the harness the real
+   classes happy-dom implements so the components render and unmount cleanly. */
+for (const k of ['window','document','navigator','HTMLElement','HTMLInputElement','HTMLButtonElement','HTMLSelectElement','HTMLTextAreaElement','HTMLAnchorElement','Element','Node','NodeList','Event','MouseEvent','KeyboardEvent','PointerEvent','FocusEvent','CustomEvent','SVGElement','SVGSVGElement','DocumentFragment','localStorage','CSS','MutationObserver','ResizeObserver','IntersectionObserver','getSelection','DOMParser']) {
+  if (win[k] !== undefined) globalThis[k] = win[k];
+}
+globalThis.self = win;
 globalThis.getComputedStyle = win.getComputedStyle.bind(win);
 globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(Date.now()), 0);
 globalThis.matchMedia = () => ({ matches: true, addListener(){}, removeListener(){}, addEventListener(){}, removeEventListener(){} });

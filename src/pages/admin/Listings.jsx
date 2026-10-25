@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AdminShell } from '../../components/Shell.jsx';
-import { Icon, Loader, Btn, useAsync, Empty, LoadError, Notice, useToast } from '../../components/ui.jsx';
+import { Card, Icon, Loader, Btn, useAsync, Empty, LoadError, Notice, useToast, Input } from '../../components/ui.jsx';
 import { Sheet } from '../../components/Sheet.jsx';
 import { api } from '../../api.js';
 import { useAuth } from '../../auth.jsx';
@@ -76,10 +76,9 @@ export default function AdminListings() {
         ))}
       </div>
 
-      <div className="card">
+      <Card>
         <div className="row sp wr" style={{ gap: 8 }}>
-          <input className="input" type="search" placeholder="Search title, provider or id" style={{ maxWidth: 320 }}
-            value={q} onChange={e => setQ(e.target.value)} />
+          <Input type="search" placeholder="Search title, provider or id" style={{ maxWidth: 320 }} value={q} onChange={e => setQ(e.target.value)} className="input" />
           <div className="chips">
             {[['all', 'All statuses'], ['verified', 'Verified'], ['draft', 'Draft'], ['stale', 'Stale'], ['recheck', 'Needs recheck']].map(([k, label]) => (
               <button key={k} className={'chip chip--sm' + (status === k ? ' is-on' : '')} type="button" aria-pressed={status === k}
@@ -128,15 +127,15 @@ export default function AdminListings() {
           </table>
         </div>
         <p className="cap">{rows.length} of {all.length} listings. Publish is always blocked on your own records — open one and use the publish gate.</p>
-      </div>
+      </Card>
 
       {/* --------------------------------------------------------- details */}
       <Sheet open={!!viewId} title="Listing details" onClose={() => setViewId(null)}
         footer={<div className="row sp wr" style={{ gap: 8, marginTop: 14 }}>
-          <button className="btn btn--text btn--sm" type="button" onClick={() => setViewId(null)}>Close</button>
+          <Btn variant="text" size="sm" onClick={() => setViewId(null)}>Close</Btn>
           <div className="row" style={{ gap: 8 }}>
-            <Link className="btn btn--outlined btn--sm" to={'/admin/listings/' + viewId}>Edit</Link>
-            <Link className="btn btn--text btn--sm" to={(detail.data && detail.data.listing.kind === 'program' ? '/program/' : '/scholarship/') + viewId} target="_blank" rel="noopener">Public page</Link>
+            <Btn size="sm" to={'/admin/listings/' + viewId}>Edit</Btn>
+            <Btn variant="text" size="sm" to={(detail.data && detail.data.listing.kind === 'program' ? '/program/' : '/scholarship/') + viewId} target="_blank" rel="noopener">Public page</Btn>
           </div>
         </div>}>
         {detail.loading && !detail.data ? <Loader /> : !detail.data ? <p className="cap">Details could not load.</p> : (() => {
@@ -176,8 +175,8 @@ export default function AdminListings() {
       {/* ---------------------------------------------------------- delete */}
       <Sheet open={!!confirmDelete} title="Delete this listing?" onClose={() => setConfirmDelete(null)}
         footer={<div className="row" style={{ justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
-          <button className="btn btn--text" type="button" onClick={() => setConfirmDelete(null)}>Cancel</button>
-          <button className="btn btn--danger" type="button" disabled={busy} onClick={() => remove(confirmDelete)}>{busy ? 'Deleting…' : 'Delete permanently'}</button>
+          <Btn variant="text" onClick={() => setConfirmDelete(null)}>Cancel</Btn>
+          <Btn variant="danger" disabled={busy} onClick={() => remove(confirmDelete)}>{busy ? 'Deleting…' : 'Delete permanently'}</Btn>
         </div>}>
         {confirmDelete && (
           <div className="col" style={{ gap: 10 }}>

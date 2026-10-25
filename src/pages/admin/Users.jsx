@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AdminShell } from '../../components/Shell.jsx';
-import { Icon, Loader, Btn, Notice, Field, useAsync, useToast, LoadError } from '../../components/ui.jsx';
+import { Card, Chip, Icon, Loader, Btn, Notice, Field, useAsync, useToast, LoadError, Input, Switch } from '../../components/ui.jsx';
 import { Sheet } from '../../components/Sheet.jsx';
 import { api } from '../../api.js';
 import { useAuth } from '../../auth.jsx';
@@ -80,7 +80,7 @@ export default function AdminUsers() {
 
       <Notice tone="info">The first admin is not created in the UI. It is seeded on the server, run by a human with database access. Student accounts can never promote themselves.</Notice>
 
-      <div className="card">
+      <Card>
         <div className="table-wrap">
           <table className="table table--stack">
             <thead><tr><th>User</th><th>Role</th><th>Status</th><th>Last login</th><th>Joined</th><th>Profile</th><th style={{ textAlign: 'right' }}>Actions</th></tr></thead>
@@ -135,12 +135,12 @@ export default function AdminUsers() {
           </table>
         </div>
         <p className="cap">Every change appends to the audit log, and the account is notified when a role or status changes.</p>
-      </div>
+      </Card>
 
       {/* ------------------------------------------------------- full profile */}
       <Sheet open={!!detailId} title="User details" onClose={() => setDetailId(null)}
         footer={<div className="row sp wr" style={{ gap: 8, marginTop: 14 }}>
-          <button className="btn btn--text btn--sm" type="button" onClick={() => setDetailId(null)}>Close</button>
+          <Btn variant="text" size="sm" onClick={() => setDetailId(null)}>Close</Btn>
           <Btn variant="outlined" size="sm" onClick={() => { const u = users.find(x => x.id === detailId); if (u) openEdit(u); }}>Edit this user</Btn>
         </div>}>
         {detail.loading && !d ? <Loader /> : !d ? <p className="cap">Details could not load.</p> : (
@@ -185,7 +185,7 @@ export default function AdminUsers() {
               <div className="h3">Targets</div>
               {d.targets.length === 0 ? <p className="cap">No degree targets saved.</p> : (
                 <div className="chips" style={{ marginTop: 6 }}>
-                  {d.targets.map((t, i) => <span className="chip is-on" key={i}>{t.degree} · {(t.fields || []).join(', ') || 'any field'} · {t.intakeYear}</span>)}
+                  {d.targets.map((t, i) => <Chip key={i} active>{t.degree} · {(t.fields || []).join(', ') || 'any field'} · {t.intakeYear}</Chip>)}
                 </div>
               )}
             </div>
@@ -215,14 +215,14 @@ export default function AdminUsers() {
       {/* ------------------------------------------------------------ edit */}
       <Sheet open={!!editId} title="Edit user" onClose={() => setEditId(null)}
         footer={<div className="row" style={{ justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
-          <button className="btn btn--text" type="button" onClick={() => setEditId(null)}>Cancel</button>
-          <button className="btn btn--filled" type="button" onClick={saveEdit} disabled={busy}>{busy ? 'Saving…' : 'Save changes'}</button>
+          <Btn variant="text" onClick={() => setEditId(null)}>Cancel</Btn>
+          <Btn variant="filled" onClick={saveEdit} disabled={busy}>{busy ? 'Saving…' : 'Save changes'}</Btn>
         </div>}>
         <Field label="Display name" htmlFor="eu-name">
-          <input className="input" id="eu-name" value={form.displayName} onChange={e => setForm(f => ({ ...f, displayName: e.target.value }))} />
+          <Input id="eu-name" value={form.displayName} onChange={e => setForm(f => ({ ...f, displayName: e.target.value }))} className="input" />
         </Field>
         <Field label="Email" htmlFor="eu-email" help="Changing this changes how they sign in. It must be unique.">
-          <input className="input" id="eu-email" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+          <Input id="eu-email" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} className="input" />
         </Field>
         <Field label="Role" htmlFor="eu-role">
           <select className="select" id="eu-role" value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}>
@@ -233,8 +233,8 @@ export default function AdminUsers() {
         </Field>
         <div className="switch-row">
           <span className="t"><span className="h3">Account active</span><span className="cap">Turn off to ban: sign-in stops immediately and live sessions end.</span></span>
-          <button className="switch" type="button" role="switch" aria-checked={form.isActive} aria-label="Account active"
-            onClick={() => setForm(f => ({ ...f, isActive: !f.isActive }))} />
+          <Switch checked={form.isActive} label="Account active"
+            onChange={v => setForm(f => ({ ...f, isActive: v }))} />
         </div>
         <p className="cap">You cannot remove your own admin role, ban yourself, or delete the last active admin.</p>
       </Sheet>
@@ -242,8 +242,8 @@ export default function AdminUsers() {
       {/* ---------------------------------------------------------- delete */}
       <Sheet open={!!confirmDelete} title="Delete this user?" onClose={() => setConfirmDelete(null)}
         footer={<div className="row" style={{ justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
-          <button className="btn btn--text" type="button" onClick={() => setConfirmDelete(null)}>Cancel</button>
-          <button className="btn btn--danger" type="button" disabled={busy} onClick={() => remove(confirmDelete)}>{busy ? 'Deleting…' : 'Delete permanently'}</button>
+          <Btn variant="text" onClick={() => setConfirmDelete(null)}>Cancel</Btn>
+          <Btn variant="danger" disabled={busy} onClick={() => remove(confirmDelete)}>{busy ? 'Deleting…' : 'Delete permanently'}</Btn>
         </div>}>
         {confirmDelete && (
           <div className="col" style={{ gap: 10 }}>
@@ -260,15 +260,15 @@ export default function AdminUsers() {
 
       <Sheet open={invite} title="Invite a contributor" onClose={() => setInvite(false)}
         footer={<div className="row" style={{ justifyContent: 'flex-end', gap: 8, marginTop: 10 }}>
-          <button className="btn btn--text" type="button" onClick={() => setInvite(false)}>Cancel</button>
-          <button className="btn btn--filled" type="button" onClick={() => {
+          <Btn variant="text" onClick={() => setInvite(false)}>Cancel</Btn>
+          <Btn variant="filled" onClick={() => {
             if (!email) return toast('Enter an email first');
             setInvite(false); toast('Invite sent to ' + email); setEmail('');
-          }}>Send invite</button>
+          }}>Send invite</Btn>
         </div>}>
         <p className="cap" style={{ marginBottom: 10 }}>Contributors can create drafts from a URL and edit their own drafts. They cannot verify or publish anything.</p>
         <Field label="Email" htmlFor="inv-email">
-          <input className="input" id="inv-email" type="email" placeholder="name@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+          <Input id="inv-email" type="email" placeholder="name@example.com" value={email} onChange={e => setEmail(e.target.value)} className="input" />
         </Field>
       </Sheet>
     </AdminShell>

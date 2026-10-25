@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Notice, Progress, Icon } from './ui.jsx';
+import { Card, Notice, Progress, Icon, Btn } from './ui.jsx';
 import { educationSummary, zabRule, EDU_LABEL, entryYears } from '../path/education.js';
 
 /* ==========================================================================
@@ -82,12 +82,12 @@ export function EligibilityPanel({ result, kind = 'programme' }) {
 
       <div className="row wr" style={{ gap: 8, marginTop: 4 }}>
         {hiddenCount > 0 && (
-          <button className="btn btn--text btn--sm" type="button" onClick={() => setOpen(!open)}>
+          <Btn variant="text" size="sm" onClick={() => setOpen(!open)}>
             {open ? 'Hide the checks I pass' : 'Show all ' + result.reasons.length + ' checks'}
-          </button>
+          </Btn>
         )}
         <span className="grow" />
-        <Link className="btn btn--text btn--sm" to="/wizard?step=2">Update my details</Link>
+        <Btn variant="text" size="sm" to="/wizard?step=2">Update my details</Btn>
       </div>
 
       <p className="cap" style={{ marginTop: 6 }}>
@@ -146,7 +146,7 @@ export function MatchSummary({ profile, completeness, counts }) {
   ];
 
   return (
-    <section className="card" id="match-fields">
+    <Card id="match-fields">
       <div className="row sp wr" style={{ gap: 10 }}>
         <div>
           <h2 className="h2">Your details for matching</h2>
@@ -175,7 +175,7 @@ export function MatchSummary({ profile, completeness, counts }) {
             <th>{r.label}</th>
             <td>{r.value || <span className="cap">Not added</span>}</td>
             <td style={{ width: 1, whiteSpace: 'nowrap' }}>
-              <Link className="link-quiet" to={'/wizard?step=' + r.step}>{r.value ? 'Edit' : 'Add'}</Link>
+              <Link className="link-quiet" style={{ marginLeft: 14 }} to={'/wizard?step=' + r.step}>{r.value ? 'Edit' : 'Add'}</Link>
             </td>
           </tr>
         ))}
@@ -220,9 +220,9 @@ export function MatchSummary({ profile, completeness, counts }) {
       )}
 
       <div className="row wr" style={{ gap: 8, marginTop: 10 }}>
-        <Link className="btn btn--filled btn--sm" to="/wizard?step=2">Edit my details</Link>
-        <Link className="btn btn--text btn--sm" to="/programs">See what I can apply to</Link>
+        <Btn variant="filled" size="sm" to="/wizard?step=2">Edit my details</Btn>
+        <Btn variant="text" size="sm" to="/programs">See what I can apply to</Btn>
       </div>
-    </section>
+    </Card>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { AdminShell } from '../../components/Shell.jsx';
-import { Icon, Btn, Field, Loader, Notice, LoadError, useAsync, useToast } from '../../components/ui.jsx';
+import { Card, Icon, Btn, Field, Loader, Notice, LoadError, useAsync, useToast, Input, Textarea } from '../../components/ui.jsx';
 import { api } from '../../api.js';
 import { useAuth } from '../../auth.jsx';
 import { useNotifications } from '../../components/notifications.jsx';
@@ -74,15 +74,14 @@ export default function Broadcast() {
       </div>
 
       <div className="split">
-        <section className="card card--pad-l">
+        <Card className="card card--pad-l">
           <h2 className="h2">New message</h2>
           <Field label="Title" htmlFor="bc-title" help="Shown in the bell popup — keep it under 60 characters.">
-            <input className="input" id="bc-title" value={title} maxLength={120} onChange={e => setTitle(e.target.value)}
-              placeholder="Three scholarships close this month" />
+            <Input id="bc-title" value={title} maxLength={120} onChange={e => setTitle(e.target.value)}
+              placeholder="Three scholarships close this month" className="input" />
           </Field>
           <Field label="Message" htmlFor="bc-body" help="Body text. Plain sentences, no markup.">
-            <textarea className="input" id="bc-body" rows={5} value={body} maxLength={1200}
-              onChange={e => setBody(e.target.value)} placeholder="What changed, and what the reader should do about it." />
+            <Textarea id="bc-body" rows={5} value={body} maxLength={1200} onChange={e => setBody(e.target.value)} placeholder="What changed, and what the reader should do about it." className="input" />
           </Field>
           <Field label="Link (optional)" htmlFor="bc-link">
             <select className="select" id="bc-link" value={link} onChange={e => setLink(e.target.value)}>
@@ -104,13 +103,12 @@ export default function Broadcast() {
           </div>
 
           {audience === 'selected' && (
-            <div className="card card--flat" style={{ gap: 8 }}>
+            <Card  style={{ gap: 8 }} className="card card--flat">
               <div className="row sp wr" style={{ gap: 8 }}>
-                <input className="input" type="search" placeholder="Filter by name or email" value={filter}
-                  onChange={e => setFilter(e.target.value)} style={{ maxWidth: 280 }} aria-label="Filter recipients" />
+                <Input type="search" placeholder="Filter by name or email" value={filter} onChange={e => setFilter(e.target.value)} style={{ maxWidth: 280 }} aria-label="Filter recipients" className="input" />
                 <div className="row" style={{ gap: 6 }}>
-                  <button className="btn btn--text btn--sm" type="button" onClick={() => setSelected(shown.map(u => u.id))}>Select all shown</button>
-                  <button className="btn btn--text btn--sm" type="button" onClick={() => setSelected([])}>Clear</button>
+                  <Btn variant="text" size="sm" onClick={() => setSelected(shown.map(u => u.id))}>Select all shown</Btn>
+                  <Btn variant="text" size="sm" onClick={() => setSelected([])}>Clear</Btn>
                 </div>
               </div>
               <div className="picklist">
@@ -125,7 +123,7 @@ export default function Broadcast() {
                 ))}
                 {shown.length === 0 && <p className="cap">No active account matches that filter.</p>}
               </div>
-            </div>
+            </Card>
           )}
 
           {!isAdmin && <Notice tone="warning" icon="shield">Only an admin can send a broadcast. Contributors can read this page but not send.</Notice>}
@@ -134,14 +132,14 @@ export default function Broadcast() {
             <span className="cap">{recipients.length} {recipients.length === 1 ? 'person will' : 'people will'} get this notification.</span>
             <div className="row" style={{ gap: 8 }}>
               <Btn variant="text" size="sm" onClick={() => { setTitle(''); setBody(''); setLink(''); setSelected([]); }}>Reset</Btn>
-              <button className="btn btn--filled" type="button" disabled={!canSend} onClick={send}>
+              <Btn variant="filled" disabled={!canSend} onClick={send}>
                 <Icon name="send" />{busy ? 'Sending…' : 'Send notification'}
-              </button>
+              </Btn>
             </div>
           </div>
-        </section>
+        </Card>
 
-        <section className="card">
+        <Card>
           <div className="row sp">
             <div><h2 className="h2">Sent</h2><p className="cap">The last broadcasts, newest first.</p></div>
             <span className="tag tag--out">{sends.length}</span>
@@ -162,7 +160,7 @@ export default function Broadcast() {
               ))}
             </div>
           )}
-        </section>
+        </Card>
       </div>
     </AdminShell>
   );
