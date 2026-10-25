@@ -15,9 +15,11 @@ import './styles/react.css';
 import './styles/heroui.css';
 import './styles/landing-variants.css';
 import './styles/footer.css';
+import './styles/footers-lab.css';
 
 import Landing from './pages/Landing.jsx';
 import DesignIndex, { DesignPreview } from './pages/landing/DesignIndex.jsx';
+import FooterLab from './pages/FooterLab.jsx';
 import { Login, Signup, VerifyEmail, ForgotPassword, ResetSent, ResetPassword } from './pages/AuthPages.jsx';
 import Browse from './pages/Browse.jsx';
 import Dashboard from './pages/Dashboard.jsx';
@@ -130,6 +132,7 @@ function App() {
       {/* public */}
       <Route path="/" element={<Landing />} />
       {/* home-page design review — five candidates, not public navigation */}
+      <Route path="/footers" element={<FooterLab />} />
       <Route path="/design" element={<DesignIndex />} />
       <Route path="/design/:slug" element={<DesignPreview />} />
       <Route path="/terms" element={<Terms />} />
