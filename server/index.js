@@ -427,9 +427,11 @@ app.get('/api/path/verdicts', requireUser, (req, res) => {
   const d = db();
   const profile = withGpaConversion(pathProfileOf(req.user.id));
   const now = today();
-  const kind = req.query.kind === 'scholarships' ? 'scholarships' : 'program';
+  /* the client sends the listing kind ("scholarship" | "program"); accept the
+     plural too, because the route and the page are both called /scholarships */
+  const kind = /^scholarships?$/.test(String(req.query.kind || '')) ? 'scholarship' : 'program';
   const listings = d.listings.filter(l => l.kind === kind);
-  const byListing = kind === 'scholarships'
+  const byListing = kind === 'scholarship'
     ? matchScholarshipListings(profile, listings, requirementIndex('scholarships'), now)
     : matchListings(profile, listings, requirementIndex('programmes'), now);
   const counts = Object.values(byListing).reduce((acc, r) => { acc[r.verdict] = (acc[r.verdict] || 0) + 1; return acc; }, {});

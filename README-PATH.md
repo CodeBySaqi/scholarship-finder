@@ -88,6 +88,14 @@ Three consequences, all deliberate:
    never eligible-by-default and never filtered out; the panel says the
    requirements have not been verified yet and links the official page.
 
+The same four states govern the scholarship rule set (level, nationality, field,
+GPA, language, age, deadline, coverage). There, `null` means *we did not verify
+it* — `fields: []` records a call that is open to all disciplines,
+`germanReq: false` a call that needs no German certificate. Without those
+explicit values the verdict stays Check manually: today that is what the four
+catalogue rows say ("Not stated: GPA, IELTS, German"), which is the truth about
+what has been read from the calls so far.
+
 ### The traps, encoded once
 
 - **APS is not required for Pakistan.** APS is China/India/Vietnam only. The
@@ -142,8 +150,8 @@ exist to prove a rule; the catalogue is not.
 
 ```bash
 npm run build                 # client
-node audit/path-tests.mjs     # engine: 38 checks incl. the 8 required cases
-bash audit/run-dom.sh path    # UI: 20 checks against the real app + API
+node audit/path-tests.mjs     # engine: 41 checks incl. the 8 required cases
+bash audit/run-dom.sh path    # UI: 22 checks against the real app + API
                               #     (needs `npm install --no-save happy-dom`)
 ```
 

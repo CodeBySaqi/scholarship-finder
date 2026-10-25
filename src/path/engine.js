@@ -669,7 +669,8 @@ export function evaluateScholarship(profile, s, today = new Date().toISOString()
 
   /* level */
   if (s.levels && s.levels.length) {
-    if (s.levels.includes(target.level)) t.pass('Level', 'Open to ' + target.level + ' students');
+    if (!target.level) t.pending('Level', 'Set your target level to screen this scholarship');
+    else if (s.levels.includes(target.level)) t.pass('Level', 'Open to ' + target.level + ' students');
     else { t.fail('Level', 'Open to ' + s.levels.join('/') + ' only'); return finishScholarship(s, t); }
   } else t.unknown('Level', 'Eligible levels not stated', 'levels');
 
@@ -685,13 +686,18 @@ export function evaluateScholarship(profile, s, today = new Date().toISOString()
     t.pass('Nationality', 'Open to all nationalities');
   }
 
-  /* field */
+  /* field — `[]` means the call says "all disciplines"; null means we have not
+     verified it, and an unverified requirement is never a passed one. */
   if (s.fields && s.fields.length) {
     const mine = userFields(profile);
     if (!mine.length) t.pending('Field', 'Add your degree field to check this');
     else if (mine.some(f => s.fields.some(x => x.toLowerCase() === f || f.includes(x.toLowerCase()) || x.toLowerCase().includes(f)))) {
       t.pass('Field', 'Your field is accepted');
     } else t.fail('Field', 'Open to ' + s.fields.join(', ') + ' only');
+  } else if (s.fields === null) {
+    t.unknown('Field', 'Accepted fields not stated', 'fields');
+  } else {
+    t.pass('Field', 'Open to all fields');
   }
 
   /* GPA */
@@ -700,7 +706,7 @@ export function evaluateScholarship(profile, s, today = new Date().toISOString()
     if (mine == null) t.pending('GPA', 'Add your grades to check the ' + s.minGpaGerman + ' requirement');
     else if (gpaPasses(mine, s.minGpaGerman)) t.pass('GPA', 'Your German grade ' + mine + ' meets ' + s.minGpaGerman);
     else t.fail('GPA', 'Needs ' + s.minGpaGerman + ' or better, you have ' + mine);
-  }
+  } else t.unknown('GPA', 'Minimum grade not stated', 'minGpaGerman');
 
   /* language */
   if (s.ieltsReq != null) {
@@ -708,14 +714,16 @@ export function evaluateScholarship(profile, s, today = new Date().toISOString()
     if (mine == null) t.unknown('IELTS', 'IELTS ' + s.ieltsReq + ' required — no score recorded', 'ielts');
     else if (mine >= s.ieltsReq) t.pass('IELTS', mine + ' meets ' + s.ieltsReq);
     else t.fail('IELTS', mine + ' is below ' + s.ieltsReq);
-  }
+  } else if (s.ieltsReq === null) t.unknown('IELTS', 'English requirement not stated', 'ieltsReq');
+  else t.pass('IELTS', 'No IELTS score is stated as required');
   if (s.germanReq) {
     const need = levelRank(s.germanReq.level);
     const have = levelRank((profile.language || {}).germanLevel);
     if (have == null) t.unknown('German', 'German ' + s.germanReq.level + ' required', 'germanLevel');
     else if (have >= need) t.pass('German', 'Your German level meets ' + s.germanReq.level);
     else t.fail('German', 'Needs German ' + s.germanReq.level);
-  }
+  } else if (s.germanReq === null) t.unknown('German', 'German requirement not stated', 'germanReq');
+  else t.pass('German', 'No German certificate is required');
 
   /* age limit — the only place a date of birth is used */
   if (s.maxAge != null) {

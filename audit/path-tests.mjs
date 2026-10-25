@@ -6,7 +6,7 @@
 */
 import {
   evaluateProgramme, evaluateScholarship, matchProgrammes, germanGpa, gpaPasses,
-  completeness, VERDICT, daysToDeadline
+  completeness, VERDICT, daysToDeadline, matchListings
 } from '../src/path/engine.js';
 
 const TODAY = '2026-10-25';
@@ -116,9 +116,11 @@ console.log('\n— case 5: budget €0 vs Baden-Württemberg ——————�
 console.log('\n— case 6: full-funding need vs tuition-only ——————————');
 {
   const p = { ...withGpa(masterBase), money: { ...masterBase.money, fundingNeed: 'full' } };
+  /* fields: [] is a stated "all disciplines"; an unstated value would be unknown */
   const tuitionOnly = {
     id: 'S1', title: 'Tuition waiver', provider: 'X', levels: ['master'],
-    nationalities: ['PK'], fields: null, covers: 'tuition_only', deadline: '2027-03-01', link: 'https://x'
+    nationalities: ['PK'], fields: [], minGpaGerman: 2.5, ieltsReq: 6.5, germanReq: false,
+    covers: 'tuition_only', deadline: '2027-03-01', link: 'https://x'
   };
   const r = evaluateScholarship(p, tuitionOnly, TODAY);
   ok('6a. tuition-only scholarship does not satisfy full need', r.verdict === VERDICT.NOT_ELIGIBLE, r.verdict);
@@ -127,6 +129,12 @@ console.log('\n— case 6: full-funding need vs tuition-only ——————�
   ok('6c. a full scholarship passes', evaluateScholarship(p, full, TODAY).verdict === VERDICT.ELIGIBLE);
   const unknown = { ...tuitionOnly, id: 'S3', covers: null };
   ok('6d. unstated coverage is Check manually', evaluateScholarship(p, unknown, TODAY).verdict === VERDICT.CHECK_MANUALLY);
+  /* a requirement we never verified is not a requirement that passed */
+  const unverified = { ...full, id: 'S4', ieltsReq: null };
+  const un = evaluateScholarship(p, unverified, TODAY);
+  ok('6e. an unstated English requirement is never silently waived',
+    un.verdict === VERDICT.CHECK_MANUALLY && un.missing.some(m => /IELTS/i.test(m.check)),
+    un.verdict + ' / ' + un.headline);
 }
 
 console.log('\n— case 7: German GPA direction ————————————————————');
@@ -209,6 +217,21 @@ console.log('\n— extra: traps from the brief ———————————
   ok('an unset target level is Check manually, not Not eligible',
     noLevel.verdict === 'check_manually' && noLevel.pending.includes('Level') && noLevel.missing.length === 0,
     noLevel.verdict + ' / ' + noLevel.headline);
+
+  /* a scholarship that names its levels, screened against a profile with no level */
+  const noLevelSch = evaluateScholarship({ target: {}, academics: {}, language: {}, tests: {}, money: {} },
+    { id: 'SX', title: 'Fixture scholarship', levels: ['master'], coverage: 'tuition' }, TODAY);
+  ok('a scholarship with no target level set is Check manually, not Not eligible',
+    noLevelSch.verdict === 'check_manually' && noLevelSch.pending.includes('Level'),
+    noLevelSch.verdict + ' / ' + noLevelSch.headline);
+
+  /* every live listing gets a verdict, matched or not */
+  const listings = [{ id: 'A', title: 'a', provider: 'p', kind: 'program' },
+                    { id: 'B', title: 'b', provider: 'p', kind: 'program' }];
+  const listed = matchListings(p, listings, { A: prog({ id: 'A' }) }, TODAY);
+  ok('a listing with no requirement row still gets a Check manually verdict',
+    Object.keys(listed).length === 2 && listed.B.verdict === VERDICT.CHECK_MANUALLY,
+    Object.keys(listed).join(',') + ' / ' + listed.B.verdict);
 
   /* deadline maths */
   ok('daysToDeadline counts from today', daysToDeadline('2026-11-04', TODAY) === 10, String(daysToDeadline('2026-11-04', TODAY)));

@@ -168,7 +168,18 @@ ok('badges use the three honest verdicts only',
 ok('no badge claims eligibility without data',
   !badges.some(b => /Eligible/.test(b.textContent) && !stored.profile.target.level));
 
+/* scholarships get the same treatment — the route says "scholarships", the rows say "scholarship" */
+mount('/scholarships');
+await wait(2000);
+const sBadges = sel('.path-badge');
+ok('scholarship cards carry verdict badges too', sBadges.length >= 3,
+  sBadges.length + ' badges: ' + [...new Set(sBadges.map(b => b.textContent.trim()))].join(', '));
+ok('the scholarship list counts what you can apply to', /you can apply to|check/i.test(text()),
+  (text().match(/\d+ you can apply to[^·]*/) || [''])[0]);
+
 /* the programme page explains the verdict in full */
+mount('/programs');
+await wait(1800);
 const firstLink = sel('.cards-2 h2 a')[0];
 const href = firstLink.getAttribute('href');
 mount(href);
