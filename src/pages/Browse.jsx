@@ -201,7 +201,7 @@ export default function Browse({ kind = 'scholarship' }) {
             <p className="cap">
               Each card carries a verdict from your profile: eligible, check yourself, or not eligible — with the reason.
             </p>
-            <Btn variant="outlined" size="sm" block to="/profile#match-fields">
+            <Btn variant="outlined" size="sm" block to="/wizard?step=2">
               {(verdicts.data && verdicts.data.completeness && verdicts.data.completeness.steps[1] > 0) ? 'Update my details' : 'Add my details'}
             </Btn>
           </div>

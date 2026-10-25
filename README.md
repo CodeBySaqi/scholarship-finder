@@ -69,12 +69,16 @@ Chromium binary and system libraries; run them where those exist.
 
 ## ScholarPath (matching, embedded — no separate page)
 
-There is no "find my path" page. The student fills six numbered steps on
-`/profile` (**1** what you are applying for · **2** languages, IELTS/TOEFL/PTE +
-German · **3** education, with a **+** button per record and the anabin status of
-each university · **4** ECTS (master and above only) · **5** test requirements,
-GRE sections separately/GMAT/SAT/ACT/TestAS/GATE · **6** money), and the verdict
-shows up on the listings themselves: a badge on every programme and scholarship
+There is no "find my path" page and no separate matching card. The matching
+fields are **steps of the profile edit flow** (`/wizard`), numbered 1 → 7:
+**1** about you · **2** what you are applying for · **3** languages
+(IELTS/TOEFL/PTE + German) · **4** education, with a **+** button per record and
+the anabin status of each university · **5** ECTS (master and above only) ·
+**6** test requirements (GRE sections separately/GMAT/SAT/ACT/TestAS/GATE) ·
+**7** money and documents. `/profile` shows what is saved and links each line to
+the step that fills it.
+
+The verdict shows up on the listings themselves: a badge on every programme and scholarship
 card, "*N you can apply to · M to check · K not eligible*" plus a **Can I apply
 first** sort on `/programs` and `/scholarships`, and the full reason-by-reason
 panel on each programme page.

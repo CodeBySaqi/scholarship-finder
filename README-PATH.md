@@ -1,8 +1,10 @@
 # ScholarPath — how the matching works
 
 A module inside the existing app — **there is no separate "find my path" page.**
-The matching fields are entered where a student already is, on `/profile`
-(card `#match-fields`), and the verdict then appears on the listings themselves:
+The matching fields are **steps of the profile edit flow** (`/wizard`, opened by
+Profile → Edit profile), numbered 1 → 7 in the order a student answers them, and
+`/profile` shows the saved values with an Edit link into the exact step. The
+verdict then appears on the listings themselves:
 a badge on every programme/scholarship card, a count line and a
 "Can I apply first" sort on the listing page, and the full reasoning panel on
 each programme page. It does not modify the data of the legacy `/matches`,
@@ -15,8 +17,9 @@ each programme page. It does not modify the data of the legacy `/matches`,
 - Verdicts for live listings: `GET /api/path/verdicts?kind=program|scholarships`
 - anabin: `GET /api/anabin/institutions?q=` (our snapshot) and
   `POST /api/anabin/live` (one institution, read from anabin.kmk.org, stored with its date)
-- Embedded UI: `src/components/PathFields.jsx` (`EligibilityBadge`,
-  `EligibilityPanel`, `MatchFieldsCard`)
+- UI: the editable steps are `src/components/pathSteps.jsx` (`PathStepFields`),
+  rendered by `src/pages/Wizard.jsx`; `src/components/PathFields.jsx` holds the
+  badge, the reason panel and the read-only summary on `/profile`
 
 **Rule for the whole build: only what changes a match decision is built.**
 Display fields (city, duration, DAAD link) never decide anything, and the profile
@@ -170,14 +173,15 @@ rule cannot drift.
 
 ## 4. What is asked, and what is not
 
-The form is numbered 1 → 6 and answered in that order:
+The profile edit flow is numbered 1 → 7 and answered in that order:
 
-1. **What you are applying for** — degree, teaching language, intake, nationality
-2. **Languages** — IELTS, TOEFL iBT, PTE Academic, MOI (recorded, never auto-waiving), German level + certificate
-3. **Education** — records with a **+** button (Matric / HSSC / Bachelor / Master), the anabin list, semesters completed, CGPA + scale + pass mark
-4. **ECTS** — total and subject breakdown, for a master/PhD target only; a bachelor applicant is told plainly that ECTS do not apply
-5. **Test requirements** — GRE sections separately (never a total), GMAT, GATE, TestAS, SAT, ACT, work experience, or "I have not taken any of these"
-6. **Money** — tuition budget, semester contribution, funding need, blocked account
+1. **About you** — personal details the rest of the app reads (no CNIC, passport or bank details)
+2. **What you are applying for** — degree, teaching language, intake, nationality
+3. **Languages** — IELTS, TOEFL iBT, PTE Academic, MOI (recorded, never auto-waiving), German level + certificate
+4. **Education** — records with a **+** button (Matric / HSSC / Bachelor / Master), the anabin list, semesters completed, CGPA + scale + pass mark
+5. **ECTS** — total and subject breakdown, for a master/PhD target only; a bachelor applicant is told plainly that ECTS do not apply
+6. **Test requirements** — GRE sections separately (never a total), GMAT, GATE, TestAS, SAT, ACT, work experience, or "I have not taken any of these"
+7. **Money** — tuition budget, semester contribution, funding need, blocked account
 
 Profile groups stored: `target`, `nationality`, `academics`, `language`,
 `tests`, `education`, `money`, `scholarshipExtras`, `documents`, `preferences`.
@@ -225,7 +229,7 @@ exist to prove a rule; the catalogue is not.
 ```bash
 npm run build                 # client
 node audit/path-tests.mjs     # engine: 73 checks incl. the 8 required cases
-bash audit/run-dom.sh path    # UI: 50 checks against the real app + API
+bash audit/run-dom.sh path    # UI: 59 checks against the real app + API
                               #     (needs `npm install --no-save happy-dom`)
 node tools/anabin-refresh.mjs # re-read the anabin list for Pakistan
 ```

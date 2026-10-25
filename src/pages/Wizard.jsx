@@ -1,38 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { AppShell } from '../components/Shell.jsx';
-import { Icon, Loader, Notice, useAsync, useToast, LoadError } from '../components/ui.jsx';
+import { Icon, Loader, Notice, useAsync, useToast, LoadError, Progress } from '../components/ui.jsx';
 import { api } from '../api.js';
-import { COPY } from '../lib.jsx';
+import { PathStepFields, get } from '../components/pathSteps.jsx';
+import { educationSummary } from '../path/education.js';
 
+/* ==========================================================================
+   Profile edit — the one place a student fills anything in.
+
+   The matching fields are steps of THIS flow, not a separate card and not a
+   separate page: step 1 is the personal details the rest of the app reads, and
+   steps 2–7 are what the eligibility engine reads. They are numbered 1 → 7 in
+   the order a student answers them, and the step count never starts in the
+   middle.
+   ========================================================================== */
 const STEPS = [
-  { n: 1, title: 'About you', sub: 'Only what matching needs.' },
-  { n: 2, title: 'Your education', sub: 'Board, percentage or CGPA - whichever you have.' },
-  { n: 3, title: 'Scores and tests', sub: 'You can leave a test as planned.' },
-  { n: 4, title: 'Your targets', sub: 'Up to three. One is primary.' },
-  { n: 5, title: 'Funding and extras', sub: 'Documents, APS and income.' }
+  { n: 1, title: 'About you', sub: 'Only what the rest of the app needs. No CNIC, passport or bank details, ever.' },
+  { n: 2, title: 'What you are applying for', sub: 'Degree, teaching language, intake. Enough for a rough verdict on its own.' },
+  { n: 3, title: 'Languages', sub: 'IELTS, TOEFL, PTE and German. A test score is only compared with what a programme states.' },
+  { n: 4, title: 'Education', sub: 'Your records, semesters and the anabin status of each university.' },
+  { n: 5, title: 'ECTS', sub: 'Only for a master or PhD target — a school certificate has no ECTS.' },
+  { n: 6, title: 'Test requirements', sub: 'GRE sections separately, GMAT, GATE, TestAS, SAT, ACT — or none.' },
+  { n: 7, title: 'Money and documents', sub: 'Budget, funding need, blocked account, and a document checklist for you.' }
 ];
-const CHECKLIST = [
-  ['fullName', 8], ['dateOfBirth', 8], ['gender', 4], ['city', 3],
-  ['currentLevel', 8], ['institution', 4], ['expectedCompletionYear', 5],
-  ['matricPct', 5], ['interPct', 6], ['hsscGroup', 5], ['ibccStatus', 5],
-  ['bachelorCgpa', 9], ['bachelorScale', 4],
-  ['ielts', 10], ['germanLevel', 4],
-  ['fundingNeed', 5], ['apsStatus', 6], ['documentsReady', 1]
-];
-function completeness(p, targets) {
-  let done = 0, total = 0;
-  CHECKLIST.forEach(([key, w]) => {
-    total += w;
-    const v = p[key];
-    if (key === 'ielts') { if (v && v.status) done += w; }
-    else if (key === 'documentsReady') { if (Array.isArray(v) && v.length) done += w; }
-    else if (v !== null && v !== undefined && v !== '' && v !== 'none') done += w;
-  });
-  total += 12;
-  if (targets && targets.length && targets.some(t => t.isPrimary)) done += 12;
-  return Math.min(100, Math.round((done / total) * 100));
-}
+const LAST = STEPS.length;
 
 const PROVINCES = ['Punjab', 'Sindh', 'Khyber Pakhtunkhwa', 'Balochistan', 'Islamabad', 'Azad Kashmir', 'Gilgit-Baltistan'];
 const DOCS = [
@@ -41,21 +33,23 @@ const DOCS = [
   { id: 'motivation', label: 'Motivation letter' }, { id: 'references', label: 'Reference letters' },
   { id: 'aps', label: 'APS certificate' }, { id: 'ibcc', label: 'IBCC equivalence' }
 ];
-const GL = ['none', 'A1', 'A2', 'B1', 'B2', 'C1'];
+const GENDERS = [{ id: 'female', label: 'Female' }, { id: 'male', label: 'Male' }, { id: 'other', label: 'Other' }, { id: 'prefer_not_to_say', label: 'Prefer not to say' }];
+const IBCC = [{ id: 'not_needed', label: 'Not needed' }, { id: 'planned', label: 'Planned' }, { id: 'applied', label: 'Applied' }, { id: 'done', label: 'Done' }];
+const HEC = [{ id: 'not_needed', label: 'Not needed' }, { id: 'planned', label: 'Planned' }, { id: 'applied', label: 'Applied' }, { id: 'done', label: 'Done' }];
 
 function Field({ label, help, children, id }) {
   return (
     <div className="field">
-      {label ? <label htmlFor={id}>{label}</label> : <span className="lbl">{label}</span>}
+      {label ? <label htmlFor={id}>{label}</label> : null}
       {children}
       {help && <span className="help">{help}</span>}
     </div>
   );
 }
-function Chips({ value, options, multi, onChange }) {
+function Chips({ value, options, multi, onChange, aria }) {
   const arr = multi ? (value || []) : [value];
   return (
-    <div className="chips">
+    <div className="chips" role="group" aria-label={aria}>
       {options.map(o => {
         const id = typeof o === 'string' ? o : o.id;
         const label = typeof o === 'string' ? o : o.label;
@@ -70,52 +64,63 @@ function Chips({ value, options, multi, onChange }) {
     </div>
   );
 }
-const Sw = ({ on, onChange, label }) => (
-  <button className="switch" type="button" role="switch" aria-checked={!!on} aria-label={label} onClick={() => onChange(!on)} />
-);
 
 export default function Wizard() {
   const [params, setParams] = useSearchParams();
   const nav = useNavigate();
   const toast = useToast();
-  const step = Math.min(5, Math.max(1, Number(params.get('step') || 1)));
-  const { data, loading, error, reload } = useAsync(() => api.get('/profile'), []);
+  const step = Math.min(LAST, Math.max(1, Number(params.get('step') || 1)));
+  const personal = useAsync(() => api.get('/profile'), []);
+  const matching = useAsync(() => api.get('/path/profile'), []);
   const [form, setForm] = useState(null);
-  const [targets, setTargets] = useState([]);
+  const [draft, setDraft] = useState(null);
+  const [meta, setMeta] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [ieltsError, setIeltsError] = useState(false);
 
+  useEffect(() => { if (personal.data) setForm({ ...personal.data.profile }); }, [personal.data]);
   useEffect(() => {
-    if (data) { setForm({ ...data.profile }); setTargets((data.targets || []).map(t => ({ ...t }))); }
-  }, [data]);
+    if (matching.data) { setDraft(matching.data.profile || {}); setMeta(matching.data.completeness || null); }
+  }, [matching.data]);
 
-  if (loading) return <AppShell page="profile"><div className="card"><Loader /></div></AppShell>;
-  if (error || !form) return <AppShell page="profile"><LoadError error={error} onRetry={reload} what="wizard" /></AppShell>;
+  if (personal.loading || matching.loading) return <AppShell page="profile"><div className="card"><Loader /></div></AppShell>;
+  if (personal.error || matching.error) {
+    return <AppShell page="profile">
+      <LoadError error={personal.error || matching.error} onRetry={() => { personal.reload(); matching.reload(); }} what="your profile" />
+    </AppShell>;
+  }
+  if (!form || !draft) return <AppShell page="profile"><div className="card"><Loader /></div></AppShell>;
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
-  const live = completeness({ ...form, ielts: form.ielts }, targets);
+  const pct = (meta && meta.pct) || 0;
+  const edu = educationSummary(draft);
+
+  const goto = (n) => { setParams({ step: String(n) }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   async function save(advance) {
-    if (step === 3 && form.ielts && form.ielts.overall != null && (form.ielts.overall < 1 || form.ielts.overall > 9)) {
-      setIeltsError(true); toast('Fix the highlighted field first'); return;
+    if (step === 3) {
+      const ielts = get(draft, 'language.ielts');
+      if (ielts != null && (ielts < 1 || ielts > 9)) { toast('IELTS is a band from 1 to 9'); return; }
     }
-    if (step === 4 && (!targets.length || !targets.some(t => t.isPrimary))) { toast('Mark one target as primary'); return; }
     setSaving(true);
     try {
-      const body = { profile: form, targets };
+      /* personal details go to the profile the rest of the app reads; the
+         matching answers go to the matching profile. One button, both saved. */
+      const body = { profile: form };
       if (!form.firstName && form.fullName) body.profile.firstName = form.fullName.split(' ')[0];
-      const r = await api.put('/profile', body);
-      setForm({ ...r.profile });
-      toast(advance ? 'Saved. Profile ' + r.profile.completenessPct + '% complete' : 'Profile saved - ' + r.profile.completenessPct + '% complete');
+      const [pr, mr] = await Promise.all([
+        api.put('/profile', body),
+        api.put('/path/profile', { profile: draft })
+      ]);
+      setForm({ ...pr.profile });
+      setDraft(mr.profile);
+      setMeta(mr.completeness);
+      toast('Saved — matching details ' + mr.completeness.pct + '% complete');
       if (advance) {
-        if (step === 5) { nav('/dashboard'); return; }
-        setParams({ step: String(step + 1) });
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else nav('/dashboard');
+        if (step === LAST) { nav('/profile'); return; }
+        goto(step + 1);
+      } else nav('/profile');
     } catch (e) { toast(e.message); } finally { setSaving(false); }
   }
-
-  const p = form;
 
   function renderStep() {
     if (step === 1) {
@@ -123,277 +128,74 @@ export default function Wizard() {
         <>
           <div className="g2">
             <Field label="Full name" id="fullName" help="As printed on your documents. Used only on your profile.">
-              <input className="input" id="fullName" autoComplete="name" value={p.fullName || ''} onChange={e => set('fullName', e.target.value)} />
+              <input className="input" id="fullName" autoComplete="name" value={form.fullName || ''} onChange={e => set('fullName', e.target.value)} />
             </Field>
             <Field label="Date of birth" id="dateOfBirth" help="Some scholarships have an age limit. We check your age at the deadline, not today.">
-              <input className="input" id="dateOfBirth" type="date" value={(p.dateOfBirth || '').slice(0, 10)} onChange={e => set('dateOfBirth', e.target.value)} />
+              <input className="input" id="dateOfBirth" type="date" value={(form.dateOfBirth || '').slice(0, 10)} onChange={e => set('dateOfBirth', e.target.value)} />
             </Field>
-          </div>
-          <Field label="Gender" help="Only used for gender-restricted listings. Most listings ignore it.">
-            <Chips value={p.gender || ''} onChange={v => set('gender', v)} options={[
-              { id: 'female', label: 'Female' }, { id: 'male', label: 'Male' },
-              { id: 'other', label: 'Other' }, { id: 'prefer_not_to_say', label: 'Prefer not to say' }]} />
-          </Field>
-          <div className="g2">
+            <Field label="Gender" id="gender">
+              <Chips aria="Gender" value={form.gender} options={GENDERS} onChange={v => set('gender', v)} />
+            </Field>
             <Field label="City" id="city">
-              <select className="select" id="city" value={p.city || ''} onChange={e => set('city', e.target.value)}>
-                {['Lahore', 'Karachi', 'Islamabad', 'Multan', 'Peshawar', 'Quetta', 'Bahawalpur', 'Other'].map(c => <option key={c}>{c}</option>)}
-              </select>
+              <input className="input" id="city" value={form.city || ''} onChange={e => set('city', e.target.value)} />
             </Field>
             <Field label="Province" id="province">
-              <select className="select" id="province" value={p.province || ''} onChange={e => set('province', e.target.value)}>
-                {PROVINCES.map(c => <option key={c}>{c}</option>)}
+              <select className="select" id="province" value={form.province || ''} onChange={e => set('province', e.target.value)}>
+                <option value="">Not added</option>
+                {PROVINCES.map(x => <option key={x} value={x}>{x}</option>)}
               </select>
             </Field>
-          </div>
-          <Field label="WhatsApp number (optional)" id="whatsapp" help="Only used if you switch on WhatsApp reminders in Settings.">
-            <input className="input" id="whatsapp" inputMode="tel" placeholder="+92 3xx xxxxxxx" value={p.whatsapp || ''} onChange={e => set('whatsapp', e.target.value)} />
-          </Field>
-          <Notice tone="info" icon="shield">We never ask for CNIC, passport number or bank details. No uploads at this stage.</Notice>
-        </>
-      );
-    }
-
-    if (step === 2) {
-      const hssc = p.currentLevel === 'matric' || p.currentLevel === 'intermediate';
-      return (
-        <>
-          <div className="field">
-            <span className="lbl">Where are you now?</span>
-            <div className="radios">
-              {[
-                { id: 'matric', label: 'Matric', sub: 'Grade 9-10' },
-                { id: 'intermediate', label: 'Intermediate / HSSC', sub: 'Grade 11-12' },
-                { id: 'bachelor', label: 'Bachelor in progress', sub: 'Applying for a master' },
-                { id: 'master', label: 'Master completed', sub: 'Applying for a PhD' },
-                { id: 'phd', label: 'PhD' }
-              ].map(o => (
-                <label className="radio-card" key={o.id}>
-                  <input type="radio" name="currentLevel" value={o.id} checked={p.currentLevel === o.id} onChange={() => set('currentLevel', o.id)} />
-                  <span className="t"><span className="h3">{o.label}</span>{o.sub && <span className="cap">{o.sub}</span>}</span>
-                </label>
-              ))}
-            </div>
+            <Field label="WhatsApp number" id="whatsapp" help="Optional, for deadline reminders. Never shown publicly.">
+              <input className="input" id="whatsapp" value={form.whatsapp || ''} onChange={e => set('whatsapp', e.target.value)} />
+            </Field>
           </div>
           <div className="g2">
-            <Field label="Institution" id="institution"><input className="input" id="institution" value={p.institution || ''} onChange={e => set('institution', e.target.value)} /></Field>
-            <Field label="Expected completion year" id="year">
-              <select className="select" id="year" value={p.expectedCompletionYear || 2026} onChange={e => set('expectedCompletionYear', Number(e.target.value))}>
-                {['2026', '2027', '2028', '2029', '2030'].map(y => <option key={y}>{y}</option>)}
-              </select>
+            <Field label="IBCC equivalence" id="ibccStatus" help="Needed to certify a Pakistani school certificate.">
+              <Chips aria="IBCC equivalence" value={form.ibccStatus} options={IBCC} onChange={v => set('ibccStatus', v)} />
+            </Field>
+            <Field label="HEC attestation" id="hecStatus" help="The Pakistani route — an APS certificate is not required for Pakistan.">
+              <Chips aria="HEC attestation" value={form.hecStatus} options={HEC} onChange={v => set('hecStatus', v)} />
             </Field>
           </div>
-
-          <div className="card card--flat" style={{ background: 'var(--chip)', border: 0 }}>
-            <span className="h3">HSSC details</span>
-            <div className="g2">
-              <Field label="Matric percentage" id="matricPct"><input className="input" id="matricPct" type="number" min="0" max="100" step="0.01" value={p.matricPct ?? ''} onChange={e => set('matricPct', e.target.value === '' ? null : Number(e.target.value))} /></Field>
-              <Field label="Intermediate percentage" id="interPct"><input className="input" id="interPct" type="number" min="0" max="100" step="0.01" value={p.interPct ?? ''} onChange={e => set('interPct', e.target.value === '' ? null : Number(e.target.value))} /></Field>
-            </div>
-            <Field label="Board" id="hsscBoard"><input className="input" id="hsscBoard" value={p.hsscBoard || ''} onChange={e => set('hsscBoard', e.target.value)} /></Field>
-            <Field label="Group" help="Some German bachelor programs accept only certain groups.">
-              <Chips value={p.hsscGroup || ''} onChange={v => set('hsscGroup', v)} options={[
-                { id: 'pre_engineering', label: 'Pre-engineering' }, { id: 'pre_medical', label: 'Pre-medical' },
-                { id: 'ics', label: 'ICS' }, { id: 'commerce', label: 'Commerce' },
-                { id: 'arts', label: 'Arts' }, { id: 'other', label: 'Other' }]} />
-            </Field>
-            <Field label="IBCC equivalence" help="Needed for the bachelor route with an HSSC certificate.">
-              <Chips value={p.ibccStatus || ''} onChange={v => set('ibccStatus', v)} options={[
-                { id: 'not_needed', label: 'Not needed for me' }, { id: 'planned', label: 'Planned' },
-                { id: 'applied', label: 'Applied' }, { id: 'done', label: 'Done' }]} />
-            </Field>
-          </div>
-
-          <div className="card card--flat" style={{ background: 'var(--chip)', border: 0 }}>
-            <span className="h3">Bachelor details</span>
-            <p className="cap">Used for master and PhD matching. Numbers only.</p>
-            <div className="g3">
-              <Field label="CGPA" id="bachelorCgpa"><input className="input" id="bachelorCgpa" type="number" min="0" max="5" step="0.01" value={p.bachelorCgpa ?? ''} onChange={e => set('bachelorCgpa', e.target.value === '' ? null : Number(e.target.value))} /></Field>
-              <Field label="Scale" id="scale">
-                <select className="select" id="scale" value={p.bachelorScale || 4} onChange={e => set('bachelorScale', Number(e.target.value))}>
-                  <option value="4">4</option><option value="5">5</option>
-                </select>
-              </Field>
-              <Field label="Pass mark" id="passMark"><input className="input" id="passMark" type="number" min="0" max="4" step="0.01" value={p.passMark ?? ''} onChange={e => set('passMark', e.target.value === '' ? null : Number(e.target.value))} /></Field>
-            </div>
-            <Field label="Bachelor percentage" id="bachelorPct"><input className="input" id="bachelorPct" type="number" min="0" max="100" step="0.01" value={p.bachelorPct ?? ''} onChange={e => set('bachelorPct', e.target.value === '' ? null : Number(e.target.value))} /></Field>
-            <Field label="Bachelor field" id="bachelorField">
-              <select className="select" id="bachelorField" value={p.bachelorField || 'cs'} onChange={e => set('bachelorField', e.target.value)}>
-                {[['cs', 'Computer Science'], ['ai', 'AI / Data'], ['software', 'Software Engineering'], ['data', 'Data Science'],
-                  ['engineering', 'Engineering'], ['business', 'Business'], ['science', 'Science']].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-              </select>
-            </Field>
-            {hssc && <Notice tone="info">You entered HSSC and no bachelor CGPA yet - that is fine. Bachelor targets use your intermediate percentage and entry route instead.</Notice>}
-          </div>
+          <p className="cap">Nationality and the degree you are applying for are asked in step 2, because they decide the verdicts.</p>
         </>
       );
     }
 
-    if (step === 3) {
-      const ielts = p.ielts || { status: 'not_taken', overall: null, date: null };
+    if (step === 7) {
       return (
         <>
-          <div className="field">
-            <span className="lbl">IELTS</span>
-            <Chips value={ielts.status || ''} onChange={v => set('ielts', { ...ielts, status: v })} options={[
-              { id: 'taken', label: 'Taken' }, { id: 'planned', label: 'Planned' }, { id: 'not_taken', label: 'Not taken' }]} />
+          <PathStepFields id="money" draft={draft} setDraft={setDraft} />
+          <div className="field" style={{ marginTop: 8 }}>
+            <span className="lbl">Documents ready</span>
+            <Chips multi aria="Documents ready" value={form.documentsReady} options={DOCS} onChange={v => set('documentsReady', v)} />
+            <span className="help">We do not store the files. This is only a checklist for you.</span>
           </div>
-          <div className="g2">
-            <Field label="Overall band" id="ieltsOverall" help="Between 1 and 9.">
-              <input className={'input' + (ieltsError ? ' input--error' : '')} id="ieltsOverall" type="number" min="1" max="9" step="0.5"
-                aria-invalid={ieltsError} value={ielts.overall ?? ''} onChange={e => {
-                  const v = e.target.value === '' ? null : Number(e.target.value);
-                  setIeltsError(v != null && (v < 1 || v > 9));
-                  set('ielts', { ...ielts, overall: v });
-                }} />
-              {ieltsError && <span className="err"><Icon name="alert" size={13} />Enter a band between 1 and 9.</span>}
-            </Field>
-            <Field label="Test date" id="ieltsDate" help="We check that it is still valid two years later, at the deadline.">
-              <input className="input" id="ieltsDate" type="date" value={(ielts.date || '').slice(0, 10)} onChange={e => set('ielts', { ...ielts, date: e.target.value || null })} />
-            </Field>
-          </div>
-          <Notice tone="info">IELTS is ignored completely for listings that do not require it. A missing band never hides an unrelated listing.</Notice>
-          <Field label="TOEFL score (optional)" id="toeflScore">
-            <input className="input" id="toeflScore" type="number" min="0" max="120" value={p.toeflScore ?? ''} onChange={e => set('toeflScore', e.target.value === '' ? null : Number(e.target.value))} />
-          </Field>
-          <div className="divider-v" style={{ height: 1, width: 'auto' }} />
-          <Field label="German level" help="German-taught programs are strict about this; scholarships usually are not.">
-            <Chips value={p.germanLevel || 'none'} onChange={v => set('germanLevel', v)} options={GL.map(g => ({ id: g, label: g === 'none' ? 'None' : g }))} />
-          </Field>
-          <p className="cap">Saving step 3 gives you an interim count, labelled “Provisional”, because later steps can still change it.</p>
         </>
       );
     }
 
-    if (step === 4) {
-      return (
-        <>
-          {targets.map((t, i) => (
-            <div className="card card--flat" key={i}>
-              <div className="row sp">
-                <span className="h3">Target {i + 1}</span>
-                <div className="row" style={{ gap: 4 }}>
-                  {t.isPrimary ? <span className="tag tag--pr">Primary</span>
-                    : <button className="btn btn--text btn--sm" type="button" onClick={() => setTargets(list => list.map((x, j) => ({ ...x, isPrimary: j === i, label: (j === i ? 'Primary: ' : 'Backup: ') + ((x.fields || [])[0] || 'target').toUpperCase() })))}>Make primary</button>}
-                  {targets.length > 1 && <button className="btn btn--icon" type="button" aria-label="Remove target" onClick={() => setTargets(list => {
-                    const wasPrimary = list[i].isPrimary;
-                    const next = list.filter((_, j) => j !== i);
-                    if (wasPrimary && next.length) next[0] = { ...next[0], isPrimary: true };
-                    return next;
-                  })}><Icon name="close" /></button>}
-                </div>
-              </div>
-              <div className="g2">
-                <Field label="Degree" id={'deg' + i}>
-                  <select className="select" id={'deg' + i} value={t.degree} onChange={e => setTargets(list => list.map((x, j) => j === i ? { ...x, degree: e.target.value } : x))}>
-                    <option value="bachelor">Bachelor</option><option value="master">Master</option><option value="phd">PhD</option>
-                  </select>
-                </Field>
-                <Field label="Intake year" id={'year' + i}>
-                  <select className="select" id={'year' + i} value={t.intakeYear} onChange={e => setTargets(list => list.map((x, j) => j === i ? { ...x, intakeYear: Number(e.target.value) } : x))}>
-                    {['2027', '2028', '2029'].map(y => <option key={y}>{y}</option>)}
-                  </select>
-                </Field>
-              </div>
-              <Field label="Fields">
-                <Chips multi value={t.fields} onChange={v => setTargets(list => list.map((x, j) => j === i ? {
-                  ...x, fields: v,
-                  label: (x.isPrimary ? 'Primary: ' : 'Backup: ') + ((v[0] || 'target').toUpperCase())
-                } : x))} options={[
-                  { id: 'ai', label: 'AI' }, { id: 'data', label: 'Data' }, { id: 'software', label: 'Software' },
-                  { id: 'engineering', label: 'Engineering' }, { id: 'business', label: 'Business' }, { id: 'science', label: 'Science' }]} />
-              </Field>
-              <Field label="Language preference">
-                <Chips value={t.languagePref || 'both'} onChange={v => setTargets(list => list.map((x, j) => j === i ? { ...x, languagePref: v } : x))} options={[
-                  { id: 'english', label: 'English' }, { id: 'german', label: 'German' }, { id: 'both', label: 'Both' }]} />
-              </Field>
-            </div>
-          ))}
-          <button className="btn btn--outlined btn--block" type="button" aria-disabled={targets.length >= 3}
-            onClick={() => {
-              if (targets.length >= 3) return toast('Three targets is the maximum');
-              setTargets(list => [...list, { degree: 'master', fields: ['ai'], intakeYear: 2027, languagePref: 'both', isPrimary: false, label: 'Backup: AI' }]);
-            }}>
-            <Icon name="plus" />{targets.length >= 3 ? 'Three targets is the maximum' : 'Add another target'}
-          </button>
-          <p className="cap">One target must be primary. Matching runs every listing against all three, then shows the best result once.</p>
-        </>
-      );
-    }
-
-    return (
-      <>
-        <div className="field">
-          <span className="lbl">How much funding do you need?</span>
-          <div className="radios">
-            <label className="radio-card">
-              <input type="radio" name="fundingNeed" value="full_only" checked={p.fundingNeed === 'full_only'} onChange={() => set('fundingNeed', 'full_only')} />
-              <span className="t"><span className="h3">Fully funded only</span><span className="cap">Programs that charge tuition are removed from my list</span></span>
-            </label>
-            <label className="radio-card">
-              <input type="radio" name="fundingNeed" value="partial_ok" checked={p.fundingNeed === 'partial_ok'} onChange={() => set('fundingNeed', 'partial_ok')} />
-              <span className="t"><span className="h3">Partial is fine</span><span className="cap">Show tuition-charging programs with a warning tag</span></span>
-            </label>
-          </div>
-        </div>
-
-        <div className="switch-row">
-          <span className="t"><span className="h3">Prefer not to share income</span><span className="cap">Need-based scholarships will ask you to confirm instead</span></span>
-          <Sw on={p.incomeBracket === 'prefer_not_to_say'} label="Prefer not to share income"
-            onChange={on => set('incomeBracket', on ? 'prefer_not_to_say' : null)} />
-        </div>
-        {p.incomeBracket !== 'prefer_not_to_say' && (
-          <Field label="Household income bracket" help="Only used for need-based listings. Field is optional.">
-            <Chips value={p.incomeBracket || ''} onChange={v => set('incomeBracket', v)} options={[
-              { id: 'low', label: 'Low' }, { id: 'lower_mid', label: 'Lower middle' },
-              { id: 'mid', label: 'Middle' }, { id: 'high', label: 'High' }]} />
-          </Field>
-        )}
-
-        <div className="divider-v" style={{ height: 1, width: 'auto' }} />
-        <Field label="APS certificate" help="Most German programs ask for it. Starting early matters: it takes weeks.">
-          <Chips value={p.apsStatus || ''} onChange={v => set('apsStatus', v)} options={[
-            { id: 'not_started', label: 'Not started' }, { id: 'applied', label: 'Applied' },
-            { id: 'certificate_ready', label: 'Certificate ready' }]} />
-        </Field>
-        <Field label="HEC degree attestation">
-          <Chips value={p.hecStatus || ''} onChange={v => set('hecStatus', v)} options={[
-            { id: 'not_needed', label: 'Not needed' }, { id: 'planned', label: 'Planned' },
-            { id: 'applied', label: 'Applied' }, { id: 'done', label: 'Done' }]} />
-        </Field>
-        <div className="switch-row">
-          <span className="t"><span className="h3">Blocked account arranged</span><span className="cap">Usually needed for the visa, after admission</span></span>
-          <Sw on={p.blockedAccountReady} label="Blocked account arranged" onChange={v => set('blockedAccountReady', v)} />
-        </div>
-        <div className="switch-row">
-          <span className="t"><span className="h3">I have an ECTS module breakdown</span><span className="cap">Some master programs need subject credits confirmed</span></span>
-          <Sw on={p.hasEctsBreakdown} label="ECTS module breakdown" onChange={v => set('hasEctsBreakdown', v)} />
-        </div>
-        <Field label="Work experience (months)" id="workExpMonths" help="Some scholarships require professional experience.">
-          <input className="input" id="workExpMonths" type="number" min="0" max="240" step="1" value={p.workExpMonths ?? 0} onChange={e => set('workExpMonths', e.target.value === '' ? 0 : Number(e.target.value))} />
-        </Field>
-        <div className="field">
-          <span className="lbl">Documents ready</span>
-          <Chips multi value={p.documentsReady} onChange={v => set('documentsReady', v)} options={DOCS} />
-          <span className="help">We do not store the files. This is only a checklist for you.</span>
-        </div>
-      </>
-    );
+    const ids = { 2: 'target', 3: 'language', 4: 'education', 5: 'ects', 6: 'tests' };
+    return <PathStepFields id={ids[step]} draft={draft} setDraft={setDraft} />;
   }
 
   return (
     <AppShell page="profile">
       <div className="page--narrow" style={{ maxWidth: 780, width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
         <div>
-          <div className="row sp"><span className="cap">Step {step} of 5</span><span className="cap">{Math.round((step / 5) * 100)}% of the wizard</span></div>
+          <div className="row sp">
+            <span className="cap">Step {step} of {LAST}</span>
+            <span className="cap">{Math.round((step / LAST) * 100)}% through the form</span>
+          </div>
           <div className="seg seg--wizard" style={{ margin: '6px 0 10px' }}>
             {STEPS.map(x => <i key={x.n} style={{ flex: 1, background: x.n <= step ? 'var(--primary)' : 'var(--chip)' }} />)}
           </div>
           <h1 className="h1">{STEPS[step - 1].title}</h1><p className="cap">{STEPS[step - 1].sub}</p>
           <div className="row wr" style={{ gap: 6, marginTop: 4 }}>
-            <span className="tag tag--out">Profile {Math.max(live, form.completenessPct || 0)}% complete</span>
-            {live < 80 && <span className="tag tag--wn">{COPY.provisional}</span>}
+            <span className="tag tag--out">Matching details {pct}% complete</span>
+            {step >= 4 && <span className="tag tag--out">{edu.years} years of education</span>}
           </div>
+          <div style={{ marginTop: 8 }}><Progress value={pct} /></div>
         </div>
 
         <div className="card card--pad-l">{renderStep()}</div>
@@ -401,17 +203,31 @@ export default function Wizard() {
         <div className="card" style={{ position: 'sticky', bottom: 64, zIndex: 15 }}>
           <div className="row sp wr" style={{ gap: 8 }}>
             {step > 1
-              ? <button className="btn btn--text" type="button" onClick={() => { setParams({ step: String(step - 1) }); window.scrollTo({ top: 0, behavior: 'smooth' }); }}><Icon name="back" />Back</button>
+              ? <button className="btn btn--text" type="button" onClick={() => goto(step - 1)}><Icon name="back" />Back</button>
               : <span />}
             <div className="row" style={{ gap: 8, marginLeft: 'auto' }}>
-              <Link className="btn btn--text" to="/dashboard">Finish later</Link>
+              <Link className="btn btn--text" to="/profile">Finish later</Link>
               <button className="btn btn--filled" type="button" disabled={saving} onClick={() => save(true)}>
-                {saving ? 'Saving…' : step === 5 ? 'Save and finish' : 'Save and continue'}
+                {saving ? 'Saving…' : step === LAST ? 'Save and finish' : 'Save and continue'}
               </button>
             </div>
           </div>
         </div>
+
+        <div className="row wr" style={{ gap: 6 }}>
+          {STEPS.map(x => (
+            <button key={x.n} type="button" className={'chip chip--sm' + (x.n === step ? ' is-on' : '')} onClick={() => goto(x.n)}>
+              {x.n}. {x.title}
+            </button>
+          ))}
+        </div>
         <p className="cap">Your answers save as you go. Nothing is uploaded and no CNIC, passport or bank details are ever requested.</p>
+        {step === 2 && (
+          <Notice tone="info">
+            Two steps are enough for a first verdict: this one and <button className="btn btn--text btn--sm" type="button" onClick={() => goto(4)}>Education</button>.
+            Languages and money sharpen it.
+          </Notice>
+        )}
       </div>
     </AppShell>
   );

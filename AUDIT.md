@@ -99,8 +99,17 @@ phone, one below 400px; selects are 42px and 16px on phones so the native picker
 `data/path-programmes.json` (evidence-only, `null` where unverified), profile in
 `db.pathProfiles`, API under `/api/path/*`.
 New suites: `audit/path-tests.mjs` **73/73** (all eight required cases) and
-`audit/path-pages.mjs` **50/50** (fields on `/profile`, badges on the real cards,
+`audit/path-pages.mjs` **59/59** (fields on `/profile`, badges on the real cards,
 the reason panel on a live programme page).
+
+**Round 8 — the fields moved into the profile edit flow (2026-10-25).** The
+matching fields had been a separate "Programme matching" card on `/profile`.
+That was wrong twice over: it duplicated the profile editor and left the real
+edit flow with its old 5 steps. They are now steps 2–7 of `/wizard` (step 1 is
+the personal details), the flow is numbered 1 → 7 end to end, each step saves
+with the same button, and `/profile` is a read-only summary whose every line
+links into the exact step. Every "update my details" link now opens the wizard
+at step 2 instead of an anchor on a card.
 
 **Round 7 — education, anabin and the admin's 13 fields (2026-10-25).** The
 profile was rebuilt around education *records*: Matric/HSSC/Bachelor/Master

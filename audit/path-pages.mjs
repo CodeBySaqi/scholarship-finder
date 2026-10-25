@@ -57,13 +57,20 @@ const setVal = (el, v) => {
   el.dispatchEvent(new win.Event('input', { bubbles: true }));
 };
 const byLabel = (label) => {
-  const f = sel('#match-fields .field').find(x => new RegExp(label, 'i').test((x.textContent || '').split(/Help|This is|Half a year/)[0]));
+  const f = sel('.field').find(x => new RegExp(label, 'i').test((x.textContent || '').split(/Help|This is|Half a year/)[0]));
   return f ? f.querySelector('input') : null;
 };
 const chipIn = (scope, label) => {
   const root = typeof scope === 'string' ? document.querySelector(scope) : scope;
   return root ? [...root.querySelectorAll('.chip')].find(c => c.textContent.trim() === label) : null;
 };
+
+/* the wizard saves per step, exactly like a student: one button, both profiles */
+async function saveStep() {
+  const b = byText('button', 'Save and continue') || byText('button', 'Save and finish');
+  if (b) { b.click(); await wait(1700); }
+  return !!b;
+}
 
 async function login(email) {
   const r = await realFetch(API + '/api/auth/login', {
@@ -89,6 +96,19 @@ await realFetch(API + '/api/path/profile', {
   } })
 });
 
+/* ------------------------------- the fields are STEPS of the profile edit */
+mount('/profile');
+await wait(1800);
+ok('the profile page carries a summary of the matching details', !!document.querySelector('#match-fields'));
+ok('it is a summary, not a form — no text inputs to type matching data into',
+  sel('#match-fields input[type="number"], #match-fields input[type="date"], #match-fields select').length === 0,
+  String(sel('#match-fields input, #match-fields select').length) + ' inputs');
+ok('every summary line links into the profile edit flow',
+  sel('#match-fields a').filter(a => /wizard/.test(a.getAttribute('href') || '')).length >= 4,
+  sel('#match-fields a').map(a => (a.getAttribute('href') || '') + ':' + a.textContent.trim()).join(', ').slice(0, 200));
+ok('nothing on the profile page is called "Programme matching" as a separate card',
+  !/Programme matching/i.test(text()));
+
 /* ------------------------------------------------ there is no separate page */
 mount('/path');
 await wait(1200);
@@ -97,43 +117,47 @@ ok('no separate "find my path" page exists', !/Find my path/i.test(text()),
 ok('the sidebar has no "Find my path" entry', !sel('.side__link').some(a => /Find my path/i.test(a.textContent)),
   sel('.side__link').map(a => a.textContent.trim()).join(' · ').slice(0, 110));
 
-/* --------------------------------------------- the fields live in /profile */
-mount('/profile');
-await wait(1600);
-const card = document.querySelector('#match-fields');
-ok('the profile page carries the matching fields', !!card);
-ok('it explains what these details decide', /Eligible|verdict/i.test(card.textContent));
+/* ------------------------------------------- profile edit, numbered 1 to 7 */
+mount('/wizard?step=1');
+await wait(1800);
+ok('the profile edit flow starts at step 1, not in the middle', /Step 1 of 7/.test(text()),
+  (text().match(/Step \d+ of \d+/) || [''])[0]);
+ok('step 1 is the personal details', /About you/i.test((document.querySelector('.h1') || {}).textContent || ''),
+  (document.querySelector('.h1') || {}).textContent);
 
-/* --- numbered 1..6, in order --- */
-const stepButtons = [...card.querySelectorAll('.path-step')];
-ok('the form is six steps', stepButtons.length === 6, stepButtons.length + ' steps');
-ok('the steps are numbered 1 to 6 in order', stepButtons.every((b, i) =>
-  b.querySelector('.path-step__n').textContent.trim() === String(i + 1)),
-  stepButtons.map(b => b.querySelector('.path-step__n').textContent.trim() + '·' + b.querySelector('.path-step__t').textContent).join(' | '));
-ok('step 1 is what you are applying for, step 2 languages, step 3 education',
-  /applying/i.test(stepButtons[0].textContent) && /language/i.test(stepButtons[1].textContent) && /education/i.test(stepButtons[2].textContent),
-  stepButtons.slice(0, 3).map(b => b.textContent.replace(/\s+/g, ' ').trim()).join(' | '));
+const stepChips = sel('.chip--sm');
+ok('the flow lists all seven steps', stepChips.length === 7, stepChips.map(c => c.textContent.trim()).join(' | '));
+ok('the steps are numbered 1 to 7 in order', stepChips.every((c, i) => c.textContent.trim().startsWith((i + 1) + '.')),
+  stepChips.map(c => c.textContent.trim()).join(' | '));
+ok('matching steps are 2 target, 3 languages, 4 education, 5 ECTS, 6 tests, 7 money',
+  /applying/i.test(stepChips[1].textContent) && /languages/i.test(stepChips[2].textContent) &&
+  /education/i.test(stepChips[3].textContent) && /ects/i.test(stepChips[4].textContent) &&
+  /test/i.test(stepChips[5].textContent) && /money/i.test(stepChips[6].textContent),
+  stepChips.map(c => c.textContent.trim()).join(' | '));
 
-const inputs = sel('#match-fields input, #match-fields select, #match-fields textarea');
-const bad = inputs.filter(i => /passport|iban|cnic|national id|account number/i.test(
+const bad = sel('input, select, textarea').filter(i => /passport|iban|cnic|national id|account number/i.test(
   [i.id, i.name, i.placeholder, i.getAttribute('aria-label'), (i.closest('.field') || {}).textContent || ''].join(' ')));
 ok('nothing asks for a passport, CNIC, IBAN or account number', bad.length === 0, bad.map(i => i.id).join(', '));
 
-/* -------------------------------------------------- step 1: the target */
+/* -------------------------------------------------- step 2: the target */
+mount('/wizard?step=2');
+await wait(1600);
+const card = document.body;
 chipIn(card, 'Master').click();
 await wait(120);
 chipIn(card, 'English only').click();
 await wait(120);
 chipIn(card, 'Winter 2029').click();
 await wait(150);
-setVal(card.querySelector('input[list="country-list"]'), 'PK');
+setVal(document.querySelector('input[list="country-list"]'), 'PK');
 await wait(150);
-ok('step 1 shows which degrees you can apply for', /you can apply|not yet/i.test(card.textContent),
-  (card.textContent.match(/(Bachelor|Master|PhD): (you can apply|not yet)/g) || []).join(' · '));
+ok('step 2 shows which degrees you can apply for', /you can apply|not yet/i.test(text()),
+  (text().match(/(Bachelor|Master|PhD): (you can apply|not yet)/g) || []).join(' · '));
+ok('step 2 saves with the flow\'s own button', await saveStep());
 
-/* ------------------------------------------------ step 2: the languages */
-[...card.querySelectorAll('.path-step')][1].click();
-await wait(300);
+/* ------------------------------------------------ step 3: the languages */
+mount('/wizard?step=3');
+await wait(1600);
 ok('languages: IELTS, TOEFL and PTE are all asked for',
   !!byLabel('IELTS') && !!byLabel('TOEFL') && !!byLabel('PTE'),
   ['IELTS', 'TOEFL', 'PTE'].map(l => (byLabel(l) ? 'yes' : 'no')).join(','));
@@ -143,62 +167,63 @@ setVal(byLabel('TOEFL'), '110');
 await wait(100);
 setVal(byLabel('PTE'), '70');
 await wait(100);
-const moi = sel('#match-fields .field').find(f => /taught in English/i.test(f.textContent));
+const moi = sel('.field').find(f => /taught in English/i.test(f.textContent));
 if (moi) { const b = [...moi.querySelectorAll('.chip')].find(c => c.textContent.trim() === 'Yes'); if (b) b.click(); }
 await wait(150);
-ok('German level is asked for', /German level/i.test(card.textContent));
+ok('German level is asked for', /German level/i.test(text()));
+ok('step 3 saves', await saveStep(), 'languages stored');
 
-/* ------------------------------------------------ step 3: the education */
-[...card.querySelectorAll('.path-step')][2].click();
-await wait(300);
+/* ------------------------------------------------ step 4: the education */
+mount('/wizard?step=4');
+await wait(1600);
 ok('education: the add buttons cover matric, HSSC, bachelor and master',
   ['+ Matric (10th)', '+ Intermediate / HSSC (12th)', '+ Bachelor', '+ Master']
-    .every(t => [...card.querySelectorAll('button')].some(b => b.textContent.trim() === t)),
-  [...card.querySelectorAll('.path-fields .btn')].map(b => b.textContent.trim()).slice(0, 6).join(' | '));
-ok('education: it says years of education are what decide the level', /years/i.test(card.textContent) && /13 years|16 years/i.test(card.textContent),
-  (card.textContent.match(/\d+(\.\d)? years/g) || []).join(', '));
+    .every(t => [...document.querySelectorAll('button')].some(b => b.textContent.trim() === t)),
+  [...document.querySelectorAll('.path-fields .btn')].map(b => b.textContent.trim()).slice(0, 6).join(' | '));
+ok('education: it says years of education are what decide the level', /years/i.test(text()) && /13 years|16 years/i.test(text()),
+  (text().match(/\d+(\.\d)? years/g) || []).join(', '));
 
 /* HSSC first — 12 years, so a bachelor is still out of reach */
-[...card.querySelectorAll('button')].find(b => b.textContent.trim() === '+ Intermediate / HSSC (12th)').click();
+[...document.querySelectorAll('button')].find(b => b.textContent.trim() === '+ Intermediate / HSSC (12th)').click();
 await wait(300);
-const hsscBlock = sel('#match-fields .path-edu').slice(-1)[0];
+const hsscBlock = sel('.path-edu').slice(-1)[0];
 setVal(hsscBlock.querySelector('input'), 'Government College, Faisalabad');
 await wait(100);
 setVal(hsscBlock.querySelector('input[type="number"]'), '88');
 await wait(200);
-ok('12 years of education is shown as 12 years', /12 years/.test(card.textContent),
-  (card.textContent.match(/\d+(\.\d)? years/g) || []).slice(0, 4).join(', '));
-ok('with only an HSSC a bachelor is not yet open', /Bachelor: not yet/.test(card.textContent),
-  (card.textContent.match(/Bachelor: [a-z ]+/g) || [''])[0]);
+ok('12 years of education is shown as 12 years', /12 years/.test(text()),
+  (text().match(/\d+(\.\d)? years/g) || []).slice(0, 4).join(', '));
+ok('with only an HSSC a bachelor is not yet open', /Bachelor: not yet/.test(text()),
+  (text().match(/Bachelor: [a-z ]+/g) || [''])[0]);
 
 /* now a bachelor, two semesters — 200-level */
-[...card.querySelectorAll('button')].find(b => b.textContent.trim() === '+ Bachelor').click();
+[...document.querySelectorAll('button')].find(b => b.textContent.trim() === '+ Bachelor').click();
 await wait(300);
-const bBlock = sel('#match-fields .path-edu').slice(-1)[0];
+const bBlock = sel('.path-edu').slice(-1)[0];
 const uniInput = bBlock.querySelector('input');
 setVal(uniInput, 'NUST');
 await wait(700);
-const opts = sel('#match-fields .path-anabin-opt');
+const opts = sel('.path-anabin-opt');
 ok('typing a university searches the anabin list', opts.length > 0,
   opts.slice(0, 2).map(o => o.textContent.replace(/\s+/g, ' ').trim()).join(' || '));
 ok('each anabin result carries its status', opts.some(o => /H\+|H-\/|H-\+/.test(o.textContent)),
   (opts[0] ? opts[0].textContent.replace(/\s+/g, ' ') : ''));
 opts[0].click();
 await wait(400);
-ok('choosing an institution stores its anabin status', /anabin H\+/.test(card.textContent),
-  (card.textContent.match(/anabin H[+\-/]*/g) || [''])[0]);
-ok('the ZAB question is answered from the status', /no ZAB statement needed|ZAB statement/i.test(card.textContent),
-  (card.textContent.match(/[^.]*ZAB[^.]*\./) || [''])[0].slice(0, 110));
-ok('a live anabin check button exists', [...card.querySelectorAll('button')].some(b => /Check live/i.test(b.textContent)));
+ok('choosing an institution stores its anabin status', /anabin H\+/.test(text()),
+  (text().match(/anabin H[+\-/]*/g) || [''])[0]);
+ok('the ZAB question is answered from the status', /no ZAB statement needed|ZAB statement/i.test(text()),
+  (text().match(/[^.]*ZAB[^.]*\./) || [''])[0].slice(0, 110));
+ok('a live anabin check button exists', [...document.querySelectorAll('button')].some(b => /Check live/i.test(b.textContent)));
 
 setVal(byLabel('Semesters completed'), '2');
 await wait(300);
-ok('two semesters of a bachelor is 13 years', /13 years/.test(card.textContent),
-  (card.textContent.match(/\d+(\.\d)? years/g) || []).slice(0, 4).join(', '));
-ok('13 years opens the bachelor', /Bachelor: you can apply/.test(card.textContent),
-  (card.textContent.match(/Bachelor: [a-z ]+/g) || [''])[0]);
-ok('13 years still does not open a master', /Master: not yet/.test(card.textContent),
-  (card.textContent.match(/Master: [a-z ]+/g) || [''])[0]);
+ok('two semesters of a bachelor is 13 years', /13 years/.test(text()),
+  (text().match(/\d+(\.\d)? years/g) || []).slice(0, 4).join(', '));
+ok('13 years opens the bachelor', /Bachelor: you can apply/.test(text()),
+  (text().match(/Bachelor: [a-z ]+/g) || [''])[0]);
+ok('13 years still does not open a master', /Master: not yet/.test(text()),
+  (text().match(/Master: [a-z ]+/g) || [''])[0]);
 
 /* finish the bachelor: 4 years, CGPA, field */
 setVal(byLabel('Semesters completed'), '8');
@@ -211,44 +236,48 @@ setVal(byLabel('Lowest passing grade'), '2');
 await wait(150);
 setVal(byLabel('Field of study'), 'computer_science');
 await wait(200);
-const doneYes = [...sel('#match-fields .path-edu').slice(-1)[0].querySelectorAll('.chip')].find(c => c.textContent.trim() === 'Yes');
+const doneYes = [...sel('.path-edu').slice(-1)[0].querySelectorAll('.chip')].find(c => c.textContent.trim() === 'Yes');
 if (doneYes) doneYes.click();
 await wait(250);
-ok('a completed four-year bachelor is 16 years', /16 years/.test(card.textContent),
-  (card.textContent.match(/\d+(\.\d)? years/g) || []).slice(0, 4).join(', '));
-ok('16 years opens the master', /Master: you can apply/.test(card.textContent),
-  (card.textContent.match(/Master: [a-z ]+/g) || [''])[0]);
-ok('the German-grade conversion is shown with its working', /Modified Bavarian Formula/.test(card.textContent) && /1 \+ 3 ×/.test(card.textContent),
-  (card.textContent.match(/1 \+ 3 ×[^)]*\)[^.]*/) || [''])[0].slice(0, 50));
+ok('a completed four-year bachelor is 16 years', /16 years/.test(text()),
+  (text().match(/\d+(\.\d)? years/g) || []).slice(0, 4).join(', '));
+ok('16 years opens the master', /Master: you can apply/.test(text()),
+  (text().match(/Master: [a-z ]+/g) || [''])[0]);
+ok('the German-grade conversion is shown with its working', /Modified Bavarian Formula/.test(text()) && /1 \+ 3 ×/.test(text()),
+  (text().match(/1 \+ 3 ×[^)]*\)[^.]*/) || [''])[0].slice(0, 50));
+ok('step 4 saves the records', await saveStep(), 'education stored');
 
-/* ------------------------------------------------------ step 4: the ECTS */
-[...card.querySelectorAll('.path-step')][3].click();
-await wait(300);
-ok('ECTS is asked of a master applicant', !!byLabel('Total ECTS'), (card.textContent.match(/Total ECTS[^.]{0,40}/) || [''])[0]);
+/* ------------------------------------------------------ step 5: the ECTS */
+mount('/wizard?step=5');
+await wait(1700);
+ok('ECTS is asked of a master applicant', !!byLabel('Total ECTS'), (text().match(/Total ECTS[^.]{0,40}/) || [''])[0]);
 setVal(byLabel('Total ECTS'), '180');
 await wait(100);
 setVal(byLabel('ECTS in computer science'), '90');
 await wait(100);
 setVal(byLabel('ECTS in mathematics'), '30');
 await wait(150);
-[...card.querySelectorAll('.path-step')][0].click();
-await wait(200);
+ok('step 5 saves the ECTS', await saveStep(), 'ects stored');
+mount('/wizard?step=2');
+await wait(1700);
 chipIn(card, 'Bachelor').click();
-await wait(300);
-[...card.querySelectorAll('.path-step')][3].click();
-await wait(300);
-ok('ECTS is skipped for a bachelor applicant', /not asked for a bachelor/i.test(card.textContent),
-  (card.textContent.match(/ECTS[^.]{0,80}\./) || [''])[0]);
-[...card.querySelectorAll('.path-step')][0].click();
-await wait(200);
+await wait(400);
+await saveStep();
+mount('/wizard?step=5');
+await wait(1700);
+ok('ECTS is skipped for a bachelor applicant', /not asked for a bachelor/i.test(text()),
+  (text().match(/ECTS[^.]{0,80}\./) || [''])[0]);
+mount('/wizard?step=2');
+await wait(1700);
 chipIn(card, 'Master').click();
-await wait(250);
+await wait(400);
+await saveStep();
 
-/* ----------------------------------------------------- step 5: the tests */
-[...card.querySelectorAll('.path-step')][4].click();
-await wait(300);
+/* ----------------------------------------------------- step 6: the tests */
+mount('/wizard?step=6');
+await wait(1600);
 ok('tests: GRE sections are separate and never a total',
-  !!byLabel('Quantitative') && !!byLabel('Verbal') && !!byLabel('Analytical writing') && !/GRE total/i.test(card.textContent));
+  !!byLabel('Quantitative') && !!byLabel('Verbal') && !!byLabel('Analytical writing') && !/GRE total/i.test(text()));
 ok('tests: GMAT, SAT, ACT, TestAS and GATE are all offered',
   ['GMAT total', 'SAT total', 'ACT composite', 'TestAS score', 'GATE score'].every(l => !!byLabel(l)),
   ['GMAT total', 'SAT total', 'ACT composite', 'TestAS score', 'GATE score'].map(l => (byLabel(l) ? 'y' : 'n')).join(''));
@@ -258,22 +287,22 @@ setVal(byLabel('Verbal'), '155');
 await wait(100);
 setVal(byLabel('Analytical writing'), '4.5');
 await wait(150);
+ok('step 6 saves', await saveStep());
 
-/* ----------------------------------------------------- step 6: the money */
-[...card.querySelectorAll('.path-step')][5].click();
-await wait(300);
+/* ----------------------------------------------------- step 7: the money */
+mount('/wizard?step=7');
+await wait(1600);
 setVal(byLabel('Max tuition per semester'), '0');
 await wait(100);
 setVal(byLabel('Max semester contribution'), '400');
 await wait(100);
-[...card.querySelectorAll('.path-fields .chip')].find(c => /I can self-fund/i.test(c.textContent))?.click();
+[...document.querySelectorAll('.path-fields .chip')].find(c => /I can self-fund/i.test(c.textContent))?.click();
 await wait(200);
 
 /* ---------------------------------------------------------------- saving */
-const saveBtn = byText('button', 'Save matching details');
-ok('there is one save button for the matching fields', !!saveBtn);
-saveBtn.click();
-await wait(1800);
+const saveBtn = byText('button', 'Save and finish');
+ok('the last step saves with one button', !!saveBtn, saveBtn && saveBtn.textContent.trim());
+if (saveBtn) { saveBtn.click(); await wait(1900); }
 
 const stored = await (await realFetch(API + '/api/path/profile', { headers: { cookie } })).json();
 const entries = (stored.profile.education || {}).entries || [];

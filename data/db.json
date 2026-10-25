@@ -1,6 +1,6 @@
 {
  "meta": {
-  "seededAt": "2026-10-25T07:42:13.166Z",
+  "seededAt": "2026-10-25T09:22:13.712Z",
   "today": "2026-10-22",
   "password": "demo1234",
   "version": 1
@@ -13,8 +13,8 @@
    "role": "student",
    "isActive": true,
    "emailVerified": true,
-   "passwordHash": "7ca54ffc8a0a80220826255f5ccce7c6:a36e40e9979bff850856580e65a96ba65b46b5feec72f658eed3f0b6340fa9c8",
-   "createdAt": "2026-10-25T07:42:13.166Z",
+   "passwordHash": "1f24648eee42d3af106ce99af7ece312:46701daa5387f56cc497cc50a6e4edf44f69e25f6a14a3500b2a5ed0f48e0cf9",
+   "createdAt": "2026-10-25T09:22:13.712Z",
    "lastLogin": null
   },
   {
@@ -24,8 +24,8 @@
    "role": "student",
    "isActive": true,
    "emailVerified": true,
-   "passwordHash": "7ca54ffc8a0a80220826255f5ccce7c6:a36e40e9979bff850856580e65a96ba65b46b5feec72f658eed3f0b6340fa9c8",
-   "createdAt": "2026-10-25T07:42:13.166Z",
+   "passwordHash": "1f24648eee42d3af106ce99af7ece312:46701daa5387f56cc497cc50a6e4edf44f69e25f6a14a3500b2a5ed0f48e0cf9",
+   "createdAt": "2026-10-25T09:22:13.712Z",
    "lastLogin": null
   },
   {
@@ -35,8 +35,8 @@
    "role": "student",
    "isActive": true,
    "emailVerified": true,
-   "passwordHash": "7ca54ffc8a0a80220826255f5ccce7c6:a36e40e9979bff850856580e65a96ba65b46b5feec72f658eed3f0b6340fa9c8",
-   "createdAt": "2026-10-25T07:42:13.166Z",
+   "passwordHash": "1f24648eee42d3af106ce99af7ece312:46701daa5387f56cc497cc50a6e4edf44f69e25f6a14a3500b2a5ed0f48e0cf9",
+   "createdAt": "2026-10-25T09:22:13.712Z",
    "lastLogin": null
   },
   {
@@ -46,8 +46,8 @@
    "role": "contributor",
    "isActive": true,
    "emailVerified": true,
-   "passwordHash": "7ca54ffc8a0a80220826255f5ccce7c6:a36e40e9979bff850856580e65a96ba65b46b5feec72f658eed3f0b6340fa9c8",
-   "createdAt": "2026-10-25T07:42:13.166Z",
+   "passwordHash": "1f24648eee42d3af106ce99af7ece312:46701daa5387f56cc497cc50a6e4edf44f69e25f6a14a3500b2a5ed0f48e0cf9",
+   "createdAt": "2026-10-25T09:22:13.712Z",
    "lastLogin": null
   },
   {
@@ -57,8 +57,8 @@
    "role": "admin",
    "isActive": true,
    "emailVerified": true,
-   "passwordHash": "7ca54ffc8a0a80220826255f5ccce7c6:a36e40e9979bff850856580e65a96ba65b46b5feec72f658eed3f0b6340fa9c8",
-   "createdAt": "2026-10-25T07:42:13.166Z",
+   "passwordHash": "1f24648eee42d3af106ce99af7ece312:46701daa5387f56cc497cc50a6e4edf44f69e25f6a14a3500b2a5ed0f48e0cf9",
+   "createdAt": "2026-10-25T09:22:13.712Z",
    "lastLogin": null
   }
  ],
@@ -332,7 +332,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 1,
    "evidence": {},
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "S2",
@@ -381,7 +381,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "S3",
@@ -427,7 +427,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "S4",
@@ -473,7 +473,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "S5",
@@ -515,7 +515,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "S6",
@@ -556,7 +556,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "S7",
@@ -605,7 +605,7 @@
     "title": "MSc Environmental Governance at the University of Freiburg is a two-year, English-taught programme of 120 ECTS credits.",
     "deadline": "The application deadline for the October 2027 intake is 15 October 2026."
    },
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "S8",
@@ -648,7 +648,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 1,
    "evidence": {},
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "S9",
@@ -692,7 +692,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "P1",
@@ -792,9 +792,9 @@
     "sourceUrl": "https://www.tum.de/en/studies/degree-programs/detail/informatics-master-of-science-msc",
     "note": "TUM CIT application page + TUM tuition-fee page (non-EU €6,000/semester from WS2024/25) + TUM GRE requirement for M.Sc. Informatics",
     "seededFrom": "data/path-programmes.json",
-    "updatedAt": "2026-10-25T07:42:13.166Z"
+    "updatedAt": "2026-10-25T09:22:13.712Z"
    },
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "P2",
@@ -857,7 +857,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "P3",
@@ -953,9 +953,9 @@
     "sourceUrl": "https://www.rwth-aachen.de/go/id/bjhz/",
     "note": "RWTH Computer Science M.Sc. admission requirements (IELTS 6.0, ECTS in CS/maths, non-EU deadline 1 March)",
     "seededFrom": "data/path-programmes.json",
-    "updatedAt": "2026-10-25T07:42:13.166Z"
+    "updatedAt": "2026-10-25T09:22:13.712Z"
    },
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "P4",
@@ -1015,7 +1015,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "P5",
@@ -1072,7 +1072,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "P6",
@@ -1130,7 +1130,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "P7",
@@ -1190,7 +1190,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "P8",
@@ -1249,7 +1249,7 @@
     "title": "Bachelor programme Physics at LMU Munich.",
     "deadline": "The application deadline for the winter semester is 15 July 2027 and for the summer semester 15 January 2027."
    },
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   }
  ],
  "universities": [
@@ -1263,7 +1263,7 @@
    "websiteUrl": "https://www.tum.de",
    "uniAssistMember": true,
    "notes": "Every applicant with a non-German Bachelor needs a uni-assist preliminary documentation (VPD).",
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "u2",
@@ -1275,7 +1275,7 @@
    "websiteUrl": "https://www.rwth-aachen.de",
    "uniAssistMember": false,
    "notes": "Master applications for Computer Science and Software Systems Engineering go directly through RWTHonline.",
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "u3",
@@ -1287,7 +1287,7 @@
    "websiteUrl": "https://www.lmu.de",
    "uniAssistMember": true,
    "notes": "International Office deadlines: 15 January for the summer semester, 15 July for the winter semester.",
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "u4",
@@ -1299,7 +1299,7 @@
    "websiteUrl": "https://www.ruhr-uni-bochum.de",
    "uniAssistMember": true,
    "notes": "Master Computer Science: 15 December is the final deadline for applicants whose Bachelor was obtained outside the EU.",
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "u5",
@@ -1311,7 +1311,7 @@
    "websiteUrl": "https://www.tu.berlin",
    "uniAssistMember": true,
    "notes": "Applicants with foreign academic credentials also submit a uni-assist VPD.",
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "u6",
@@ -1323,7 +1323,7 @@
    "websiteUrl": "https://www.hu-berlin.de",
    "uniAssistMember": true,
    "notes": "Deutschlandstipendium: application 9 November to 6 December 2026, funding from 1 April 2027.",
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "u7",
@@ -1335,7 +1335,7 @@
    "websiteUrl": "https://tu-dresden.de",
    "uniAssistMember": true,
    "notes": "Deutschlandstipendium: next application window 1 to 15 July 2027.",
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "u8",
@@ -1347,7 +1347,7 @@
    "websiteUrl": "https://www.fau.eu",
    "uniAssistMember": true,
    "notes": "Deutschlandstipendium 2026 ran from 15 June to 15 July 2026.",
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   },
   {
    "id": "u9",
@@ -1359,7 +1359,7 @@
    "websiteUrl": "https://uni-freiburg.de",
    "uniAssistMember": true,
    "notes": "Hosts the DAAD EPOS course MSc Environmental Governance.",
-   "updatedAt": "2026-10-25T07:42:13.166Z"
+   "updatedAt": "2026-10-25T09:22:13.712Z"
   }
  ],
  "saved": [

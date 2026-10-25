@@ -6,7 +6,7 @@ import { Sheet } from '../components/Sheet.jsx';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { fmtDate, Disclaimer } from '../lib.jsx';
-import { MatchFieldsCard } from '../components/PathFields.jsx';
+import { MatchSummary } from '../components/PathFields.jsx';
 
 const L = {
   gender: { female: 'Female', male: 'Male', other: 'Other', prefer_not_to_say: 'Prefer not to say' },
@@ -46,6 +46,8 @@ export default function Profile() {
   const [del, setDel] = useState(false);
   const [confirm, setConfirm] = useState('');
   const { data, loading, error, reload } = useAsync(() => api.get('/profile'), []);
+  const matching = useAsync(() => api.get('/path/profile'), []);
+  const verdicts = useAsync(() => api.get('/path/verdicts?kind=program'), []);
   const p = data ? data.profile : null;
   const targets = (data && data.targets) || [];
 
@@ -75,7 +77,7 @@ export default function Profile() {
           </div>
           <div className="row" style={{ gap: 8 }}>
             <Btn variant="outlined" size="sm" to="/settings">Settings</Btn>
-            <Btn variant="filled" size="sm" to="/wizard">Edit profile</Btn>
+            <Btn variant="filled" size="sm" to="/wizard?step=1">Edit profile</Btn>
           </div>
         </div>
         <div style={{ marginTop: 6 }}><CompletenessBar pct={p.completenessPct} /></div>
@@ -87,7 +89,9 @@ export default function Profile() {
 
       <div className="dash-grid">
         <div className="dash-main">
-          <MatchFieldsCard />
+          <MatchSummary profile={matching.data && matching.data.profile}
+            completeness={matching.data && matching.data.completeness}
+            counts={verdicts.data && verdicts.data.counts} />
           <section className="card">
             <div className="row sp"><h2 className="h2">Personal</h2><Link className="link-quiet" to="/wizard?step=1">Edit</Link></div>
             <table className="kv"><tbody>

@@ -1,37 +1,41 @@
 # ScholarPath — test report
 
-Two suites. Every line below is a check that ran, on this commit, against the
-running app.
-
 - **Engine** — `node audit/path-tests.mjs` (pure functions, fixtures) — **73/73**
-- **UI** — `bash audit/run-dom.sh path` (real React app, real API, happy-dom) — **50/50**
+- **UI** — `bash audit/run-dom.sh path` (real React app, real API, happy-dom) — **59/59**
 
-## Where the feature lives
+## Where the fields live
 
-The fields are on `/profile`, entered in six numbered steps, and the verdict
-appears on the programmes themselves. There is no separate "find my path" page —
-the suite asserts that, so it cannot creep back.
+They are **steps of the profile edit flow**: `/wizard`, numbered 1 → 7, opened by
+Profile → Edit profile. `/profile` is a read-only summary whose every line links
+into the exact step. There is no separate "find my path" page and no separate
+matching card — the suite asserts both.
+
+| Step | What it asks | Saved to |
+|---|---|---|
+| 1 | About you — name, date of birth, city, IBCC/HEC | the profile the rest of the app reads |
+| 2 | What you are applying for — degree, language, intake, nationality | matching profile |
+| 3 | Languages — IELTS, TOEFL iBT, PTE Academic, MOI, German level + certificate | matching profile |
+| 4 | Education — records via **+**, semesters, CGPA, anabin status, ZAB, years | matching profile |
+| 5 | ECTS — total + subject breakdown (master/PhD only) | matching profile |
+| 6 | Test requirements — GRE sections separately, GMAT, GATE, TestAS, SAT, ACT | matching profile |
+| 7 | Money — budget, funding need, blocked account — plus the documents checklist | both |
 
 ## The eight required cases
 
 | # | Case | Result |
 |---|---|---|
-| 1 | 180 ECTS + no GRE student: a 210-ECTS programme is Not eligible (gap named); a GRE-gated programme is Not eligible | ✅ pass (4 assertions) |
-| 2 | MOI yes, no IELTS: an MOI-rejecting programme must NOT become eligible | ✅ pass (3 assertions) |
-| 3 | HSSC only: a Bachelor requiring Abitur equivalence is never silently Eligible | ✅ pass (2 assertions) |
-| 4 | Programme with IELTS, GPA, ECTS all unstated = Check manually with the missing fields listed | ✅ pass (3 assertions) |
-| 5 | Budget €0: a Baden-Württemberg €1,500/semester programme is not free and not Eligible | ✅ pass (3 assertions) |
-| 6 | Full-funding need: a tuition-only scholarship does not show as fully covering | ✅ pass (5 assertions) |
-| 7 | German GPA: 1.9 vs threshold 2.5 must PASS (lower is better) | ✅ pass (5 assertions) |
-| 8 | Step-1-only profile still returns rough matches and shows which checks are pending | ✅ pass (5 assertions) |
+| 1 | 180 ECTS + no GRE: a 210-ECTS programme is Not eligible (gap named); a GRE gate with no GRE is Not eligible | ✅ pass |
+| 2 | MOI yes, no IELTS: an MOI-rejecting programme must NOT become eligible | ✅ pass |
+| 3 | HSSC only: a Bachelor requiring Abitur equivalence is never silently Eligible | ✅ pass |
+| 4 | Programme with IELTS, GPA, ECTS unstated = Check manually with the fields listed | ✅ pass |
+| 5 | Budget €0 vs Baden-Württemberg €1,500/semester — not free, not Eligible | ✅ pass |
+| 6 | Full-funding need vs a tuition-only scholarship | ✅ pass |
+| 7 | German GPA direction — 1.9 passes 2.5, 3.1 fails | ✅ pass |
+| 8 | A Step-1-only profile still returns results, never Eligible, pending named | ✅ pass |
 
-## Cases added for the education / anabin rules
-
-| # | Rule | Result |
-|---|---|---|
-| 9 | Years of education: 12 → no bachelor, 13 (2 semesters) → bachelor, 15 (3-year degree) → no master, 16 → master, master holder → both, A-Levels at 12 → bachelor, ECTS never asked of a bachelor applicant | ✅ pass (17 assertions) |
-| 10 | anabin: H+ needs no ZAB, H+/- is conditional, H- requires a Zeugnisbewertung, no record is unknown — never H+ | ✅ pass (7 assertions) |
-| 11 | PTE, GMAT, and the admin-filled requirement row: a complete admin row makes a listing Eligible, a missing row is Check manually | ✅ pass (8 assertions) |
+Plus case 9 (years of education: 12/13/15/16, A-Levels, ECTS skipped for a
+bachelor target), case 10 (anabin H+/H+/-/H- and the ZAB) and case 11 (PTE, GMAT,
+and the admin-filled requirement row).
 
 ## Engine suite — 73/73
 ```
@@ -123,39 +127,48 @@ the suite asserts that, so it cannot creep back.
 73/73 engine checks passed
 ```
 
-## UI suite — 50/50
+## UI suite — 59/59
 ```
+✅ the profile page carries a summary of the matching details
+✅ it is a summary, not a form — no text inputs to type matching data into — 0 inputs
+✅ every summary line links into the profile edit flow — /programs:See the programmes, /wizard?step=2:Add, /wizard?step=2:Edit, /wizard?step=3:Add, /wizard?step=3:Add, /wizard?step=5:Add, /wizard?step=6:Add, /wizard?step=7:Add, /wizard?step=4:Add, /wizard?s
+✅ nothing on the profile page is called "Programme matching" as a separate card
 ✅ no separate "find my path" page exists — route /path: no page
 ✅ the sidebar has no "Find my path" entry
-✅ the profile page carries the matching fields
-✅ it explains what these details decide
-✅ the form is six steps — 6 steps
-✅ the steps are numbered 1 to 6 in order — 1·What you are applying for | 2·Languages | 3·Education | 4·ECTS | 5·Test requirements | 6·Money
-✅ step 1 is what you are applying for, step 2 languages, step 3 education — 1What you are applying for22% | 2Languages0% | 3Education0%
+✅ the profile edit flow starts at step 1, not in the middle — Step 1 of 714
+✅ step 1 is the personal details — About you
+✅ the flow lists all seven steps — 1. About you | 2. What you are applying for | 3. Languages | 4. Education | 5. ECTS | 6. Test requirements | 7. Money and documents
+✅ the steps are numbered 1 to 7 in order — 1. About you | 2. What you are applying for | 3. Languages | 4. Education | 5. ECTS | 6. Test requirements | 7. Money and documents
+✅ matching steps are 2 target, 3 languages, 4 education, 5 ECTS, 6 tests, 7 money — 1. About you | 2. What you are applying for | 3. Languages | 4. Education | 5. ECTS | 6. Test requirements | 7. Money and documents
 ✅ nothing asks for a passport, CNIC, IBAN or account number
-✅ step 1 shows which degrees you can apply for — Bachelor: not yet · Master: not yet · PhD: not yet
+✅ step 2 shows which degrees you can apply for — Bachelor: not yet · Master: not yet · PhD: not yet
+✅ step 2 saves with the flow's own button
 ✅ languages: IELTS, TOEFL and PTE are all asked for — yes,yes,yes
 ✅ German level is asked for
+✅ step 3 saves — languages stored
 ✅ education: the add buttons cover matric, HSSC, bachelor and master — + Matric (10th) | + Intermediate / HSSC (12th) | + Bachelor | + Master
-✅ education: it says years of education are what decide the level — 0 years, 13 years, 16 years
-✅ 12 years of education is shown as 12 years — 12 years, 12 years, 12 years
+✅ education: it says years of education are what decide the level — 0 years, 0 years, 13 years, 16 years
+✅ 12 years of education is shown as 12 years — 12 years, 12 years, 12 years, 12 years
 ✅ with only an HSSC a bachelor is not yet open — Bachelor: not yet
 ✅ typing a university searches the anabin list — National University of Sciences & TechnologyH+Islamabad
 ✅ each anabin result carries its status — National University of Sciences & TechnologyH+Islamabad
 ✅ choosing an institution stores its anabin status — anabin H+
 ✅ the ZAB question is answered from the status — anabin H+ — Your institution is H+ in anabin — recognised, no ZAB statement neededCheck liveStored status from
 ✅ a live anabin check button exists
-✅ two semesters of a bachelor is 13 years — 13 years, 12 years, 12 years, 13 years
+✅ two semesters of a bachelor is 13 years — 13 years, 13 years, 12 years, 12 years
 ✅ 13 years opens the bachelor — Bachelor: you can apply
 ✅ 13 years still does not open a master — Master: not yet
-✅ a completed four-year bachelor is 16 years — 16 years, 12 years, 12 years, 16 years
+✅ a completed four-year bachelor is 16 years — 16 years, 16 years, 12 years, 12 years
 ✅ 16 years opens the master — Master: you can apply
 ✅ the German-grade conversion is shown with its working — 1 + 3 × (4 − 3.4) / (4 − 2) = 1
+✅ step 4 saves the records — education stored
 ✅ ECTS is asked of a master applicant — Total ECTS of your completed degreeA four-year Pak
-✅ ECTS is skipped for a bachelor applicant — ECTS are not asked for a bachelor application — a school certificate has no ECTS.
+✅ step 5 saves the ECTS — ects stored
+✅ ECTS is skipped for a bachelor applicant — ECTSOnly for a master or PhD target — a school certificate has no ECTS.
 ✅ tests: GRE sections are separate and never a total
 ✅ tests: GMAT, SAT, ACT, TestAS and GATE are all offered — yyyyy
-✅ there is one save button for the matching fields
+✅ step 6 saves
+✅ the last step saves with one button — Save and finish
 ✅ the education records are stored on the server — hssc:-, bachelor:8
 ✅ the anabin status is stored with the institution — hssc:-, bachelor:H+
 ✅ the German grade is converted server-side — 1.9
@@ -179,38 +192,23 @@ the suite asserts that, so it cannot creep back.
 
 ## What the UI suite drives
 
-1. Signs in as a student and clears the matching profile through the API, so
-   every run starts blank.
-2. Mounts `/path` and asserts there is **no such page**; then `/profile`, where
-   it checks the six steps are **numbered 1 to 6 in order** and that no input in
-   the card asks for a passport, CNIC, IBAN or account number.
-3. **Step 1** — Master, English, Winter 2029, nationality PK; the card shows
-   which degrees are open ("Bachelor: not yet · Master: not yet").
-4. **Step 2** — IELTS, TOEFL **and PTE** are each asked for; MOI is recorded;
-   German level and certificate are there.
-5. **Step 3** — the **+** buttons add Matric / HSSC / Bachelor / Master. An HSSC
-   alone reads 12 years and the card says a bachelor is not yet open. Adding a
-   bachelor and typing “NUST” searches our anabin snapshot, the result carries
-   **H+**, choosing it stores the status, and the ZAB line says *“recognised, no
-   ZAB statement needed”*. Two semesters then reads **13 years** and opens the
-   bachelor while the master stays closed; eight semesters with a CGPA reads
-   **16 years**, opens the master, and prints the Bavarian working.
-6. **Step 4** — the ECTS fields appear for a master applicant and are replaced by
-   “ECTS are not asked for a bachelor application” when the target is switched.
-7. **Step 5** — GRE sections separately (no GRE total anywhere), GMAT, SAT, ACT,
-   TestAS, GATE all present. **Step 6** — budget, contribution, funding need.
-8. Saves once, then reads the profile back from the API: two education records,
-   the anabin status stored with the institution, `gpaGerman 1.9`, and
-   completeness across six steps.
-9. `/programs` and `/scholarships` carry verdict badges; a programme page shows
-   the “Can I apply?” panel with named reasons and the “not an offer of
-   admission” line.
-10. The **admin** listing form carries the “Matching requirements” section with
-    the 13 hard fields and the separate test gates; an admin save then changes
-    the verdict a student sees, and the suite restores the seed afterwards.
-
-## Deliberate non-assertions
-
-The suite never asserts that a Check-manually result is absent from a list —
-it must never be absent — and it never asserts a match percentage: the app shows
-reasons, and any score is secondary to them.
+1. Signs in as a student and clears the matching profile, so every run starts blank.
+2. Asserts `/profile` now carries a **summary** (no inputs to type matching data
+   into) whose lines link into the wizard, that the words "Programme matching"
+   are gone as a card, and that `/path` still does not exist.
+3. Opens `/wizard?step=1` and asserts it reads **Step 1 of 7**, that the flow
+   lists all seven steps numbered in order, and that nothing asks for a passport,
+   CNIC, IBAN or account number.
+4. Drives each step through the real controls and **saves with the flow's own
+   button** each time, exactly as a student would: target, languages (IELTS +
+   TOEFL + PTE), education (add HSSC → 12 years, bachelor → search "NUST" →
+   anabin H+ stored → ZAB line → 2 semesters = 13 years → bachelor opens,
+   master stays shut → 8 semesters = 16 years → master opens), ECTS (asked for a
+   master, "not asked for a bachelor" when the target is switched), tests
+   (GRE sections separate, GMAT/SAT/ACT/TestAS/GATE present), money.
+5. Reads the profile back from the API: two education records, the anabin status
+   stored with the institution, `gpaGerman 1.9`, and completeness across six
+   matching groups.
+6. Checks the verdict badges on `/programs` and `/scholarships`, the reasoning
+   panel on a programme page, and that an **admin** can fill the 13 hard fields
+   on a listing and change what the student sees — then restores the seed.
