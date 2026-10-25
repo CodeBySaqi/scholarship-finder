@@ -507,6 +507,40 @@ and scrim, and every route. Grid wrappers that happened to carry a `card` class 
 | `audit/data-integrity.mjs` | 20 / 20 |
 | `audit/responsive-css.mjs` | 34 / 34 |
 
+### Round 9b — the design itself, not just the plumbing (same day)
+
+The first pass swapped every component for a HeroUI one but **kept the app's old tokens and
+component CSS on top**, so the screens looked identical — the user's words were "no design not
+changed", and they were right: using the library's components is not the same as using its
+design. This pass adopts HeroUI's visual language:
+
+| What | Before (app's own design) | Now (HeroUI's design) |
+| --- | --- | --- |
+| Canvas | lavender `#F2F4F9` | HeroUI neutral `#F4F4F5` (`#0C0C0E` dark) |
+| Cards | 16 px radius, one flat shadow | 18 px radius, HeroUI's two-layer `shadow-small` |
+| Buttons | 10 px rounded rectangles, flat fill | **pills** (radius 999), 40 px, primary/secondary per variant |
+| Text fields | white box, 1 px hairline border | HeroUI **flat**: grey well (`#F4F4F5`), no border, 14 px radius, focus = white + 4 px primary ring |
+| Chips | outlined hairline pills | HeroUI **flat tinted** pills — grey well, primary tint when selected |
+| Tags | outlined | flat tinted, fully round |
+| Tabs | grey track, squarish selected item | HeroUI segmented control — pill track, white pill selected with a soft shadow |
+| Sidebar nav | 14 px rounded rows | pill rows, the active one solid primary with a white label |
+| Radius scale | 16 / 12 / 10 | 18 / 14 / 12 (HeroUI `large/medium/small`) |
+
+**Structure is still exactly where it was** — same `aside.side` (column, rail, drawer), same
+`header.topbar`, same `nav.bottomnav`, same page grids and the same 7-step wizard. Verified by
+`audit/heroui-ui.mjs` (41/41, including the shell assertions) and by before/after screenshots of
+the dashboard, matches, wizard, admin form, mobile and dark mode.
+
+Two real defects this pass caught:
+
+1. **The `.chip` block was still drawing the old outlined pill** — HeroUI's tinted utilities were
+   emitted but the legacy block (loaded later) won, leaving chips 19 px tall with a hairline
+   border and invisible padding. The chip paint now lives in `heroui.css` with the app's chip
+   height restored (36 px, 30 px for the small variant), so it is HeroUI's *look* at the app's
+   *size*.
+2. **Browser default input chrome came back** when the input-skin block was rewritten — a second
+   black border inside every field. `[data-slot="input"]` reset restored, asserted by the suite.
+
 **Bundle cost, stated plainly:** the stylesheet goes from ~41 kB raw to **296 kB raw / 38.6 kB
 gzipped** (HeroUI's component utilities are now emitted), and the main JS chunk from ~197 kB to
 **216 kB gzipped** (HeroUI + framer-motion + react-aria). Acceptable for an app that is a dashboard

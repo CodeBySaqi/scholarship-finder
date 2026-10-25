@@ -8,20 +8,20 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   /* surfaces */
-  --canvas: #F2F4F9;          /* page canvas */
-  --bg: #F2F4F9;
+  --canvas: #F4F4F5;          /* page canvas — HeroUI's neutral, not lavender */
+  --bg: #F4F4F5;
   --card: #FFFFFF;
-  --card-2: #F8FAFD;          /* inset blocks inside a card */
-  --tint: #F2F6FC;            /* nav hover / quiet blocks */
-  --border: #E7EBF3;          /* hairlines */
-  --border-2: #EEF2F8;
-  --chip: #F2F6FC;
+  --card-2: #F4F4F5;          /* inset blocks inside a card (HeroUI default-100) */
+  --tint: #F1F1F3;            /* nav hover / quiet blocks */
+  --border: #E4E4E7;          /* hairlines */
+  --border-2: #EFEFF1;
+  --chip: #F4F4F5;            /* filled input wells, HeroUI flat variant */
 
   /* ink */
-  --text: #0B1437;
-  --text-2: #5A6A85;
-  --text-3: #8494AD;
-  --text-label: #9AA6BC;
+  --text: #11181C;            /* HeroUI foreground */
+  --text-2: #5C6169;
+  --text-3: #8B9199;
+  --text-label: #A1A7AE;
 
   /* brand */
   --primary: #1B84FF;
@@ -44,14 +44,14 @@
   --chart-grid: #EEF2F8; --chart-track: #EAEFF6;
 
   /* shape */
-  --r-card: 16px;
-  --r-inner: 12px;
-  --r-button: 10px;
+  --r-card: 18px;
+  --r-inner: 14px;
+  --r-button: 999px;   /* HeroUI pill buttons */
   --r-tag: 999px;
-  --r-input: 10px;
+  --r-input: 14px;
   --card-border: transparent;
-  --card-shadow: 0 2px 12px rgba(140, 152, 164, .10);
-  --card-shadow-hover: 0 8px 24px rgba(140, 152, 164, .22);
+  --card-shadow: 0 0 5px rgba(0, 0, 0, .02), 0 2px 10px rgba(0, 0, 0, .06);
+  --card-shadow-hover: 0 0 15px rgba(0, 0, 0, .03), 0 2px 30px rgba(0, 0, 0, .08);
   --pop-shadow: 0 12px 40px rgba(17, 34, 68, .16);
 
   /* density */
@@ -72,19 +72,19 @@
 }
 
 :root[data-theme="dark"] {
-  --canvas: #0B0F1A;
-  --bg: #0B0F1A;
-  --card: #131A2A;
-  --card-2: #172033;
-  --tint: #1A2336;
-  --border: #232E45;
-  --border-2: #1D2739;
-  --chip: #1A2336;
+  --canvas: #0C0C0E;
+  --bg: #0C0C0E;
+  --card: #18181B;
+  --card-2: #232326;
+  --tint: #26262A;
+  --border: #2E2E33;
+  --border-2: #26262A;
+  --chip: #232326;
 
-  --text: #E9EEF9;
-  --text-2: #9AABc7;
-  --text-3: #7C8BA8;
-  --text-label: #7C8BA8;
+  --text: #ECEDEE;
+  --text-2: #A1A1AA;
+  --text-3: #71717A;
+  --text-label: #71717A;
 
   --primary: #4D9AFF;
   --primary-hover: #6BAAFF;
@@ -103,8 +103,8 @@
   --c1: #4D9AFF; --c2: #7FB6FF; --c3: #3C6FA8; --c4: #4ADE80; --c5: #FBBF6B; --c6: #A78BFA;
   --chart-grid: #1E2839; --chart-track: #1E2839;
 
-  --card-shadow: 0 2px 12px rgba(0, 0, 0, .35);
-  --card-shadow-hover: 0 10px 28px rgba(0, 0, 0, .5);
+  --card-shadow: 0 0 5px rgba(0, 0, 0, .3), 0 2px 10px rgba(0, 0, 0, .45);
+  --card-shadow-hover: 0 0 15px rgba(0, 0, 0, .35), 0 2px 30px rgba(0, 0, 0, .55);
   --pop-shadow: 0 16px 44px rgba(0, 0, 0, .6);
 
   --snack-bg: #E9EEF9;
@@ -128,8 +128,8 @@
     --neutral-container: #1A2336; --on-neutral: #9AABC7;
     --c1: #4D9AFF; --c2: #7FB6FF; --c3: #3C6FA8; --c4: #4ADE80; --c5: #FBBF6B; --c6: #A78BFA;
     --chart-grid: #1E2839; --chart-track: #1E2839;
-    --card-shadow: 0 2px 12px rgba(0,0,0,.35);
-    --card-shadow-hover: 0 10px 28px rgba(0,0,0,.5);
+    --card-shadow: 0 0 5px rgba(0,0,0,.3), 0 2px 10px rgba(0,0,0,.45);
+    --card-shadow-hover: 0 0 15px rgba(0,0,0,.35), 0 2px 30px rgba(0,0,0,.55);
     --pop-shadow: 0 16px 44px rgba(0,0,0,.6);
     --snack-bg: #E9EEF9; --snack-text: #0B1437; --scrim: rgba(2,6,16,.66);
   }

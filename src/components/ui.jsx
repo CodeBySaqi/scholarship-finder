@@ -39,7 +39,7 @@ export function Icon({ name, size, style, className = '' }) {
 /* ---------------------------------------------------------------- surface */
 export function Card({ as: Tag = 'div', className = '', children, ...rest }) {
   return (
-    <HeroCard as={Tag} shadow="none" radius="lg" className={'card ' + className} {...rest}>
+    <HeroCard as={Tag} shadow="sm" radius="lg" className={'card ' + className} {...rest}>
       {children}
     </HeroCard>
   );
@@ -63,7 +63,7 @@ export function Tag({ tone = '', children, icon }) {
   const color = TAG_COLOR[tone] || 'default';
   return (
     <HeroChip className={'tag ' + (tone ? 'tag--' + tone : '')} color={color} variant="flat"
-      size="sm" radius="sm" startContent={icon ? <Icon name={icon} /> : undefined}>
+      size="sm" radius="full" startContent={icon ? <Icon name={icon} /> : undefined}>
       {children}
     </HeroChip>
   );
@@ -141,7 +141,7 @@ export function Btn({ as, to, href, variant = 'outlined', size, block, children,
     variant: BTN_VARIANT[variant] || 'bordered',
     color: BTN_COLOR[variant] || 'default',
     size: size === 'sm' ? 'sm' : 'md',
-    radius: 'md',
+    radius: 'full',
     className: cls,
     fullWidth: !!block,
     isIconOnly: !!isIconOnly,
@@ -186,7 +186,7 @@ export function Chip({ active, children, onClick, as, to }) {
   if (to) return <Link className={cls} to={to} aria-pressed={active}>{children}</Link>;
   return (
     <HeroChip as="button" type="button" className={cls} aria-pressed={!!active} onClick={onClick}
-      size="sm" radius="sm" variant={active ? 'flat' : 'bordered'} color={active ? 'primary' : 'default'}>
+      size="sm" radius="full" variant="flat" color={active ? 'primary' : 'default'}>
       {children}
     </HeroChip>
   );
@@ -384,14 +384,14 @@ export { Tooltip };
    `#ai-key`, `.path-fields input`, `input--error` — working unchanged. */
 export function Input({ className = '', classNames, ...rest }) {
   return (
-    <HeroInput variant="bordered" radius="md" size="md" {...rest}
+    <HeroInput variant="flat" radius="md" size="md" {...rest}
       classNames={{ inputWrapper: ['input', className].filter(Boolean).join(' '), input: 'app-input__el', ...(classNames || {}) }} />
   );
 }
 
 export function Textarea({ className = '', classNames, ...rest }) {
   return (
-    <HeroTextarea variant="bordered" radius="md" size="md" minRows={3} {...rest}
+    <HeroTextarea variant="flat" radius="md" size="md" minRows={3} {...rest}
       classNames={{ inputWrapper: ['input', 'input--area', className].filter(Boolean).join(' '), input: 'app-input__el', ...(classNames || {}) }} />
   );
 }

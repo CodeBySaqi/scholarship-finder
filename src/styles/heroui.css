@@ -53,51 +53,48 @@
 .btn { min-height: 0; }
 .btn.btn--icon { min-height: 0; }
 
-/* Chips that are HeroUI buttons keep the app's pill hit-area. */
-button.chip { border-width: 1px; }
+
 
 /* `.grow` is the app's flex helper (flex: 1 AND min-width: 0, which is what
    keeps long titles from blowing out the row). Tailwind generates a `.grow`
    utility of its own with the same name; keep the app's full meaning. */
 .grow { flex: 1; min-width: 0; }
 
-/* ---- form controls: HeroUI Input/Textarea in the app's own skin --------- */
-/* The wrapper carries the app's `input` class, so its palette, 46px height,
-   1px hairline and focus ring stay exactly what every form in the app had. */
+/* ---- form controls: HeroUI's flat fields -------------------------------- */
+/* HeroUI's flat input: a soft grey well with no border, a 14px radius, and a
+   focus state that fills white and draws the focus ring. The wrapper carries
+   the app's `input` class so every existing selector still matches. */
 [data-slot="input-wrapper"].input {
-  background: var(--card-2);
-  border: 1px solid var(--border);
+  background: var(--chip);
+  border: 0;
   border-radius: var(--r-input);
   box-shadow: none;
   min-height: 46px;
-  padding-left: 13px;
-  padding-right: 13px;
-  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease), background var(--dur) var(--ease);
+  padding-left: 14px;
+  padding-right: 14px;
+  transition: background var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
 }
-[data-slot="input-wrapper"].input:hover { background: var(--card-2); border-color: var(--border); }
+[data-slot="input-wrapper"].input:hover { background: var(--default-100, var(--chip)); }
 [data-slot="input-wrapper"].input:focus-within,
 [data-slot="input-wrapper"].input[data-focus="true"] {
   background: var(--card);
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px var(--ring);
+  box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--primary);
 }
 [data-slot="input-wrapper"].input--error {
-  border-color: var(--on-danger);
-  box-shadow: 0 0 0 4px var(--danger-container);
+  box-shadow: 0 0 0 2px var(--danger-container), 0 0 0 4px var(--on-danger);
 }
-[data-slot="input-wrapper"].input--area { min-height: 96px; align-items: flex-start; padding-top: 10px; padding-bottom: 10px; }
+[data-slot="input-wrapper"].input--area { min-height: 96px; align-items: flex-start; padding-top: 12px; padding-bottom: 12px; }
 [data-slot="input-wrapper"].input--compact { min-height: 38px; }
 .app-input__el { font-size: 14px; color: var(--text); }
 .app-input__el::placeholder { color: var(--text-3); }
 /* 16px on phones: anything smaller makes iOS zoom the whole page on focus. */
 @media (max-width: 767px) { .app-input__el { font-size: 16px; } }
-/* a date/number field keeps the app's own sizing */
 [data-slot="input-wrapper"].input input[type="date"],
 [data-slot="input-wrapper"].input input[type="number"] { min-height: 22px; }
 
-/* ---- a text field's inner input owns no chrome of its own ---------------- */
-/* Preflight is off, so the browser's default input border/focus ring would
-   show through HeroUI's wrapper. The wrapper is the field. */
+/* ---- a field's inner control owns no chrome ---------------------------- */
+/* Preflight is off, so the browser's default input border would draw a second
+   box inside HeroUI's wrapper. The wrapper is the field. */
 [data-slot="input"] {
   border: 0;
   background: transparent;
@@ -106,19 +103,81 @@ button.chip { border-width: 1px; }
   width: 100%;
   color: inherit;
   font: inherit;
+  border-radius: 0;
 }
 [data-slot="input"]:focus, [data-slot="input"]:focus-visible { outline: none; box-shadow: none; }
+[data-slot="input"]::-webkit-search-cancel-button { display: none; }
 
-/* Notices are HeroUI Alerts now; the old `.notice` block markup (still used
-   for the one plain footnote on the landing page) keeps its own paint. */
-.app-alert { width: 100%; align-items: flex-start; font-size: 13px; line-height: 1.5; }
-.app-alert .ic { width: 18px; height: 18px; flex: none; }
+/* ---- tinted chips ------------------------------------------------------- */
+/* HeroUI chips are flat, tinted and fully round: a soft grey well, the selected
+   one on the primary tint. The markup is HeroUI's Chip (press states, aria);
+   the paint is set here so the legacy `.chip` block cannot pull it back to an
+   outlined pill with a hairline border. */
+.chip {
+  border: 0;
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--chip);
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 500;
+}
+.chip:hover { background: var(--tint); color: var(--text); }
+.chip.is-on, .chip[aria-pressed="true"] {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  font-weight: 600;
+}
+.chip.chip--sm { min-height: 30px; padding: 0 12px; font-size: 12px; }
+.tag { border: 0; }
 
 /* ---- switches ----------------------------------------------------------- */
 /* HeroUI's switch track is a light `default-200`; inside the app's rows it
    needs the same contrast the old hand-rolled control had. */
-.switch [data-slot] { }
 .switch span[aria-hidden="true"] { background: var(--chip); }
 .switch[data-selected="true"] span[aria-hidden="true"] { background: var(--primary); }
 .switch span[aria-hidden="true"] > span { box-shadow: 0 1px 3px rgba(17, 34, 68, .18); }
 .switch:disabled, .switch[data-disabled="true"] { opacity: .5; }
+
+/* ---- segmented tabs, HeroUI style --------------------------------------- */
+/* HeroUI's segmented control: a grey track, the selected item as a white pill
+   with a soft shadow. Only the paint changes — the markup (a role=tablist of
+   buttons with aria-selected) and the phone tap-target heights are untouched. */
+.tabs {
+  background: var(--border-2);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 4px;
+}
+.tabs button {
+  border-radius: 999px;
+  color: var(--text-3);
+  font-weight: 600;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.tabs button:hover { color: var(--text-2); }
+.tabs button[aria-selected="true"] {
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 0 5px rgba(0, 0, 0, .02), 0 2px 10px rgba(0, 0, 0, .08);
+}
+.tabs .count { opacity: .7; }
+
+/* ---- sidebar + top bar in the same visual language ---------------------- */
+/* Structure is untouched (same aside, same links, same rail); only the paint
+   follows HeroUI: pill nav items, a soft white surface, hairline borders. */
+.side { border: 1px solid var(--border); box-shadow: var(--card-shadow); }
+.side__link { border-radius: 999px; }
+.side__link[aria-current="page"] { background: var(--primary); color: #fff; font-weight: 600; }
+.side__link[aria-current="page"] .ic { color: #fff; }
+.side__link[aria-current="page"]:hover { background: var(--primary-hover); color: #fff; }
+.side__link[aria-current="page"] .side__badge { background: rgba(255, 255, 255, .22); color: #fff; }
+.side__mark, .brand__mark { border-radius: 14px; box-shadow: var(--card-shadow); }
+.side__badge { border-radius: 999px; }
+.topbar__in, .pubhead__in { border: 1px solid var(--border); box-shadow: var(--card-shadow); border-radius: var(--r-card); }
+.bottomnav { border-radius: 20px 20px 0 0; box-shadow: 0 -2px 18px rgba(0, 0, 0, .07); }
+.bottomnav a { border-radius: 999px; }
+.searchpill { border-radius: 999px; }
+.iconbtn { border-radius: 999px; }
+.avatar { border-radius: 999px; }

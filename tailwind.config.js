@@ -49,13 +49,16 @@ export default {
     heroui({
       defaultTheme: 'light',
       defaultExtendTheme: 'light',
+      /* HeroUI's own geometry: rounder corners and its soft, layered shadow
+         scale. This is the part that makes the library recognisable, so it is
+         deliberately not the old 16/12/10 radius set. */
       layout: {
-        radius: { small: '10px', medium: '12px', large: '16px' },
+        radius: { small: '12px', medium: '14px', large: '18px' },
         borderWidth: { small: '1px', medium: '1px', large: '2px' },
         boxShadow: {
-          small: '0 2px 12px rgba(140, 152, 164, .10)',
-          medium: '0 8px 24px rgba(140, 152, 164, .22)',
-          large: '0 12px 40px rgba(17, 34, 68, .16)'
+          small: '0px 0px 5px 0px rgba(0, 0, 0, .02), 0px 2px 10px 0px rgba(0, 0, 0, .06)',
+          medium: '0px 0px 15px 0px rgba(0, 0, 0, .03), 0px 2px 30px 0px rgba(0, 0, 0, .08)',
+          large: '0px 0px 30px 0px rgba(0, 0, 0, .04), 0px 30px 60px 0px rgba(0, 0, 0, .12)'
         }
       },
       themes: {

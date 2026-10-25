@@ -166,11 +166,16 @@ Alert, Progress, Switch, Avatar, Badge — and their paint.
 
 | File | Role |
 | --- | --- |
-| `tailwind.config.js` | the `heroui()` plugin, with the app's own palette, radii and shadows mapped onto HeroUI's theme tokens (primary `#1B84FF`, canvas `#F2F4F9`, radius 16px, light + dark). Every installed `@heroui/*` dist is scanned, so no utility is dropped. |
+| `tailwind.config.js` | the `heroui()` plugin: the brand blue is kept (primary `#1B84FF`) and everything else follows **HeroUI's** design — neutral canvas (`#F4F4F5` / `#0C0C0E`), radius 12/14/18, HeroUI's two-layer shadow scale, light + dark. Every installed `@heroui/*` dist is scanned, so no utility is dropped. |
 | `postcss.config.js` | `tailwindcss` + `autoprefixer`. |
-| `src/styles/heroui.css` | `@tailwind base/components/utilities`, loaded **last** (after `tokens.css`, `app.css`, `react.css`) so HeroUI wins on the components it paints and the app keeps winning on layout. Preflight is off — `app.css` owns the reset the layout depends on. |
+| `src/styles/heroui.css` | `@tailwind base/components/utilities`, loaded **last** (after `tokens.css`, `app.css`, `react.css`) so HeroUI wins on the components it paints and the app keeps winning on layout. Preflight is off — `app.css` owns the reset the layout depends on. It also carries the HeroUI *look* for the few components whose legacy CSS block would otherwise win: flat tinted chips, the segmented pill tabs, pill sidebar rows, pill buttons. |
 | `src/components/ui.jsx` | every page's primitives (`Card`, `Btn`, `Chip`, `Input`, `Switch`, `Notice`, `Progress`, `Tag`, `Loader`…) are now thin wrappers over HeroUI. **Same names, same props** — pages didn't change shape. |
 | `src/main.jsx` | `<HeroUIProvider>` inside the router, with `useNavigate()` so HeroUI links route properly. `applyTheme()` flips `data-theme` **and** `html.dark`, so one switch drives both themes. |
+
+**The look is HeroUI's:** pill buttons and pill nav rows, flat grey input wells with no border and
+a 4 px focus ring, flat tinted chips and tags, soft two-layer card shadows on an 18 px radius, and
+the segmented pill tab control — on a neutral HeroUI canvas rather than the old lavender one. The
+app's own contributions are the brand blue and the component sizes its dense layouts need.
 
 Legacy class names (`card`, `btn`, `btn--filled`, `chip`, `tag`, `progress`, `switch`) are kept on
 the rendered elements: they are the stable hooks the audit suites select on and they carry the
