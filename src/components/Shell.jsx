@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Icon, Btn, Avatar } from './ui.jsx';
+import SiteFooter from './SiteFooter.jsx';
 import { useAuth } from '../auth.jsx';
 import { applyTheme, readTheme } from './theme.js';
 import { NotificationBell, useNotifications } from './notifications.jsx';
@@ -327,7 +328,7 @@ export function AdminShell({ page, children }) {
   );
 }
 
-export function PublicShell({ page, children, minimal }) {
+export function PublicShell({ page, children, minimal, footer = true }) {
   useShell(minimal ? 'auth' : 'public', page);
   const { user } = useAuth();
   return (
@@ -355,6 +356,7 @@ export function PublicShell({ page, children, minimal }) {
         </div>
       </header>
       <main className={minimal ? 'page page--narrow' : 'page'} id="page">{children}</main>
+      {!minimal && footer ? <SiteFooter compact /> : null}
     </>
   );
 }

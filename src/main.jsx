@@ -14,6 +14,7 @@ import './styles/react.css';
    stylesheets keep owning the layout (see src/styles/heroui.css). */
 import './styles/heroui.css';
 import './styles/landing-variants.css';
+import './styles/footer.css';
 
 import Landing from './pages/Landing.jsx';
 import DesignIndex, { DesignPreview } from './pages/landing/DesignIndex.jsx';

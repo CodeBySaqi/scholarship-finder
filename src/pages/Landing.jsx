@@ -178,23 +178,6 @@ export default function Landing() {
         </div>
       </div>
 
-      <footer className="landing-foot">
-        <div>
-          <Link className="brand" to="/"><span className="brand__mark"><Icon name="cap" /></span>
-            <span className="brand__name">Scholarship Finder</span></Link>
-          <p className="cap" style={{ marginTop: 8, maxWidth: '46ch' }}>
-            Built for Pakistani students applying to Germany: we check every published minimum — CGPA, IELTS, degree
-            route, age, APS — against your profile, tell you exactly what is still missing, and show the date each listing
-            was last verified against the provider's own page. Free, with no paid ranking and no promises about selection.
-          </p>
-        </div>
-        <nav aria-label="Product"><b className="h3" style={{ color: 'var(--text)' }}>Product</b>
-          <Link to="/scholarships">Scholarships</Link><Link to="/programs">German programs</Link><Link to="/matches">Matches</Link><Link to="/saved">Saved list</Link></nav>
-        <nav aria-label="Account"><b className="h3" style={{ color: 'var(--text)' }}>Account</b>
-          <Link to="/signup">Create account</Link><Link to="/login">Log in</Link><Link to="/profile">Profile</Link><Link to="/settings">Settings</Link></nav>
-        <nav aria-label="Legal"><b className="h3" style={{ color: 'var(--text)' }}>Legal</b>
-          <Link to="/privacy">Privacy</Link><Link to="/terms">Terms</Link></nav>
-      </footer>
       <Disclaimer />
     </PublicShell>
   );

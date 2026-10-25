@@ -16,7 +16,7 @@ export default function DesignBento() {
   const max = Math.max(...counts, 1);
 
   return (
-    <PublicShell page="landing">
+    <PublicShell page="landing" footer={false}>
       <div className="lv lv-bento">
         <ChoiceBanner />
 

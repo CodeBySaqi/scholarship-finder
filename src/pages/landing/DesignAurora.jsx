@@ -13,7 +13,7 @@ export default function DesignAurora() {
   const { stats, sample, num } = useLanding();
 
   return (
-    <PublicShell page="landing">
+    <PublicShell page="landing" footer={false}>
       <div className="lv lv-aurora-body">
         <section className="lv3-hero">
           <div className="lv3-glow lv3-glow--a" aria-hidden="true" />

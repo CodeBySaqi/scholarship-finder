@@ -13,7 +13,7 @@ export default function DesignMinimal() {
   const { stats, sample, num } = useLanding();
 
   return (
-    <PublicShell page="landing">
+    <PublicShell page="landing" footer={false}>
       <div className="lv lv-min">
         <section className="lv5-hero">
           <span className="lv5-kicker">Scholarships and German programmes for Pakistani students</span>

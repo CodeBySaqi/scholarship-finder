@@ -13,7 +13,7 @@ import { DesignBar, ChoiceBanner, MiniListing, TrustRow, StepCards, SiteFoot } f
 export default function DesignSplit() {
   const { stats, loading, error, reload, sample, num } = useLanding();
   return (
-    <PublicShell page="landing">
+    <PublicShell page="landing" footer={false}>
       <div className="lv lv-split">
         <ChoiceBanner />
 
