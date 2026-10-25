@@ -16,8 +16,6 @@ import Browse from './pages/Browse.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Detail from './pages/Detail.jsx';
 import Matches from './pages/Matches.jsx';
-import Path from './pages/Path.jsx';
-import PathResults from './pages/PathResults.jsx';
 import Saved from './pages/Saved.jsx';
 import Profile from './pages/Profile.jsx';
 import Wizard from './pages/Wizard.jsx';
@@ -138,9 +136,6 @@ function App() {
       {/* student app */}
       <Route path="/dashboard" element={<Guard><Dashboard /></Guard>} />
       <Route path="/matches" element={<Guard><Matches /></Guard>} />
-      <Route path="/path" element={<Guard><Path /></Guard>} />
-      <Route path="/path/programmes" element={<Guard><PathResults kind="programmes" /></Guard>} />
-      <Route path="/path/scholarships" element={<Guard><PathResults kind="scholarships" /></Guard>} />
       <Route path="/scholarships" element={<Guard><Browse kind="scholarship" /></Guard>} />
       <Route path="/programs" element={<Guard><Browse kind="program" /></Guard>} />
       <Route path="/scholarship/:id" element={<Guard><Detail kind="scholarship" /></Guard>} />

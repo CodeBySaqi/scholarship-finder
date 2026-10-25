@@ -1,9 +1,18 @@
 # ScholarPath — how the matching works
 
-A separate module inside the existing app. It does not modify the legacy
-`/matches`, `/scholarships` or `/programs` pages: it has its own profile
-(`db.pathProfiles[userId]`), its own engine (`src/path/engine.js`) and its own
-routes (`/path`, `/path/programmes`, `/path/scholarships`).
+A module inside the existing app — **there is no separate "find my path" page.**
+The matching fields are entered where a student already is, on `/profile`
+(card `#match-fields`), and the verdict then appears on the listings themselves:
+a badge on every programme/scholarship card, a count line and a
+"Can I apply first" sort on the listing page, and the full reasoning panel on
+each programme page. It does not modify the data of the legacy `/matches`,
+`/scholarships` or `/programs` pages; it only adds the verdict to their cards.
+
+- Profile store: `db.pathProfiles[userId]` (`GET`/`PUT /api/path/profile`)
+- Engine: `src/path/engine.js`
+- Verdicts for live listings: `GET /api/path/verdicts?kind=program|scholarships`
+- Embedded UI: `src/components/PathFields.jsx` (`EligibilityBadge`,
+  `EligibilityPanel`, `MatchFieldsCard`)
 
 **Rule for the whole build: only what changes a match decision is built.**
 Display fields (city, duration, DAAD link) never decide anything, and the profile
@@ -75,6 +84,9 @@ Three consequences, all deliberate:
 3. **Check-manually results are never hidden and never promoted.** They sort
    between Eligible and Not eligible, and the card carries `Not stated: …` or
    `Waiting on your profile: …`.
+4. **A live listing with no verified requirement row is a manual check.** It is
+   never eligible-by-default and never filtered out; the panel says the
+   requirements have not been verified yet and links the official page.
 
 ### The traps, encoded once
 
@@ -118,7 +130,7 @@ Never collected: passport numbers, CNIC, IBAN, bank details, ID scans.
 `source` string naming the page the values came from, and **anything not verified
 is `null`** — which produces Check manually rather than an invented requirement.
 
-The file currently holds 11 programmes and 3 scholarships, deliberately small:
+The file currently holds 11 programmes and 4 scholarships, deliberately small:
 a bigger catalogue should be imported from DAAD with the same schema, and any
 row that cannot be sourced should keep its `null`s. Fixtures used by the tests
 (`audit/path-tests.mjs`) are allowed to contain invented numbers because they
@@ -130,8 +142,9 @@ exist to prove a rule; the catalogue is not.
 
 ```bash
 npm run build                 # client
-node audit/path-tests.mjs     # engine: 37 checks incl. the 8 required cases
-bash audit/run-dom.sh path    # pages: 27 checks against the real app + API
+node audit/path-tests.mjs     # engine: 38 checks incl. the 8 required cases
+bash audit/run-dom.sh path    # UI: 20 checks against the real app + API
+                              #     (needs `npm install --no-save happy-dom`)
 ```
 
 Full results, case by case, are in `PATH-TEST-REPORT.md`.
@@ -141,4 +154,6 @@ Full results, case by case, are in `PATH-TEST-REPORT.md`.
 ## 6. Scope, stated plainly
 
 Matching is **eligibility screening only**. Meeting every stated requirement is
-not an offer of admission, and that sentence is printed on the results page.
+not an offer of admission, and that sentence is printed in the panel on every
+programme page (and in the scholarship panel) — nowhere does the app promise
+admission, and no percentage is shown without the reasons behind it.

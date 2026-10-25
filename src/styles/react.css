@@ -555,3 +555,29 @@ body { overflow-x: hidden; }
   .path-card__head { flex-direction: column; align-items: flex-start; }
   .path-actions .btn { flex: 1 1 auto; }
 }
+
+/* -------------------------------------------- eligibility on the cards */
+.path-badge {
+  display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 600; line-height: 1.4; border: 1px solid transparent; white-space: nowrap;
+}
+.path-badge.is-eligible { background: var(--on-success-container, #e6f4ea); color: var(--on-success); }
+.path-badge.is-check_manually { background: var(--on-warning-container, #fef7e0); color: var(--on-warning); }
+.path-badge.is-not_eligible { background: #fdecea; color: #b3261e; }
+.path-badge.is-compact { font-size: 11px; padding: 2px 7px; }
+
+/* the panel on a programme page */
+.detail-eligibility { margin: 0 0 4px; }
+.path-panel { border-left: 3px solid var(--outline); display: flex; flex-direction: column; gap: 8px; }
+.path-panel.is-eligible { border-left-color: var(--on-success); }
+.path-panel.is-check_manually { border-left-color: var(--on-warning); }
+.path-panel.is-not_eligible { border-left-color: #d9534f; }
+.path-panel__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.path-panel__headline { margin: 0; font-weight: 600; font-size: 14px; }
+.path-panel__headline.is-fail { color: #b3261e; }
+.path-fields { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+
+@media (max-width: 767px) {
+  .path-badge { font-size: 11px; }
+  .path-panel__head { flex-direction: column; align-items: flex-start; }
+}

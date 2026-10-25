@@ -98,8 +98,18 @@ phone, one below 400px; selects are 42px and 16px on phones so the native picker
 `src/path/engine.js` (pure, shared by client and server), catalogue in
 `data/path-programmes.json` (evidence-only, `null` where unverified), profile in
 `db.pathProfiles`, API under `/api/path/*`.
-New suites: `audit/path-tests.mjs` **37/37** (all eight required cases) and
-`audit/path-pages.mjs` **27/27** (the real forms and results page).
+New suites: `audit/path-tests.mjs` **38/38** (all eight required cases) and
+`audit/path-pages.mjs` **20/20** (fields on `/profile`, badges on the real cards,
+the reason panel on a live programme page).
+
+The first design gave ScholarPath its own `/path` pages. That was scrapped: the
+student enters the fields on `/profile` and the verdict has to appear on the
+programmes themselves. The routes, the nav entry and both page components were
+deleted; `/api/path/catalogue` and `/api/path/matches` were replaced by one
+`GET /api/path/verdicts?kind=`, computed server-side for the live listings, so a
+listing with no verified requirement row is a **manual check** rather than
+eligible-by-default. Deleting the pages also removed the positional tab-bar
+hazard, and `responsive` stayed **83/83**.
 Two defects it caught in the legacy shell: adding a sidebar item silently
 rewrote the phone tab bar (it indexes `STUDENT_NAV` positionally — now pinned by
 route), and a "check manually" card could read "Meets every stated requirement"

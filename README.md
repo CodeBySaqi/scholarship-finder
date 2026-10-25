@@ -67,11 +67,16 @@ npm install --no-save happy-dom
 The Playwright suites (`ui-roles`, `wizard-e2e`, `flows`, `failure-modes`, `page-crawl`) need a
 Chromium binary and system libraries; run them where those exist.
 
-## ScholarPath (separate matching module)
+## ScholarPath (matching, embedded — no separate page)
 
-`/path` is a second, independent matching module: its own profile, its own engine
-(`src/path/engine.js`), its own routes. It does not touch `/matches`,
-`/scholarships` or `/programs`, and it asks only for what can change a verdict.
+There is no "find my path" page. The student enters the matching fields on
+`/profile` (the **Matching details** card, `#match-fields`), and the verdict shows
+up on the listings themselves: a badge on every programme and scholarship card,
+"*N you can apply to · M to check · K not eligible*" plus a **Can I apply first**
+sort on `/programs` and `/scholarships`, and the full reason-by-reason panel on
+each programme page. The engine (`src/path/engine.js`) and the profile store
+(`db.pathProfiles`) are its own; the listings pages keep their data untouched and
+only gain the badge. It asks only for what can change a verdict.
 
 Three verdicts — **Eligible**, **Check manually**, **Not eligible** — where a
 missing programme value is UNKNOWN (check manually), never "no requirement", and

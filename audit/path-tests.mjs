@@ -203,6 +203,13 @@ console.log('\n— extra: traps from the brief ———————————
   ok('no verdict is ever returned without reasons',
     matchProgrammes(p, [prog({ id: 'x' })], TODAY).every(r => r.reasons.length > 0));
 
+  /* an unset target level is missing data, never a failure */
+  const noLevel = evaluateProgramme({ target: {}, academics: {}, language: {}, tests: {}, money: {} },
+    prog({ level: 'master', tuitionPerSemester: 0 }), TODAY);
+  ok('an unset target level is Check manually, not Not eligible',
+    noLevel.verdict === 'check_manually' && noLevel.pending.includes('Level') && noLevel.missing.length === 0,
+    noLevel.verdict + ' / ' + noLevel.headline);
+
   /* deadline maths */
   ok('daysToDeadline counts from today', daysToDeadline('2026-11-04', TODAY) === 10, String(daysToDeadline('2026-11-04', TODAY)));
 }

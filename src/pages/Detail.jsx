@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { AppShell } from '../components/Shell.jsx';
 import { Icon, Loader, Empty, Btn, useAsync, useToast, Field, Notice, LoadError } from '../components/ui.jsx';
 import { Sheet } from '../components/Sheet.jsx';
 import { SaveButton, GapBox, fmtReason } from '../components/cards.jsx';
+import { EligibilityPanel } from '../components/PathFields.jsx';
 import { api } from '../api.js';
 import { COPY, fmtDate, daysTo, plural, fundingLabel, FreshnessTag, BucketTag, freshness } from '../lib.jsx';
 import { useAuth } from '../auth.jsx';
@@ -47,6 +48,12 @@ function ReportSheet({ listing, open, onClose, onDone }) {
 
 export default function Detail({ kind }) {
   const { id } = useParams();
+  /* the eligibility verdict for this listing, from the saved profile */
+  const verdicts = useAsync(() => api.get('/path/verdicts?kind=' + kind), [kind]);
+  const verdict = useMemo(() => {
+    const map = (verdicts.data && verdicts.data.byListing) || {};
+    return map[id] || null;
+  }, [verdicts.data, id]);
   const { user } = useAuth();
   const toast = useToast();
   const [report, setReport] = useState(false);
@@ -126,6 +133,12 @@ export default function Detail({ kind }) {
         <h1 className="h1" style={{ fontSize: 26 }}>{l.title}</h1>
         <p className="cap">{l.provider} · {l.hostCountry}{l.universityCity ? ' · ' + l.universityCity : ''}</p>
       </div>
+
+      {verdict && (
+        <div className="detail-eligibility">
+          <EligibilityPanel result={verdict} kind={kind === 'scholarship' ? 'scholarship' : 'programme'} />
+        </div>
+      )}
 
       <div className="detail-grid">
         <div className="col">

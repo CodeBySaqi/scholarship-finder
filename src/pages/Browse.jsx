@@ -4,6 +4,7 @@ import { AppShell } from '../components/Shell.jsx';
 import { Icon, Empty, Loader, Btn, Chip, LoadError } from '../components/ui.jsx';
 import { Sheet } from '../components/Sheet.jsx';
 import { MatchCard, PlainCard } from '../components/cards.jsx';
+import { EligibilityBadge } from '../components/PathFields.jsx';
 import { Disclaimer, plural } from '../lib.jsx';
 import { useAuth } from '../auth.jsx';
 import { useAsync } from '../components/ui.jsx';
@@ -88,6 +89,12 @@ export default function Browse({ kind = 'scholarship' }) {
   );
   const all = (data && data.listings) || [];
 
+  /* the eligibility verdicts for these exact listings, computed from the saved
+     profile on the server — one call, keyed by listing id */
+  const verdicts = useAsync(() => api.get('/path/verdicts?kind=' + kind), [kind, !!user]);
+  const byListing = (verdicts.data && verdicts.data.byListing) || {};
+  const pathCounts = verdicts.data && verdicts.data.counts;
+
   const rows = useMemo(() => {
     let out = all.slice();
     const d = (iso) => DAYS(iso);
@@ -108,8 +115,12 @@ export default function Browse({ kind = 'scholarship' }) {
     if (sort === 'deadline') out.sort((a, b) => (a.deadline || '9999').localeCompare(b.deadline || '9999'));
     if (sort === 'verified') out.sort((a, b) => String(b.lastVerified).localeCompare(String(a.lastVerified)));
     if (sort === 'fit') out.sort((a, b) => (a.match ? fit[a.match.bucket] : 9) - (b.match ? fit[b.match.bucket] : 9));
+    if (sort === 'eligible') {
+      const order = { eligible: 0, check_manually: 1, not_eligible: 2 };
+      out.sort((a, b) => (order[(byListing[a.id] || {}).verdict] ?? 3) - (order[(byListing[b.id] || {}).verdict] ?? 3));
+    }
     return out;
-  }, [all, state, sort, kind]);
+  }, [all, state, sort, kind, verdicts.data]);
 
   const activeChips = [];
   state.degree.forEach(v => activeChips.push({ label: v, clear: () => set({ degree: state.degree.filter(x => x !== v) }) }));
@@ -147,11 +158,18 @@ export default function Browse({ kind = 'scholarship' }) {
               <option value="deadline">Deadline soonest</option>
               <option value="verified">Recently verified</option>
               <option value="fit">Best fit</option>
+              <option value="eligible">Can I apply first</option>
             </select>
           </div>
         </div>
         <div className="row sp wr">
-          <span className="cap">{loading ? 'Loading…' : plural(rows.length, kind === 'scholarship' ? 'scholarship' : 'program') + ' found'}</span>
+          <span className="cap">
+            {loading ? 'Loading…' : plural(rows.length, kind === 'scholarship' ? 'scholarship' : 'program') + ' found'}
+            {pathCounts && !loading && (
+              <> · <b className="w500" style={{ color: 'var(--on-success)' }}>{pathCounts.eligible || 0} you can apply to</b>
+                {' '}· {pathCounts.check_manually || 0} to check · {pathCounts.not_eligible || 0} not eligible</>
+            )}
+          </span>
           <div className="chips">
             {activeChips.map(c => (
               <button className="chip chip--sm is-on" type="button" key={c.label} onClick={c.clear}>{c.label} ✕</button>
@@ -170,8 +188,8 @@ export default function Browse({ kind = 'scholarship' }) {
                     action={<button className="btn btn--tonal btn--sm" type="button" onClick={clear}>Clear all filters</button>} />
                 </div>
               : rows.map(l => l.match
-                  ? <MatchCard key={l.id} listing={l} match={l.match} />
-                  : <PlainCard key={l.id} listing={l} />)}
+                  ? <MatchCard key={l.id} listing={l} match={l.match} verdict={byListing[l.id]} />
+                  : <PlainCard key={l.id} listing={l} verdict={byListing[l.id]} />)}
         </div>
 
         <aside className="rail">
@@ -179,9 +197,13 @@ export default function Browse({ kind = 'scholarship' }) {
             <Filters kind={kind} state={state} set={set} clear={clear} />
           </div>
           <div className="card card--tone">
-            <span className="h3" style={{ color: 'inherit' }}>Not sure what fits?</span>
-            <p className="cap">Answer five short steps and every card will show its checks.</p>
-            <Btn variant="outlined" size="sm" block to="/wizard">Build my profile</Btn>
+            <span className="h3" style={{ color: 'inherit' }}>Can I apply to this?</span>
+            <p className="cap">
+              Each card carries a verdict from your profile: eligible, check yourself, or not eligible — with the reason.
+            </p>
+            <Btn variant="outlined" size="sm" block to="/profile#match-fields">
+              {(verdicts.data && verdicts.data.completeness && verdicts.data.completeness.steps[1] > 0) ? 'Update my details' : 'Add my details'}
+            </Btn>
           </div>
         </aside>
       </div>

@@ -6,6 +6,7 @@ import { Sheet } from '../components/Sheet.jsx';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { fmtDate, Disclaimer } from '../lib.jsx';
+import { MatchFieldsCard } from '../components/PathFields.jsx';
 
 const L = {
   gender: { female: 'Female', male: 'Male', other: 'Other', prefer_not_to_say: 'Prefer not to say' },
@@ -86,6 +87,7 @@ export default function Profile() {
 
       <div className="dash-grid">
         <div className="dash-main">
+          <MatchFieldsCard />
           <section className="card">
             <div className="row sp"><h2 className="h2">Personal</h2><Link className="link-quiet" to="/wizard?step=1">Edit</Link></div>
             <table className="kv"><tbody>

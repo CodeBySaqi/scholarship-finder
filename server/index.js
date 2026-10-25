@@ -13,7 +13,7 @@ import { hashPassword, verifyPassword, signToken, readToken, parseCookies, COOKI
 import { Match, resultsFor, matchOne, safeMatchOne, safeResultsFor, completeness } from './lib/matching.js';
 import { ensureCollections, addNotification, notifyUsers, listFor, unreadCount, summary as notifySummary, CATEGORIES } from './lib/notify.js';
 import { readSettings, publicSettings, writeSettings, runResearch, SETTINGS_DEFAULTS } from './lib/research.js';
-import { matchProgrammes, matchScholarships, completeness as pathCompleteness, pendingChecks, germanGpa } from '../src/path/engine.js';
+import { matchListings, matchScholarshipListings, completeness as pathCompleteness, pendingChecks, germanGpa } from '../src/path/engine.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -407,28 +407,40 @@ app.put('/api/path/profile', requireUser, (req, res) => {
   res.json({ profile, completeness: pathCompleteness(profile), pending: pendingChecks(profile) });
 });
 
-app.get('/api/path/catalogue', requireUser, (req, res) => {
-  res.json({ programmes: PATH_CATALOGUE.programmes, scholarships: PATH_CATALOGUE.scholarships, verifiedOn: PATH_CATALOGUE.verifiedOn || null });
-});
+/* Which requirement row describes which listing. A programme row carries one
+   listingId; a scholarship row may cover several listings (the same award at
+   different universities). */
+function requirementIndex(kind) {
+  const idx = {};
+  const rows = kind === 'scholarships' ? PATH_CATALOGUE.scholarships : PATH_CATALOGUE.programmes;
+  for (const row of rows) {
+    if (row.listingId) idx[row.listingId] = row;
+    for (const id of row.listingIds || []) idx[id] = row;
+  }
+  return idx;
+}
 
-/* Matches are computed on the server from the stored profile. The client never
-   sends its own verdicts, so a verdict cannot be hand-crafted in the browser. */
-app.get('/api/path/matches', requireUser, (req, res) => {
+/* The verdicts for the listings the student is actually looking at. Keyed by
+   listing id so a programme card can show its own verdict without matching
+   titles. Requirements are computed on the server, never sent from the client. */
+app.get('/api/path/verdicts', requireUser, (req, res) => {
+  const d = db();
   const profile = withGpaConversion(pathProfileOf(req.user.id));
-  const now = today();          // shadowing the helper would throw
-  const kind = req.query.kind === 'scholarships' ? 'scholarships' : 'programmes';
-  const list = kind === 'scholarships'
-    ? matchScholarships(profile, PATH_CATALOGUE.scholarships, now)
-    : matchProgrammes(profile, PATH_CATALOGUE.programmes, now);
-  const counts = list.reduce((acc, r) => { acc[r.verdict] = (acc[r.verdict] || 0) + 1; return acc; }, {});
+  const now = today();
+  const kind = req.query.kind === 'scholarships' ? 'scholarships' : 'program';
+  const listings = d.listings.filter(l => l.kind === kind);
+  const byListing = kind === 'scholarships'
+    ? matchScholarshipListings(profile, listings, requirementIndex('scholarships'), now)
+    : matchListings(profile, listings, requirementIndex('programmes'), now);
+  const counts = Object.values(byListing).reduce((acc, r) => { acc[r.verdict] = (acc[r.verdict] || 0) + 1; return acc; }, {});
   res.json({
     kind,
-    results: list,
+    byListing,
     counts,
     today: now,
     completeness: pathCompleteness(profile),
     pending: pendingChecks(profile),
-    disclaimer: 'Eligibility screening only. Meeting every stated requirement is not an offer of admission — the university decides.'
+    screeningOnly: true
   });
 });
 

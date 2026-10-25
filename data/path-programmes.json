@@ -51,7 +51,8 @@
       "deadlineNonEu": "2029-05-31",
       "link": "https://www.tum.de/en/studies/degree-programs/detail/informatics-master-of-science-msc",
       "universityLink": "https://www.tum.de",
-      "source": "TUM CIT application page + TUM tuition-fee page (non-EU €6,000/semester from WS2024/25) + TUM GRE requirement for M.Sc. Informatics"
+      "source": "TUM CIT application page + TUM tuition-fee page (non-EU €6,000/semester from WS2024/25) + TUM GRE requirement for M.Sc. Informatics",
+      "listingId": "P1"
     },
     {
       "id": "PP-RWTH-CS",
@@ -87,7 +88,8 @@
       "deadlineNonEu": "2029-03-01",
       "link": "https://www.rwth-aachen.de/go/id/bjhz/",
       "universityLink": "https://www.rwth-aachen.de",
-      "source": "RWTH Computer Science M.Sc. admission requirements (IELTS 6.0, ECTS in CS/maths, non-EU deadline 1 March)"
+      "source": "RWTH Computer Science M.Sc. admission requirements (IELTS 6.0, ECTS in CS/maths, non-EU deadline 1 March)",
+      "listingId": "P3"
     },
     {
       "id": "PP-KIT-INFO",
@@ -124,7 +126,8 @@
       "deadlineNonEu": "2029-04-30",
       "link": "https://www.kit.edu/study/degree-programmes/",
       "universityLink": "https://www.kit.edu",
-      "source": "KIT Informatics admission page + Baden-Württemberg non-EU tuition of €1,500/semester"
+      "source": "KIT Informatics admission page + Baden-Württemberg non-EU tuition of €1,500/semester",
+      "listingId": null
     },
     {
       "id": "PP-BTU-COTTBUS",
@@ -157,7 +160,8 @@
       "deadlineNonEu": "2029-07-15",
       "link": "https://www.b-tu.de/en/",
       "universityLink": "https://www.b-tu.de",
-      "source": "BTU Cottbus international admission requirements"
+      "source": "BTU Cottbus international admission requirements",
+      "listingId": null
     },
     {
       "id": "PP-FAU-CS",
@@ -190,7 +194,8 @@
       "deadlineNonEu": "2029-07-15",
       "link": "https://www.fau.de/",
       "universityLink": "https://www.fau.de",
-      "source": "FAU English-taught master admission notes (MOI accepted)"
+      "source": "FAU English-taught master admission notes (MOI accepted)",
+      "listingId": null
     },
     {
       "id": "PP-TUD-CS",
@@ -222,7 +227,8 @@
       "deadlineNonEu": "2029-07-15",
       "link": "https://www.tu-darmstadt.de/",
       "universityLink": "https://www.tu-darmstadt.de",
-      "source": "TU Darmstadt international admission (MOI accepted)"
+      "source": "TU Darmstadt international admission (MOI accepted)",
+      "listingId": null
     },
     {
       "id": "PP-UNI-TUEB-INFO",
@@ -254,7 +260,8 @@
       "deadlineNonEu": "2029-05-15",
       "link": "https://uni-tuebingen.de/en/",
       "universityLink": "https://uni-tuebingen.de",
-      "source": "University of Tübingen admission requirements + BW tuition"
+      "source": "University of Tübingen admission requirements + BW tuition",
+      "listingId": null
     },
     {
       "id": "PP-PASSAU-BSC-AI",
@@ -292,7 +299,8 @@
       "deadlineNonEu": "2029-07-15",
       "link": "https://www.uni-passau.de/en/bachelor/artificial-intelligence/",
       "universityLink": "https://www.uni-passau.de",
-      "source": "University of Passau B.Sc. AI admission page (SAT 1240 / TestAS 80th percentile / ACT 25)"
+      "source": "University of Passau B.Sc. AI admission page (SAT 1240 / TestAS 80th percentile / ACT 25)",
+      "listingId": null
     },
     {
       "id": "PP-THWS-ROBOTICS",
@@ -327,7 +335,8 @@
       "deadlineNonEu": "2029-07-15",
       "link": "https://www.thws.de/en/",
       "universityLink": "https://www.thws.de",
-      "source": "THWS Robotics admission page (TestAS 100+100 or SAT 1050)"
+      "source": "THWS Robotics admission page (TestAS 100+100 or SAT 1050)",
+      "listingId": null
     },
     {
       "id": "PP-UPB-CS",
@@ -363,7 +372,8 @@
       "deadlineNonEu": "2029-05-31",
       "link": "https://www.uni-paderborn.de/en/",
       "universityLink": "https://www.uni-paderborn.de",
-      "source": "Paderborn CS M.Sc. admission (GRE Quant 157 + AW 4.0, or dMAT 50th percentile)"
+      "source": "Paderborn CS M.Sc. admission (GRE Quant 157 + AW 4.0, or dMAT 50th percentile)",
+      "listingId": null
     },
     {
       "id": "PP-LMU-INFO",
@@ -400,7 +410,8 @@
       "deadlineNonEu": "2029-07-15",
       "link": "https://www.lmu.de/en/",
       "universityLink": "https://www.lmu.de",
-      "source": "LMU Informatics M.Sc. language requirement (German C1 / DSH-2 for the German track); tuition not verified for the 2029 intake"
+      "source": "LMU Informatics M.Sc. language requirement (German C1 / DSH-2 for the German track); tuition not verified for the 2029 intake",
+      "listingId": null
     }
   ],
   "scholarships": [
@@ -422,7 +433,8 @@
       "covers": "full",
       "deadline": "2026-11-16",
       "link": "https://www.daad.de/en/",
-      "source": "DAAD study scholarship call (€992/month + travel + insurance + €460 study allowance, deadline 16 Nov)"
+      "source": "DAAD study scholarship call (€992/month + travel + insurance + €460 study allowance, deadline 16 Nov)",
+      "listingId": "S1"
     },
     {
       "id": "PS-DEUTSCHLAND",
@@ -441,7 +453,8 @@
       "covers": "stipend_only",
       "deadline": null,
       "link": "https://www.deutschlandstipendium.de",
-      "source": "Deutschlandstipendium: €300/month stipend only, deadlines set per university"
+      "source": "Deutschlandstipendium: €300/month stipend only, deadlines set per university",
+      "listingId": null
     },
     {
       "id": "PS-BOELL",
@@ -463,7 +476,32 @@
       "covers": "full",
       "deadline": "2027-03-01",
       "link": "https://www.boell.de/en/scholarships",
-      "source": "Heinrich Böll Foundation scholarship requirements (German B2, deadlines 1 March and 1 September)"
+      "source": "Heinrich Böll Foundation scholarship requirements (German B2, deadlines 1 March and 1 September)",
+      "listingId": "S2"
+    },
+    {
+      "id": "PS-DEUTSCHLAND-UNIS",
+      "listingIds": [
+        "S5",
+        "S6",
+        "S9"
+      ],
+      "title": "Deutschlandstipendium (university award)",
+      "provider": "German universities and private sponsors",
+      "levels": [
+        "bachelor",
+        "master"
+      ],
+      "nationalities": null,
+      "fields": null,
+      "minGpaGerman": null,
+      "ieltsReq": null,
+      "germanReq": null,
+      "maxAge": null,
+      "covers": "stipend_only",
+      "deadline": null,
+      "link": "https://www.deutschlandstipendium.de",
+      "source": "Deutschlandstipendium: EUR 300/month stipend only; each university sets its own deadline"
     }
   ]
 }

@@ -365,7 +365,8 @@ export function evaluateProgramme(profile, programme, today = new Date().toISOSt
 
   /* ---------- 1. level ---------------------------------------------- */
   if (programme.level) {
-    if (programme.level === target.level) t.pass('Level', 'You are applying for ' + target.level);
+    if (!target.level) t.pending('Level', 'Set your target level to screen this programme');
+    else if (programme.level === target.level) t.pass('Level', 'You are applying for ' + target.level);
     else {
       t.fail('Level', 'This is a ' + programme.level + ' programme; you are applying for ' + target.level);
       return finish(programme, t);
@@ -599,6 +600,62 @@ function finish(programme, t) {
 }
 
 /* ==========================================================================
+   Evaluate a LIVE site listing.
+
+   The programmes a student browses come from the listings collection; the
+   ScholarPath requirement rows are attached to them by listingId. A listing with
+   no verified requirement row is NOT eligible-by-default and NOT hidden: it is a
+   manual check that says plainly that the requirements have not been verified.
+   ========================================================================== */
+export function evaluateListing(profile, listing, req, today = new Date().toISOString().slice(0, 10)) {
+  const base = {
+    id: listing.id,
+    title: listing.title,
+    university: listing.provider,
+    city: req && req.city ? req.city : null,
+    level: (listing.degreeLevels || [])[0] || null,
+    links: {
+      programme: listing.officialUrl || listing.applyUrl || null,
+      university: req ? req.universityLink || null : null
+    },
+    verified: !!req
+  };
+
+  if (!req) {
+    const reasons = [{
+      check: 'Requirements',
+      status: 'unknown',
+      text: 'The requirements for this programme have not been verified yet, so eligibility cannot be screened. Check the official page.'
+    }];
+    return {
+      ...base,
+      verdict: VERDICT.CHECK_MANUALLY,
+      reasons,
+      failed: [],
+      missing: [{ check: 'Requirements', text: 'not verified', field: 'requirements' }],
+      headline: 'Requirements not verified — check the official page',
+      pending: [],
+      provisional: false
+    };
+  }
+
+  /* the requirement row speaks the engine's language; the listing supplies the
+     identity. Anything the row does not state stays null → unknown. */
+  const programme = {
+    ...req,
+    id: listing.id,
+    title: listing.title,
+    university: listing.provider,
+    level: req.level || (listing.degreeLevels || [])[0] || null,
+    deadlineNonEu: req.deadlineNonEu || listing.deadline || null,
+    officialUrl: listing.officialUrl || null
+  };
+
+  const r = evaluateProgramme(profile, programme, today);
+  return { ...base, ...r, verified: true };
+}
+
+/* ==========================================================================
    Scholarships — the smaller, separate rule set.
    Hard filters: nationality, level, field, GPA, language, age, deadline not
    passed, and coverage vs the user's funding need.
@@ -744,6 +801,34 @@ export function matchProgrammes(profile, programmes, today) {
       return { ...r, score: soft.score, tags: soft.tags };
     })
     .sort((a, b) => (VERDICT_ORDER[a.verdict] - VERDICT_ORDER[b.verdict]) || (b.score - a.score));
+}
+
+/* Batch: live listings + their requirement rows, keyed by listing id. */
+export function matchListings(profile, listings, requirementsById, today) {
+  const out = {};
+  for (const l of listings) {
+    out[l.id] = evaluateListing(profile, l, requirementsById[l.id] || null, today);
+  }
+  return out;
+}
+
+export function matchScholarshipListings(profile, listings, requirementsById, today) {
+  const out = {};
+  for (const l of listings) {
+    const req = requirementsById[l.id];
+    if (!req) {
+      out[l.id] = {
+        id: l.id, title: l.title, provider: l.provider, verdict: VERDICT.CHECK_MANUALLY,
+        reasons: [{ check: 'Requirements', status: 'unknown', text: 'This scholarship has not been verified yet. Check the official page.' }],
+        failed: [], missing: [{ check: 'Requirements', text: 'not verified' }], pending: [],
+        headline: 'Requirements not verified — check the official page', verified: false
+      };
+      continue;
+    }
+    const s = evaluateScholarship(profile, { ...req, id: l.id, title: l.title, provider: l.provider }, today);
+    out[l.id] = { ...s, verified: true };
+  }
+  return out;
 }
 
 export function matchScholarships(profile, scholarships, today) {

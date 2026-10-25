@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { EligibilityBadge } from './PathFields.jsx';
 import { Icon } from './ui.jsx';
 import { COPY, fmtDate, fundingLabel, listingPath, FreshnessTag, CountdownTag, BucketTag } from '../lib.jsx';
 import { useSaved } from './saved.jsx';
@@ -57,13 +58,14 @@ export function GapBox({ gaps }) {
   );
 }
 
-export function MatchCard({ listing: l, match, showReport, onReport }) {
+export function MatchCard({ listing: l, match, showReport, onReport, verdict }) {
   const saved = l.saved;
   return (
     <article className="card">
       <div className="row sp wr" style={{ gap: 6 }}>
         <div className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
           <BucketTag bucket={match.bucket} provisional={match.provisional} />
+          <EligibilityBadge result={verdict} compact />
           {(match.matchedTargets || []).map(t => <span className="tag tag--pr" key={t}>{t}</span>)}
         </div>
       </div>
@@ -90,11 +92,12 @@ export function MatchCard({ listing: l, match, showReport, onReport }) {
   );
 }
 
-export function PlainCard({ listing: l }) {
+export function PlainCard({ listing: l, verdict }) {
   return (
     <article className="card">
       <div className="row wr" style={{ gap: 6 }}>
         <span className="tag tag--pr">{l.kind === 'scholarship' ? 'Scholarship' : 'Program'}</span>
+        <EligibilityBadge result={verdict} compact />
         {(l.degreeLevels || []).map(dg => <span className="tag tag--out" key={dg}>{dg[0].toUpperCase() + dg.slice(1)}</span>)}
       </div>
       <div>

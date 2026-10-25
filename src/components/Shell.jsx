@@ -8,7 +8,6 @@ import { NotificationBell, useNotifications } from './notifications.jsx';
 const STUDENT_NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: 'home' },
   { to: '/matches', label: 'Matches', icon: 'target' },
-  { to: '/path', label: 'Find my path', icon: 'trend' },
   { to: '/scholarships', label: 'Scholarships', icon: 'search' },
   { to: '/programs', label: 'German programs', icon: 'school' },
   { to: '/saved', label: 'Saved', icon: 'bookmark' }
