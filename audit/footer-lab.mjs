@@ -66,7 +66,7 @@ ok('pick: the button confirms the selection', /Selected/i.test(first.textContent
 /* the live footer is untouched by the lab */
 mount('/'); await wait(1400);
 ok('the live home page still has exactly one footer', document.querySelectorAll('footer.sfoot').length === 1);
-ok('the live footer is still the dark card', !!document.querySelector('footer.sfoot .sfoot__wordmark'));
+ok('the live footer is the simple clean one', !!document.querySelector('footer.sfoot .sfoot__nav') && !document.querySelector('footer.sfoot .sfoot__wordmark'));
 
 console.log('\n' + pass + '/' + (pass + fail) + ' footer-lab checks passed' + (fail ? ' — ' + fail + ' FAILED' : ''));
 process.exit(fail ? 1 : 0);

@@ -1,4 +1,18 @@
-# Ten footers — pick one
+# Footers
+
+## Live now: the simple clean footer
+
+`src/components/SiteFooter.jsx` renders a plain footer on every public page:
+one hairline, the brand, the links people actually use (Scholarships,
+Programmes, Matches, Saved, How it works, Log in, Privacy, Terms), one
+**Create your profile** button, then the small print and © at the bottom.
+No card, no glow, no wordmark. Light and dark both use the app tokens.
+Mobile: brand + button on top, links wrap underneath, everything ≥40 px tall.
+
+---
+
+# The ten candidates (kept at /footers)
+
 
 Preview: **/footers** on the deployed site (or locally on :8000).
 Every candidate is a real component from `src/components/footers/variants.jsx`,
