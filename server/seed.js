@@ -67,8 +67,34 @@ for (const key of profileKeys) {
 const HANDLE = { admin: 'admin@example.com', contributor: 'contributor@example.com', system: 'system' };
 const asActor = (v) => (v ? (HANDLE[v] || v) : v);
 
+/* ScholarPath hard requirements start life on the programme listing itself —
+   that is where an admin edits them. data/path-programmes.json is the evidence
+   file the seed copies from, and anything it does not state stays null (which
+   the engine reports as Check manually, never as a pass). */
+const PATH_CAT = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'path-programmes.json'), 'utf8'));
+const MATCH_FROM_CATALOGUE = {};
+for (const row of PATH_CAT.programmes || []) {
+  const ids = [row.listingId, ...(row.listingIds || [])].filter(Boolean);
+  const match = {
+    level: row.level, teachingLanguages: row.teachingLanguages, acceptedFields: row.acceptedFields,
+    anyField: row.anyField === true, requiresAbiturEquivalent: row.requiresAbiturEquivalent !== false,
+    bridgePossible: row.bridgePossible === true,
+    minGpaGerman: row.minGpaGerman, ieltsReq: row.ieltsReq, toeflReq: row.toeflReq, pteReq: row.pteReq ?? null,
+    englishOther: row.englishOther, englishOtherText: row.englishOtherText,
+    germanReq: row.germanReq, subjectEcts: row.subjectEcts, bachelorEctsRequired: row.bachelorEctsRequired,
+    otherRequirements: row.otherRequirements || null,
+    intake: row.intake ? [row.intake] : null, deadlineNonEu: row.deadlineNonEu,
+    state: row.state, city: row.city, sourceUrl: row.link || null, note: row.source || null,
+    seededFrom: 'data/path-programmes.json', updatedAt: now
+  };
+  for (const id of ids) MATCH_FROM_CATALOGUE[id] = match;
+}
+
 const listings = REFERENCE.listings.map(l => Object.assign({}, l, {
   evidence: l.evidence || {},
+  /* programme listings carry the matching requirements; a scholarship's live
+     row still comes from the catalogue until an admin fills it in */
+  ...(l.kind === 'program' && MATCH_FROM_CATALOGUE[l.id] ? { match: MATCH_FROM_CATALOGUE[l.id] } : {}),
   createdBy: asActor(l.createdBy),
   verifiedBy: asActor(l.verifiedBy),
   updatedAt: now

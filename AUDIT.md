@@ -98,9 +98,25 @@ phone, one below 400px; selects are 42px and 16px on phones so the native picker
 `src/path/engine.js` (pure, shared by client and server), catalogue in
 `data/path-programmes.json` (evidence-only, `null` where unverified), profile in
 `db.pathProfiles`, API under `/api/path/*`.
-New suites: `audit/path-tests.mjs` **41/41** (all eight required cases) and
-`audit/path-pages.mjs` **22/22** (fields on `/profile`, badges on the real cards,
+New suites: `audit/path-tests.mjs` **73/73** (all eight required cases) and
+`audit/path-pages.mjs` **50/50** (fields on `/profile`, badges on the real cards,
 the reason panel on a live programme page).
+
+**Round 7 — education, anabin and the admin's 13 fields (2026-10-25).** The
+profile was rebuilt around education *records*: Matric/HSSC/Bachelor/Master
+entries with a `+` button, semesters completed, CGPA, and the anabin status of
+the institution (232 Pakistani institutions imported from the official anabin
+API, refreshable, plus a server-side "Check live" per institution). Years of
+education are derived (12 + 0.5 × semesters) and decide the level: 13 for a
+bachelor, 16 for a master, 18 for a PhD — under the line is a hard fail with the
+number named. anabin decides the ZAB (H+ none, H+/- conditional, H- required).
+The 13 hard requirements moved onto the programme listing (`listing.match`),
+edited in a new "Matching requirements" section of the admin form, so what an
+admin saves is what the engine reads. Two defects: an empty profile object
+crashed the verdict endpoint (`profile.target.level` on an undefined target —
+now screened as an empty profile and covered by a test), and the P4 listing kept
+a null deadline after a test run because the suite restored nulls instead of the
+original values (the suite now snapshots and restores).
 
 The first design gave ScholarPath its own `/path` pages. That was scrapped: the
 student enters the fields on `/profile` and the verdict has to appear on the

@@ -6,8 +6,9 @@
 */
 import {
   evaluateProgramme, evaluateScholarship, matchProgrammes, germanGpa, gpaPasses,
-  completeness, VERDICT, daysToDeadline, matchListings
+  completeness, VERDICT, daysToDeadline, matchListings, requirementFromListing
 } from '../src/path/engine.js';
+import { educationSummary, entryYears, zabRule } from '../src/path/education.js';
 
 const TODAY = '2026-10-25';
 const results = [];
@@ -17,6 +18,23 @@ const ok = (name, pass, detail = '') => {
 };
 
 /* ---------------------------------------------------------------- profiles */
+/* The education model: entries, not a pile of booleans. A completed four-year
+   Pakistani BS is 8 semesters = 16 years of education. */
+const hsscEntry = {
+  id: 'e0', level: 'hssc', school: 'hssc', institution: 'Government College, Faisalabad',
+  field: 'pre_engineering', percentage: 88
+};
+const bachelorEntry = {
+  id: 'e1', level: 'bachelor', institution: 'National University of Sciences and Technology (NUST)',
+  anabinStatus: 'H+', field: 'computer_science', cgpa: 3.4, scaleMax: 4, passMark: 2,
+  semestersDone: 8, totalSemesters: 8, completed: true, startYear: 2021, endYear: 2025
+};
+const masterEntry = {
+  id: 'e2', level: 'master', institution: 'University of the Punjab', anabinStatus: 'H+',
+  field: 'computer_science', cgpa: 3.6, scaleMax: 4, passMark: 2,
+  semestersDone: 4, totalSemesters: 4, completed: true
+};
+
 const masterBase = {
   target: { level: 'master', language: 'english', intake: 'winter_2029' },
   nationality: { nationality: 'PK', residence: 'PK', lastDegreeCountry: 'PK' },
@@ -26,6 +44,7 @@ const masterBase = {
     subjectEcts: { cs: 90, maths: 30, stats: 15 }
   },
   language: { ielts: 7.0, englishMediumDegree: true },
+  education: { entries: [hsscEntry, bachelorEntry] },
   tests: {},
   money: { maxTuitionPerSemester: 0, maxSemesterContribution: 500, fundingNeed: 'full', blockedAccount: 'unsure' },
   scholarshipExtras: {},
@@ -73,7 +92,8 @@ console.log('\n— case 3: HSSC only, no route ———————————
   const p = {
     target: { level: 'bachelor', language: 'english', intake: 'winter_2029' },
     nationality: { nationality: 'PK' },
-    academics: { sscPct: 88, hsscGroup: 'pre_engineering', undergradYearDone: false, studienkolleg: false },
+    academics: { hsscGroup: 'pre_engineering' },
+    education: { entries: [hsscEntry] },
     language: { ielts: 6.5 }, tests: {}, money: {}, scholarshipExtras: {}, documents: {}
   };
   const abitur = prog({
@@ -235,6 +255,144 @@ console.log('\n— extra: traps from the brief ———————————
 
   /* deadline maths */
   ok('daysToDeadline counts from today', daysToDeadline('2026-11-04', TODAY) === 10, String(daysToDeadline('2026-11-04', TODAY)));
+}
+
+
+console.log('\n— case 9: years of education decide bachelor / master —————');
+{
+  const level = (entries, target) => ({
+    target: { level: target, language: 'english', intake: 'winter_2029' },
+    nationality: { nationality: 'PK' },
+    academics: { fieldNote: 'x' }, education: { entries },
+    language: { ielts: 7 }, tests: {}, money: { maxTuitionPerSemester: 0, maxSemesterContribution: 500, fundingNeed: 'self' }
+  });
+  const bachProg = prog({ id: 'B', level: 'bachelor', acceptedFields: ['pre_engineering'],
+    requiresAbiturEquivalent: true, tuitionPerSemester: 0 });
+  const mastProg = prog({ id: 'M', level: 'master' });
+
+  /* 12 years — HSSC only */
+  ok('9a. HSSC alone is 12 years', entryYears(hsscEntry) === 12, String(entryYears(hsscEntry)));
+  const hsscOnly = level([hsscEntry], 'bachelor');
+  const r12 = evaluateProgramme(hsscOnly, bachProg, TODAY);
+  ok('9b. 12 years is Not eligible for a bachelor', r12.verdict === VERDICT.NOT_ELIGIBLE, r12.verdict);
+  ok('9c. the missing year is named', /at least 13 years/.test(r12.headline) && /You have 12/.test(r12.headline), r12.headline.slice(0, 80));
+
+  /* 13 years — two semesters of a bachelor */
+  const twoSem = { ...bachelorEntry, id: 'e-half', semestersDone: 2, completed: false, anabinStatus: 'H+' };
+  const p13 = level([hsscEntry, twoSem], 'bachelor');
+  ok('9d. 2 semesters of a bachelor is 13 years', educationSummary(p13).years === 13, String(educationSummary(p13).years));
+  ok('9e. 13 years can apply for a bachelor', educationSummary(p13).canApply.bachelor === true);
+  ok('9f. the bachelor programme accepts 13 years',
+    !evaluateProgramme(p13, bachProg, TODAY).failed.some(f => f.check === 'Education'),
+    evaluateProgramme(p13, bachProg, TODAY).headline);
+  ok('9g. 13 years cannot apply for a master', educationSummary(p13).canApply.master === false);
+
+  /* 15 years — a completed three-year bachelor */
+  const threeYear = { ...bachelorEntry, id: 'e15', semestersDone: 6, completed: true };
+  const p15 = level([hsscEntry, threeYear], 'master');
+  const r15 = evaluateProgramme(p15, mastProg, TODAY);
+  ok('9h. a completed 3-year bachelor is 15 years', educationSummary(p15).years === 15, String(educationSummary(p15).years));
+  ok('9i. 15 years is Not eligible for a master (16 required)', r15.verdict === VERDICT.NOT_ELIGIBLE, r15.verdict);
+  ok('9j. it says 16 years are needed', /16 years/.test(r15.headline), r15.headline.slice(0, 90));
+
+  /* 16 years — a completed four-year bachelor */
+  const p16 = level([hsscEntry, bachelorEntry], 'master');
+  ok('9k. a completed 4-year bachelor is 16 years', educationSummary(p16).years === 16, String(educationSummary(p16).years));
+  ok('9l. 16 years can apply for a master', educationSummary(p16).canApply.master === true);
+  ok('9m. the master programme accepts 16 years',
+    !evaluateProgramme(p16, mastProg, TODAY).failed.some(f => f.check === 'Education'));
+
+  /* a master holder may still apply for a bachelor */
+  const pMaster = level([hsscEntry, bachelorEntry, masterEntry], 'bachelor');
+  ok('9n. a master holder can apply for a bachelor', educationSummary(pMaster).canApply.bachelor === true);
+  ok('9o. and for a master', educationSummary(pMaster).canApply.master === true);
+
+  /* A-Levels are Abitur-equivalent, so 12 years is enough */
+  const aLevels = { ...hsscEntry, id: 'e-al', school: 'a_levels', percentage: 85 };
+  ok('9p. A-Levels at 12 years can apply for a bachelor',
+    educationSummary(level([aLevels], 'bachelor')).canApply.bachelor === true);
+
+  /* ECTS are never asked of a bachelor applicant */
+  const rEcts = evaluateProgramme(p13, prog({ level: 'bachelor', acceptedFields: ['pre_engineering'],
+    requiresAbiturEquivalent: true, subjectEcts: { maths: 30 }, tuitionPerSemester: 0 }), TODAY);
+  ok('9q. subject ECTS are not checked for a bachelor target',
+    !rEcts.reasons.some(x => x.check === 'Subject credits'),
+    rEcts.reasons.map(x => x.check).join(','));
+}
+
+console.log('\n— case 10: anabin status decides the ZAB —————————————');
+{
+  const withStatus = (status) => ({
+    target: { level: 'master', language: 'english', intake: 'winter_2029' },
+    nationality: { nationality: 'PK' },
+    academics: { bachelorField: 'computer_science', bachelorEcts: 180, gpaOriginal: 3.4, gpaScaleMax: 4, gpaPassMark: 2,
+      subjectEcts: { cs: 90 } },
+    education: { entries: [hsscEntry, { ...bachelorEntry, anabinStatus: status }] },
+    language: { ielts: 7 }, tests: {},
+    money: { maxTuitionPerSemester: 0, maxSemesterContribution: 500, fundingNeed: 'self' }
+  });
+  ok('10a. H+ needs no ZAB', zabRule('H+').zabRequired === false);
+  ok('10b. H+/- is conditional', zabRule('H+/-').conditional === true && zabRule('H+/-').zabRequired === false);
+  ok('10c. H- requires a ZAB statement', zabRule('H-').zabRequired === true);
+
+  const hPlus = evaluateProgramme(withStatus('H+'), prog({}), TODAY);
+  ok('10d. an H+ institution passes the anabin check',
+    hPlus.reasons.some(x => x.check === 'anabin / ZAB' && x.status === 'pass'),
+    hPlus.reasons.map(x => x.check + ':' + x.status).join(', '));
+
+  const hMinus = evaluateProgramme(withStatus('H-'), prog({}), TODAY);
+  ok('10e. an H- institution is never silently fine',
+    hMinus.verdict === VERDICT.CHECK_MANUALLY && hMinus.reasons.some(x => x.check === 'ZAB' && /Zeugnisbewertung/.test(x.text)),
+    hMinus.verdict + ' / ' + hMinus.headline);
+  ok('10f. the ZAB is named as the thing to do, not hidden as a pass',
+    hMinus.reasons.some(x => x.status === 'unknown' && /ZAB/.test(x.text)));
+
+  const noRecord = evaluateProgramme(withStatus(null), prog({}), TODAY);
+  ok('10g. no anabin record is unknown, never H+',
+    noRecord.reasons.some(x => x.check === 'ZAB' && x.status === 'unknown'),
+    noRecord.headline);
+}
+
+console.log('\n— case 11: PTE, GMAT and admin-filled requirements ——————');
+{
+  const p = withGpa({ ...masterBase, language: { ielts: null, pte: 68, englishMediumDegree: false } });
+  const pteProg = prog({ id: 'PTE', pteReq: 62, ieltsReq: 6.5 });
+  const r = evaluateProgramme(p, pteProg, TODAY);
+  ok('11a. PTE satisfies a programme that accepts PTE',
+    !r.failed.some(f => f.check === 'English'), r.headline);
+
+  const gmatProg = prog({ id: 'GMAT', otherRequirements: { gmat: 600 } });
+  ok('11b. GMAT gate with no score is Not eligible',
+    evaluateProgramme({ ...withGpa(masterBase), tests: {} }, gmatProg, TODAY).verdict === VERDICT.NOT_ELIGIBLE);
+  ok('11c. GMAT 640 meets a 600 gate',
+    !evaluateProgramme({ ...withGpa(masterBase), tests: { gmat: 640 } }, gmatProg, TODAY).failed.some(f => f.check === 'GMAT'));
+
+  /* the admin-filled block on the listing is what the engine reads */
+  const listing = {
+    id: 'L1', title: 'M.Sc. Test', provider: 'Test University', degreeLevels: ['master'],
+    languageMode: 'english', tuitionPerSemester: 0, semesterFee: 150, deadline: '2029-01-15',
+    intakes: ['WS'], officialUrl: 'https://example.test',
+    match: { minGpaGerman: 2.5, ieltsReq: 6.5, acceptedFields: ['computer_science'], bachelorEctsRequired: 180 }
+  };
+  const req = requirementFromListing(listing);
+  ok('11d. the listing\'s match block becomes the requirement row',
+    req.minGpaGerman === 2.5 && req.level === 'master' && req.tuitionPerSemester === 0,
+    JSON.stringify({ gpa: req.minGpaGerman, level: req.level, tuition: req.tuitionPerSemester }));
+  ok('11e. listing display fields fill the gaps (intake, deadline)',
+    req.deadlineNonEu === '2029-01-15' && Array.isArray(req.intake), JSON.stringify(req.intake));
+  const verdicts = matchListings(withGpa(masterBase), [listing], {}, TODAY);
+  ok('11f. a listing whose admin row is complete is Eligible',
+    verdicts.L1.verdict === VERDICT.ELIGIBLE,
+    verdicts.L1.verdict + ' / ' + (verdicts.L1.headline || ''));
+  /* nobody signed in / no profile at all must not crash the endpoint */
+  const anon = matchListings({}, [{ id: 'L0', title: 'x', provider: 'p', degreeLevels: ['master'],
+    match: { level: 'master', ieltsReq: 6.5, tuitionPerSemester: 0 } }], {}, TODAY);
+  ok('an empty profile object is screened, not crashed',
+    anon.L0 && anon.L0.verdict === VERDICT.NOT_ELIGIBLE, anon.L0 ? anon.L0.verdict : 'missing');
+
+  const blank = { id: 'L2', title: 'No row', provider: 'X', degreeLevels: ['master'] };
+  ok('11g. a listing with no match block is Check manually',
+    matchListings(withGpa(masterBase), [blank], {}, TODAY).L2.verdict === VERDICT.CHECK_MANUALLY);
 }
 
 console.log('\n' + results.filter(r => r.pass).length + '/' + results.length + ' engine checks passed');

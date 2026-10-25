@@ -14,6 +14,7 @@ import { Match, resultsFor, matchOne, safeMatchOne, safeResultsFor, completeness
 import { ensureCollections, addNotification, notifyUsers, listFor, unreadCount, summary as notifySummary, CATEGORIES } from './lib/notify.js';
 import { readSettings, publicSettings, writeSettings, runResearch, SETTINGS_DEFAULTS } from './lib/research.js';
 import { matchListings, matchScholarshipListings, completeness as pathCompleteness, pendingChecks, germanGpa } from '../src/path/engine.js';
+import { educationSummary } from '../src/path/education.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -321,12 +322,11 @@ const PATH_PROFILE_SHAPE = {
   target: ['level', 'language', 'intake'],
   nationality: ['nationality', 'residence', 'lastDegreeCountry'],
   academics: ['bachelorField', 'bachelorSubjectAreas', 'bachelorEcts', 'subjectEcts', 'gpaOriginal',
-    'gpaScaleMax', 'gpaPassMark', 'gpaGerman', 'gpaConverted', 'schoolQualification', 'sscPct',
-    'hsscGroup', 'hsscPct', 'undergradYearDone', 'undergradYearSameField', 'studienkolleg',
-    'masterField', 'masterGpaOriginal', 'thesisTopic', 'researchAreas', 'publications',
+    'gpaScaleMax', 'gpaPassMark', 'gpaGerman', 'gpaConverted', 'hsscGroup', 'hsscPct', 'sscPct',
+    'masterField', 'thesisTopic', 'researchAreas', 'publications',
     'proposalReady', 'fundingPreference', 'workExperienceMonths'],
-  language: ['ielts', 'toefl', 'germanLevel', 'germanTest', 'englishMediumDegree'],
-  tests: ['gre', 'gate', 'testas', 'sat', 'act'],
+  language: ['ielts', 'toefl', 'pte', 'germanLevel', 'germanTest', 'englishMediumDegree'],
+  tests: ['gre', 'gmat', 'gate', 'testas', 'sat', 'act', 'noneTaken'],
   money: ['maxTuitionPerSemester', 'maxSemesterContribution', 'fundingNeed', 'blockedAccount'],
   scholarshipExtras: ['financialNeedBracket', 'firstGeneration', 'dateOfBirth', 'awards',
     'volunteering', 'leadership'],
@@ -336,6 +336,64 @@ const PATH_PROFILE_SHAPE = {
 const PATH_LEVELS = ['bachelor', 'master', 'phd'];
 const PATH_LANGS = ['english', 'german', 'either'];
 const PATH_FUNDING = ['full', 'partial', 'self'];
+
+/* One education record. This is the only place a school/university is stored,
+   and it is also what the anabin status hangs off. */
+const EDU_ENTRY_KEYS = ['id', 'level', 'school', 'institution', 'anabinId', 'anabinStatus', 'anabinCheckedAt',
+  'field', 'cgpa', 'scaleMax', 'passMark', 'percentage', 'semestersDone', 'totalSemesters', 'completed',
+  'startYear', 'endYear'];
+const EDU_LEVELS_OK = ['matric', 'hssc', 'bachelor', 'master'];
+
+function sanitizeEducationEntry(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  if (!EDU_LEVELS_OK.includes(raw.level)) return null;
+  const out = { id: String(raw.id || '').slice(0, 40) || ('e' + Math.random().toString(36).slice(2, 8)) };
+  out.level = raw.level;
+  for (const k of EDU_ENTRY_KEYS) {
+    if (k === 'id' || k === 'level' || raw[k] === undefined) continue;
+    const v = raw[k];
+    if (v === null || v === '') { out[k] = null; continue; }
+    if (typeof v === 'number' || typeof v === 'boolean') out[k] = v;
+    else if (typeof v === 'string') out[k] = v.trim().slice(0, 160);
+  }
+  /* numbers that must stay numbers */
+  for (const k of ['cgpa', 'scaleMax', 'passMark', 'percentage', 'semestersDone', 'totalSemesters', 'startYear', 'endYear']) {
+    if (out[k] !== undefined && out[k] !== null && typeof out[k] !== 'number') {
+      const n = Number(out[k]);
+      out[k] = Number.isFinite(n) ? n : null;
+    }
+  }
+  if (out.completed !== undefined && typeof out.completed !== 'boolean') out.completed = out.completed === 'yes';
+  return out;
+}
+
+function sanitizeEducation(raw) {
+  if (!raw || typeof raw !== 'object' || !Array.isArray(raw.entries)) return undefined;
+  return { entries: raw.entries.slice(0, 8).map(sanitizeEducationEntry).filter(Boolean) };
+}
+
+/* The engine reads academics; the student types education records. Derive what
+   the engine needs, once, so the two can never disagree. */
+function deriveFromEducation(profile) {
+  const edu = educationSummary(profile);
+  const a = { ...(profile.academics || {}) };
+  const top = profile.target && profile.target.level === 'phd' ? (edu.master || edu.bachelor) : edu.bachelor;
+  if (top) {
+    if (top.field != null) a.bachelorField = String(top.field).toLowerCase();
+    if (top.cgpa != null) {
+      a.gpaOriginal = top.cgpa;
+      a.gpaScaleMax = top.scaleMax == null ? 4 : top.scaleMax;
+      a.gpaPassMark = top.passMark == null ? 2 : top.passMark;
+    }
+  }
+  if (edu.master && edu.master.field != null) a.masterField = String(edu.master.field).toLowerCase();
+  if (edu.hssc) {
+    if (edu.hssc.field != null) a.hsscGroup = edu.hssc.field;
+    if (edu.hssc.percentage != null) a.hsscPct = edu.hssc.percentage;
+  }
+  if (edu.matric && edu.matric.percentage != null) a.sscPct = edu.matric.percentage;
+  return { ...profile, academics: a };
+}
 
 function sanitizePathProfile(raw) {
   const out = {};
@@ -369,12 +427,24 @@ function sanitizePathProfile(raw) {
     if (out.target.language && !PATH_LANGS.includes(out.target.language)) delete out.target.language;
   }
   if (out.money && out.money.fundingNeed && !PATH_FUNDING.includes(out.money.fundingNeed)) delete out.money.fundingNeed;
+  /* education records are a list, not a group of scalars */
+  if (raw.education !== undefined) {
+    const e = sanitizeEducation(raw.education);
+    if (e) out.education = e;
+  }
   return out;
 }
 
 /* Convert the original GPA once, on the server, so the number the engine uses
    and the working shown in the UI can never disagree. */
-function withGpaConversion(p) {
+function withGpaConversion(p0) {
+  let p = deriveFromEducation(p0);
+  const entries = ((p.education || {}).entries || []).map(e => {
+    if (e.cgpa == null) return e;
+    const conv = germanGpa(e.cgpa, { scaleMax: e.scaleMax == null ? 4 : e.scaleMax, passMark: e.passMark == null ? 2 : e.passMark });
+    return conv ? { ...e, gpaGerman: conv.value, gpaWorking: conv.working } : e;
+  });
+  p = { ...p, education: { ...(p.education || {}), entries } };
   const a = p.academics || {};
   if (a.gpaOriginal == null) return p;
   const conv = germanGpa(a.gpaOriginal, {
@@ -399,6 +469,7 @@ app.put('/api/path/profile', requireUser, (req, res) => {
   /* merge group by group so step 1 can be saved without wiping step 2 */
   const merged = { ...existing };
   for (const [group, value] of Object.entries(patch)) {
+    if (group === 'education') { merged.education = value; continue; }   // a list, replaced whole
     merged[group] = { ...(existing[group] || {}), ...value };
   }
   d.pathProfiles[req.user.id] = merged;
@@ -445,6 +516,105 @@ app.get('/api/path/verdicts', requireUser, (req, res) => {
     screeningOnly: true
   });
 });
+
+/* ================================================================ ANABIN
+   The anabin status of a Pakistani institution decides the ZAB question:
+   H+ needs nothing, H+/- is conditional, H- needs a Zeugnisbewertung.
+   APS is never part of this — Pakistan is not an APS country.
+
+   The snapshot in data/anabin-institutions.json is read from the official
+   anabin database (KMK / ZfA). "Check live" re-reads that one institution from
+   anabin and stores the fresh status, so the answer is dated and auditable
+   rather than guessed. Nothing is invented when anabin cannot be reached: the
+   endpoint says so and the app keeps showing the stored value. */
+const ANABIN_FILE = path.join(here, '..', 'data', 'anabin-institutions.json');
+const ANABIN_API = 'https://anabin.kmk.org/api/public/institution';
+const ANABIN_PK = '6729e86c8dccc94e46b98595';
+let ANABIN = null;
+
+function anabinData() {
+  if (ANABIN) return ANABIN;
+  try { ANABIN = JSON.parse(fs.readFileSync(ANABIN_FILE, 'utf8')); } catch { ANABIN = { institutions: [] }; }
+  return ANABIN;
+}
+function anabinSave() {
+  try { fs.writeFileSync(ANABIN_FILE, JSON.stringify(anabinData(), null, 1) + '\n'); } catch { /* read-only fs: the stored copy still answers */ }
+}
+const normStatus = (s) => {
+  if (!s) return null;
+  const c = String(s).replace(/\s+/g, '');
+  return c === 'H+' || c === 'H+/-' || c === 'H-' ? c : String(s);
+};
+const stripHtml = (h) => String(h || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
+function anabinFind(inst) {
+  if (!inst) return null;
+  if (inst.anabinId) {
+    const hit = anabinData().institutions.find(x => x.anabinId === inst.anabinId);
+    if (hit) return hit;
+  }
+  const name = String(inst.institution || '').toLowerCase().trim();
+  if (!name) return null;
+  return anabinData().institutions.find(x => x.name.toLowerCase() === name) || null;
+}
+
+app.get('/api/anabin/institutions', requireUser, (req, res) => {
+  const q = String(req.query.q || '').toLowerCase().trim();
+  const all = anabinData().institutions;
+  const rows = (q ? all.filter(x => x.name.toLowerCase().includes(q) ||
+    (x.abbr || '').toLowerCase().includes(q) ||
+    (x.aliases || []).some(a => a.toLowerCase().includes(q))) : all).slice(0, 20);
+  res.json({
+    checkedAt: anabinData().checkedAt,
+    source: 'anabin (KMK / Zentralstelle für ausländisches Bildungswesen)',
+    total: all.length,
+    institutions: rows.map(x => ({ id: x.id, anabinId: x.anabinId, name: x.name, abbr: x.abbr, city: x.city,
+      status: x.status, type: x.type, checkedAt: x.checkedAt || anabinData().checkedAt, website: x.website }))
+  });
+});
+
+/* Live check — one institution, server side, with a hard timeout. */
+const anabinHits = new Map();
+app.post('/api/anabin/live', requireUser, async (req, res) => {
+  const body = req.body || {};
+  const row = anabinFind(body);
+  if (!row) {
+    return res.status(404).json({ ok: false, error: 'That institution is not in the local anabin snapshot. Search the name on anabin.kmk.org and add it by hand.' });
+  }
+  const key = req.user.id + ':' + row.anabinId;
+  const last = anabinHits.get(key) || 0;
+  if (Date.now() - last < 20000) {
+    return res.json({ ok: true, cached: true, institution: anabinRowView(row), note: 'Checked a moment ago.' });
+  }
+  anabinHits.set(key, Date.now());
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const url = ANABIN_API + '/' + encodeURIComponent(row.anabinId) + '?reference=true';
+    const r = await fetch(url, { signal: ctrl.signal, headers: { accept: 'application/json' } });
+    if (!r.ok) throw new Error('anabin answered ' + r.status);
+    const data = await r.json();
+    const fresh = normStatus((((data.institutionType || {}).status) || {}).nameShort) ||
+      normStatus((((data || {}).status) || {}).nameShort);
+    if (!fresh) throw new Error('anabin returned no status for this institution');
+    row.status = fresh;
+    row.checkedAt = new Date().toISOString();
+    row.checkedLive = true;
+    anabinData().checkedAt = today();
+    anabinSave();
+    res.json({ ok: true, live: true, institution: anabinRowView(row) });
+  } catch (e) {
+    res.status(502).json({
+      ok: false,
+      error: 'Could not reach anabin just now (' + (e.name === 'AbortError' ? 'timed out' : e.message) + '). The stored status from ' +
+        ((row.checkedAt || anabinData().checkedAt) || 'the last refresh') + ' is still shown — check anabin.kmk.org yourself before you apply.',
+      institution: anabinRowView(row)
+    });
+  } finally { clearTimeout(timer); }
+});
+
+const anabinRowView = (x) => ({ id: x.id, anabinId: x.anabinId, name: x.name, abbr: x.abbr, city: x.city,
+  status: x.status, type: x.type, checkedAt: x.checkedAt || anabinData().checkedAt, website: x.website });
 
 /* ================================================================ PROFILE */
 app.get('/api/profile', requireUser, (req, res) => {
@@ -721,12 +891,76 @@ app.get('/api/admin/listings/:id', requireAdmin, (req, res) => {
   res.json({ listing: l });
 });
 
-const EDITABLE = ['title', 'provider', 'kind', 'status', 'degreeLevels', 'fundingType', 'deadline', 'opensDate',
+const EDITABLE = ['title', 'provider', 'kind', 'status', 'degreeLevels', 'fundingType', 'deadline', 'opensDate', 'intakes',
   'isAnnual', 'minCgpa', 'minPercentage', 'germanGradeCutoff', 'ieltsRequired', 'minIelts', 'maxAge',
   'allowedCountries', 'genderRestriction', 'maxIncomeBracket', 'minWorkExpMonths', 'requiredPriorFields',
   'requiredEcts', 'hsscEntryRoute', 'hsscGroups', 'applyUrl', 'officialUrl', 'sourceUrl', 'lastVerified',
   'apsRequired', 'minGermanLevel', 'tuitionPerSemester', 'semesterFee', 'languageMode', 'coverage',
   'description', 'applySteps', 'documents', 'evidence', 'fieldEvidence'];
+
+/* ------------------------------------------------- the 13 hard match fields
+   An admin fills these on the programme listing itself, against the university
+   page they have open. Everything the engine reads is here; a key left null is
+   "not verified", which the engine reports as Check manually — never as a pass. */
+const MATCH_KEYS = ['level', 'teachingLanguages', 'acceptedFields', 'anyField', 'requiresAbiturEquivalent',
+  'bridgePossible', 'minGpaGerman', 'ieltsReq', 'toeflReq', 'pteReq', 'englishOther', 'englishOtherText',
+  'germanReq', 'subjectEcts', 'bachelorEctsRequired', 'otherRequirements', 'intake', 'deadlineNonEu',
+  'state', 'city', 'sourceUrl', 'note'];
+const MATCH_NUMBERS = ['minGpaGerman', 'ieltsReq', 'toeflReq', 'pteReq', 'bachelorEctsRequired'];
+const ENGLISH_OTHER = ['moi_accepted', 'moi_rejected', 'other'];
+
+function sanitizeMatch(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const out = {};
+  for (const k of MATCH_KEYS) {
+    const v = raw[k];
+    if (v === undefined) continue;
+    if (v === null || v === '') { out[k] = null; continue; }
+    if (MATCH_NUMBERS.includes(k)) {
+      const n = Number(v);
+      out[k] = Number.isFinite(n) && n >= 0 ? n : null;
+      continue;
+    }
+    if (k === 'englishOther') { out[k] = ENGLISH_OTHER.includes(v) ? v : null; continue; }
+    if (k === 'germanReq') {
+      out[k] = v && typeof v === 'object'
+        ? { level: v.level ? String(v.level).toLowerCase().slice(0, 4) : null, test: v.test ? String(v.test).slice(0, 60) : null }
+        : null;
+      continue;
+    }
+    if (k === 'subjectEcts') {
+      out[k] = v && typeof v === 'object'
+        ? Object.fromEntries(Object.entries(v).map(([s, n]) => [String(s).slice(0, 30), Number(n) || 0]).filter(([, n]) => n > 0))
+        : null;
+      continue;
+    }
+    if (k === 'otherRequirements') {
+      out[k] = v && typeof v === 'object' ? {
+        gre: v.gre && typeof v.gre === 'object' ? {
+          quant: v.gre.quant == null ? null : Number(v.gre.quant),
+          verbal: v.gre.verbal == null ? null : Number(v.gre.verbal),
+          aw: v.gre.aw == null ? null : Number(v.gre.aw)
+        } : null,
+        gmat: v.gmat == null ? null : Number(v.gmat),
+        gate: v.gate == null ? null : Number(v.gate),
+        testas: v.testas == null ? null : Number(v.testas),
+        sat: v.sat == null ? null : Number(v.sat),
+        act: v.act == null ? null : Number(v.act),
+        workExperienceMonths: v.workExperienceMonths == null ? null : Number(v.workExperienceMonths),
+        motivationLetter: v.motivationLetter === true ? true : null,
+        references: v.references == null ? null : Number(v.references)
+      } : null;
+      continue;
+    }
+    if (k === 'teachingLanguages' || k === 'acceptedFields' || k === 'intake') {
+      out[k] = Array.isArray(v) ? v.slice(0, 12).map(x => String(x).slice(0, 40)) : (v ? [String(v)] : null);
+      continue;
+    }
+    if (k === 'anyField' || k === 'requiresAbiturEquivalent' || k === 'bridgePossible') { out[k] = v === true; continue; }
+    out[k] = typeof v === 'string' ? v.slice(0, 400) : v;
+  }
+  return out;
+}
 
 app.post('/api/admin/listings', requireAdmin, (req, res) => {
   const d = db();
@@ -751,6 +985,7 @@ app.post('/api/admin/listings', requireAdmin, (req, res) => {
     updatedAt: new Date().toISOString()
   };
   EDITABLE.forEach(k => { if (body[k] !== undefined && listing[k] === undefined) listing[k] = body[k]; });
+  if (body.match !== undefined) listing.match = sanitizeMatch(body.match);
   d.listings.unshift(listing);
   log('insert_draft', { adminId: req.user.email, entityType: listing.kind, entityId: listing.id, detail: {} });
   persist();
@@ -765,6 +1000,10 @@ app.put('/api/admin/listings/:id', requireAdmin, (req, res) => {
   if (req.user.role !== 'admin' && body.status === 'verified' && l.status !== 'verified')
     return res.status(403).json({ error: 'Contributors cannot publish. Ask an admin.' });
   EDITABLE.forEach(k => { if (body[k] !== undefined) l[k] = body[k]; });
+  if (body.match !== undefined) {
+    l.match = sanitizeMatch(body.match);
+    if (l.match) { l.match.updatedBy = req.user.email; l.match.updatedAt = new Date().toISOString(); }
+  }
   l.updatedAt = new Date().toISOString();
   log('update', { adminId: req.user.email, entityType: l.kind, entityId: l.id, detail: { fields: Object.keys(body) } });
   persist();

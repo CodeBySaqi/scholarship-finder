@@ -69,14 +69,24 @@ Chromium binary and system libraries; run them where those exist.
 
 ## ScholarPath (matching, embedded — no separate page)
 
-There is no "find my path" page. The student enters the matching fields on
-`/profile` (the **Matching details** card, `#match-fields`), and the verdict shows
-up on the listings themselves: a badge on every programme and scholarship card,
-"*N you can apply to · M to check · K not eligible*" plus a **Can I apply first**
-sort on `/programs` and `/scholarships`, and the full reason-by-reason panel on
-each programme page. The engine (`src/path/engine.js`) and the profile store
-(`db.pathProfiles`) are its own; the listings pages keep their data untouched and
-only gain the badge. It asks only for what can change a verdict.
+There is no "find my path" page. The student fills six numbered steps on
+`/profile` (**1** what you are applying for · **2** languages, IELTS/TOEFL/PTE +
+German · **3** education, with a **+** button per record and the anabin status of
+each university · **4** ECTS (master and above only) · **5** test requirements,
+GRE sections separately/GMAT/SAT/ACT/TestAS/GATE · **6** money), and the verdict
+shows up on the listings themselves: a badge on every programme and scholarship
+card, "*N you can apply to · M to check · K not eligible*" plus a **Can I apply
+first** sort on `/programs` and `/scholarships`, and the full reason-by-reason
+panel on each programme page.
+
+Years of education decide the level (13 for a bachelor, 16 — a completed
+four-year bachelor — for a master), and the anabin status of the student's
+university decides the ZAB (H+ none, H+/- conditional, H- required). The hard
+requirements are filled by an **admin on the programme listing itself**
+(`listing.match`, in the form's "Matching requirements" section); the engine
+(`src/path/engine.js`, `src/path/education.js`) and the profile store
+(`db.pathProfiles`) are its own. A field left empty is unknown — Check yourself —
+never "no requirement". APS is never required for Pakistan.
 
 Three verdicts — **Eligible**, **Check manually**, **Not eligible** — where a
 missing programme value is UNKNOWN (check manually), never "no requirement", and

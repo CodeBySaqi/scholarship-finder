@@ -1,14 +1,27 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Field, Notice, Progress, Icon, useToast } from './ui.jsx';
 import { api } from '../api.js';
 import { germanGpa } from '../path/engine.js';
+import { educationSummary, zabRule, EDU_LABEL, entryYears, APS_NOTE } from '../path/education.js';
 
 /* ==========================================================================
    ScholarPath, embedded in the pages students already use.
 
    There is no separate "find my path" page. The fields live on /profile, the
    verdict appears on each programme card and in full on the programme page.
+
+   The form is numbered 1 → 6 in the order the student answers it:
+
+     1  What you are applying for
+     2  Languages
+     3  Education      (records + anabin status + ZAB)
+     4  ECTS           (master and above only)
+     5  Test requirements
+     6  Money occasion — budget, funding need, blocked account
+
+   Nothing here asks for a passport or bank number, and nothing is kept that the
+   engine never reads.
    ========================================================================== */
 
 export const VERDICT_META = {
@@ -85,8 +98,7 @@ export function EligibilityPanel({ result, kind = 'programme' }) {
   );
 }
 
-/* --------------------------------------------------------------- the fields
-   Only what can change a verdict. Grouped in the order the engine reads them. */
+/* --------------------------------------------------------------- primitives */
 const LEVELS = [{ id: 'bachelor', label: 'Bachelor' }, { id: 'master', label: 'Master' }, { id: 'phd', label: 'PhD' }];
 const LANGS = [{ id: 'english', label: 'English only' }, { id: 'german', label: 'German only' }, { id: 'either', label: 'Either' }];
 const INTAKES = [
@@ -100,7 +112,17 @@ const FUNDING = [
   { id: 'partial', label: 'Partial is enough' },
   { id: 'self', label: 'I can self-fund' }
 ];
-const SCHOOL = [{ id: 'hssc', label: 'HSSC / FSc' }, { id: 'a_levels', label: 'A-Levels' }, { id: 'ib', label: 'IB' }];
+const SCHOOLS = [
+  { id: 'hssc', label: 'HSSC / FSc / FA' },
+  { id: 'a_levels', label: 'A-Levels' },
+  { id: 'ib', label: 'IB' }
+];
+const EDU_STEPS = [
+  { level: 'matric', label: '+ Matric (10th)' },
+  { level: 'hssc', label: '+ Intermediate / HSSC (12th)' },
+  { level: 'bachelor', label: '+ Bachelor' },
+  { level: 'master', label: '+ Master' }
+];
 
 const Chips = ({ value, onChange, options, aria }) => (
   <div className="chips" role="group" aria-label={aria}>
@@ -138,6 +160,18 @@ const setIn = (o, path, value) => {
   return out;
 };
 
+const STEPS = [
+  { n: 1, title: 'What you are applying for' },
+  { n: 2, title: 'Languages' },
+  { n: 3, title: 'Education' },
+  { n: 4, title: 'ECTS' },
+  { n: 5, title: 'Test requirements' },
+  { n: 6, title: 'Money' }
+];
+
+/* ==========================================================================
+   The card
+   ========================================================================== */
 export function MatchFieldsCard({ counts }) {
   const toast = useToast();
   const [draft, setDraft] = useState(null);
@@ -145,6 +179,9 @@ export function MatchFieldsCard({ counts }) {
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [openStep, setOpenStep] = useState(1);
+  const [anabin, setAnabin] = useState({ q: '', rows: [], loading: false, checkedAt: null, error: null });
+  const [liveState, setLiveState] = useState({});
+  const timer = useRef(null);
 
   useEffect(() => {
     let alive = true;
@@ -157,10 +194,17 @@ export function MatchFieldsCard({ counts }) {
     return () => { alive = false; };
   }, []);
 
+  const edu = useMemo(() => educationSummary(draft || {}), [draft]);
+  const entries = get(draft, 'education.entries') || [];
+  const level = get(draft, 'target.level');
+
   const conversion = useMemo(() => {
     const a = (draft && draft.academics) || {};
     if (a.gpaOriginal == null) return null;
-    return germanGpa(a.gpaOriginal, { scaleMax: a.gpaScaleMax == null ? 4 : a.gpaScaleMax, passMark: a.gpaPassMark == null ? 2 : a.gpaPassMark });
+    return germanGpa(a.gpaOriginal, {
+      scaleMax: a.gpaScaleMax == null ? 4 : a.gpaScaleMax,
+      passMark: a.gpaPassMark == null ? 2 : a.gpaPassMark
+    });
   }, [draft]);
 
   if (!loaded || !draft || !meta) {
@@ -169,7 +213,21 @@ export function MatchFieldsCard({ counts }) {
   }
 
   const set = (path, value) => setDraft(d => setIn(d || {}, path, value));
-  const level = get(draft, 'target.level');
+  const setEntry = (id, patch) => setDraft(d => {
+    const list = ((d.education || {}).entries || []).map(e => (e.id === id ? { ...e, ...patch } : e));
+    return { ...d, education: { ...(d.education || {}), entries: list } };
+  });
+  const addEntry = (lvl) => {
+    const id = 'e' + Math.random().toString(36).slice(2, 8);
+    const base = { id, level: lvl, completed: lvl === 'matric' || lvl === 'hssc', semestersDone: null, totalSemesters: null };
+    if (lvl === 'matric' || lvl === 'hssc') base.school = 'hssc';
+    if (lvl === 'bachelor') base.totalSemesters = 8;
+    if (lvl === 'master') base.totalSemesters = 4;
+    setDraft(d => ({ ...d, education: { ...(d.education || {}), entries: [...((d.education || {}).entries || []), base] } }));
+  };
+  const removeEntry = (id) => setDraft(d => ({
+    ...d, education: { ...(d.education || {}), entries: ((d.education || {}).entries || []).filter(e => e.id !== id) }
+  }));
 
   async function save() {
     setSaving(true);
@@ -181,11 +239,38 @@ export function MatchFieldsCard({ counts }) {
     } catch (e) { toast(e.message); } finally { setSaving(false); }
   }
 
-  const steps = [
-    { n: 1, title: 'What you are applying for', pct: meta.steps['1'] },
-    { n: 2, title: 'Academics and scores', pct: meta.steps['2'] },
-    { n: 3, title: 'Money', pct: meta.steps['3'] }
-  ];
+  /* anabin search — debounced, server-side, from our own snapshot */
+  function searchAnabin(q) {
+    setAnabin(a => ({ ...a, q, loading: true, error: null }));
+    clearTimeout(timer.current);
+    timer.current = setTimeout(async () => {
+      try {
+        const r = await api.get('/anabin/institutions?q=' + encodeURIComponent(q));
+        setAnabin(a => ({ ...a, rows: r.institutions || [], checkedAt: r.checkedAt, loading: false }));
+      } catch (e) { setAnabin(a => ({ ...a, loading: false, error: e.message })); }
+    }, 220);
+  }
+
+  async function checkLive(entry) {
+    setLiveState(s => ({ ...s, [entry.id]: { busy: true } }));
+    try {
+      const r = await api.post('/anabin/live', { anabinId: entry.anabinId, institution: entry.institution });
+      setLiveState(s => ({ ...s, [entry.id]: { busy: false, ok: r.ok, live: r.live, text: r.ok ? 'anabin confirms ' + r.institution.status + (r.live ? ' (live just now)' : ' (checked a moment ago)') : r.error } }));
+      if (r.institution && r.ok) setEntry(entry.id, { anabinStatus: r.institution.status, anabinCheckedAt: r.institution.checkedAt });
+    } catch (e) {
+      setLiveState(s => ({ ...s, [entry.id]: { busy: false, ok: false, text: e.message } }));
+    }
+  }
+
+  const levelLine = (lvl) => {
+    const ok = edu.canApply[lvl];
+    return (
+      <span key={lvl} className={'path-can ' + (ok ? 'is-yes' : 'is-no')}>
+        <Icon name={ok ? 'check' : 'close'} size={12} />
+        {lvl === 'phd' ? 'PhD' : lvl[0].toUpperCase() + lvl.slice(1)}: {ok ? 'you can apply' : 'not yet'}
+      </span>
+    );
+  };
 
   return (
     <section className="card" id="match-fields">
@@ -210,28 +295,30 @@ export function MatchFieldsCard({ counts }) {
       )}
 
       <div className="path-steps" style={{ marginTop: 10 }}>
-        {steps.map(s => (
-          <button key={s.n} type="button" className={'path-step' + (openStep === s.n ? ' is-on' : '') + (s.pct === 100 ? ' is-done' : '')}
+        {STEPS.map(s => (
+          <button key={s.n} type="button"
+            className={'path-step' + (openStep === s.n ? ' is-on' : '') + (meta.steps[s.n] === 100 ? ' is-done' : '')}
             onClick={() => setOpenStep(openStep === s.n ? 0 : s.n)}>
-            <span className="path-step__n">{s.pct === 100 ? <Icon name="check" size={13} /> : s.n}</span>
+            <span className="path-step__n">{meta.steps[s.n] === 100 ? <Icon name="check" size={13} /> : s.n}</span>
             <span className="path-step__t">{s.title}</span>
-            <span className="cap">{s.pct}%</span>
+            <span className="cap">{meta.steps[s.n]}%</span>
           </button>
         ))}
       </div>
 
+      {/* ---------------------------------------------------------- step 1 */}
       {openStep === 1 && (
         <div className="path-fields">
-          <Field label="Target level">
+          <Field label="1. Which degree are you applying for?">
             <Chips aria="Target level" value={level} onChange={v => set('target.level', v)} options={LEVELS} />
           </Field>
-          <Field label="Teaching language" help="A German-taught programme needs German whatever you prefer here.">
+          <Field label="Teaching language you want" help="A German-taught programme needs German whatever you prefer here.">
             <Chips aria="Teaching language" value={get(draft, 'target.language')} onChange={v => set('target.language', v)} options={LANGS} />
           </Field>
           <Field label="Intended intake">
             <Chips aria="Intended intake" value={get(draft, 'target.intake')} onChange={v => set('target.intake', v)} options={INTAKES} />
           </Field>
-          <Field label="Nationality" help="Non-EU tuition and deadlines depend on this.">
+          <Field label="Nationality" help="Non-EU tuition and deadlines depend on this. APS is never required for Pakistan.">
             <input className="input" list="country-list" placeholder="PK" maxLength={2}
               value={get(draft, 'nationality.nationality') || ''}
               onChange={e => set('nationality.nationality', e.target.value.toUpperCase())} />
@@ -239,80 +326,24 @@ export function MatchFieldsCard({ counts }) {
               {['PK', 'IN', 'BD', 'NG', 'EG', 'CN', 'VN', 'ID', 'DE'].map(x => <option key={x} value={x} />)}
             </datalist>
           </Field>
+          <div className="row wr" style={{ gap: 6 }}>
+            {['bachelor', 'master', 'phd'].map(levelLine)}
+          </div>
         </div>
       )}
 
+      {/* ---------------------------------------------------------- step 2 */}
       {openStep === 2 && (
         <div className="path-fields">
-          {level === 'bachelor' && (
-            <>
-              <Field label="School qualification">
-                <Chips aria="School qualification" value={get(draft, 'academics.schoolQualification')}
-                  onChange={v => set('academics.schoolQualification', v)} options={SCHOOL} />
-              </Field>
-              <Notice tone="warning">
-                An HSSC is not the Abitur. The routes are one year of a Pakistani bachelor in the same field,
-                a Studienkolleg with the Feststellungsprüfung, or A-Levels/IB.
-              </Notice>
-              <YesNo label="One year of university completed?" value={get(draft, 'academics.undergradYearDone')}
-                onChange={v => set('academics.undergradYearDone', v)} />
-              {get(draft, 'academics.undergradYearDone') === true && (
-                <YesNo label="…in the same field as the programme?" value={get(draft, 'academics.undergradYearSameField')}
-                  onChange={v => set('academics.undergradYearSameField', v)} />
-              )}
-              <YesNo label="Studienkolleg + Feststellungsprüfung done?" value={get(draft, 'academics.studienkolleg')}
-                onChange={v => set('academics.studienkolleg', v)} />
-              <div className="g2">
-                <Num label="TestAS score" value={get(draft, 'tests.testas')} onChange={v => set('tests.testas', v)} max={200} />
-                <Num label="SAT total" value={get(draft, 'tests.sat')} onChange={v => set('tests.sat', v)} max={1600} />
-              </div>
-              <Num label="ACT composite" value={get(draft, 'tests.act')} onChange={v => set('tests.act', v)} max={36} />
-            </>
-          )}
-
-          {(level === 'master' || level === 'phd') && (
-            <>
-              <Field label={level === 'phd' ? 'Master field' : 'Bachelor field'} help="This is what field fit is derived from.">
-                <input className="input" placeholder="computer_science"
-                  value={get(draft, level === 'phd' ? 'academics.masterField' : 'academics.bachelorField') || ''}
-                  onChange={e => set(level === 'phd' ? 'academics.masterField' : 'academics.bachelorField', e.target.value)} />
-              </Field>
-              {level === 'master' && (
-                <div className="g2">
-                  <Num label="Bachelor total ECTS" help="A 4-year Pakistani BS is usually about 180." value={get(draft, 'academics.bachelorEcts')}
-                    onChange={v => set('academics.bachelorEcts', v)} max={400} step={1} />
-                  <Num label="ECTS in computer science" value={get(draft, 'academics.subjectEcts.cs')}
-                    onChange={v => set('academics.subjectEcts.cs', v)} max={400} step={1} />
-                </div>
-              )}
-              <div className="g2">
-                <Num label="ECTS in mathematics" value={get(draft, 'academics.subjectEcts.maths')}
-                  onChange={v => set('academics.subjectEcts.maths', v)} max={400} step={1} />
-                <Num label="ECTS in statistics" value={get(draft, 'academics.subjectEcts.stats')}
-                  onChange={v => set('academics.subjectEcts.stats', v)} max={400} step={1} />
-              </div>
-            </>
-          )}
-
+          <h3 className="h3">English</h3>
           <div className="g3">
-            <Num label="GPA (your scale)" value={get(draft, 'academics.gpaOriginal')} onChange={v => set('academics.gpaOriginal', v)} max={10} />
-            <Num label="Scale maximum" value={get(draft, 'academics.gpaScaleMax')} onChange={v => set('academics.gpaScaleMax', v)} max={10} step={0.5} placeholder="4" />
-            <Num label="Lowest passing grade" value={get(draft, 'academics.gpaPassMark')} onChange={v => set('academics.gpaPassMark', v)} max={10} step={0.5} placeholder="2" />
-          </div>
-          {conversion && (
-            <div className="path-conv">
-              <div><b className="w500">German grade {conversion.value}</b> <span className="cap">(1.0 best, 4.0 pass)</span></div>
-              <code className="path-conv__work">{conversion.working}</code>
-              <p className="cap">Modified Bavarian Formula. A university may use its own table.</p>
-            </div>
-          )}
-
-          <div className="g2">
             <Num label="IELTS Academic" value={get(draft, 'language.ielts')} onChange={v => set('language.ielts', v)} max={9} step={0.5} />
             <Num label="TOEFL iBT" value={get(draft, 'language.toefl')} onChange={v => set('language.toefl', v)} max={120} step={1} />
+            <Num label="PTE Academic" value={get(draft, 'language.pte')} onChange={v => set('language.pte', v)} max={90} step={1} />
           </div>
           <YesNo label="Was your degree taught in English?" help="Recorded, but it never waives a test on its own — some programmes reject MOI outright."
             value={get(draft, 'language.englishMediumDegree')} onChange={v => set('language.englishMediumDegree', v)} />
+          <h3 className="h3">German</h3>
           <Field label="German level">
             <Chips aria="German level" value={get(draft, 'language.germanLevel')} onChange={v => set('language.germanLevel', v)}
               options={GERMAN.map(g => ({ id: g, label: g === 'none' ? 'None' : g.toUpperCase() }))} />
@@ -321,18 +352,178 @@ export function MatchFieldsCard({ counts }) {
             <input className="input" placeholder="TestDaF 4 / DSH-2 / Goethe C1 / Telc C1" value={get(draft, 'language.germanTest') || ''}
               onChange={e => set('language.germanTest', e.target.value)} />
           </Field>
+          <p className="cap">A test score is only ever compared with what a programme states. Nothing here is assumed.</p>
+        </div>
+      )}
 
-          <h3 className="h3">GRE — sections separately</h3>
+      {/* ---------------------------------------------------------- step 3 */}
+      {openStep === 3 && (
+        <div className="path-fields">
+          <div className="path-edu-summary">
+            <div>
+              <div className="path-edu-summary__n">{edu.years} years</div>
+              <p className="cap">of education, from your records below</p>
+            </div>
+            <div className="row wr" style={{ gap: 6 }}>{['bachelor', 'master', 'phd'].map(levelLine)}</div>
+          </div>
+
+          {entries.length === 0 && (
+            <Notice tone="info">Add your school certificate and your bachelor record. Two semesters of a bachelor is the minimum for a German bachelor (13 years); a completed four-year bachelor (16 years) is the minimum for a master.</Notice>
+          )}
+
+          {entries.map((e, i) => (
+            <div className="path-edu" key={e.id}>
+              <div className="path-edu__head">
+                <b className="w500">{EDU_LABEL[e.level] || e.level}{e.institution ? ' · ' + e.institution : ''}</b>
+                <span className="row" style={{ gap: 6 }}>
+                  <span className="cap">{entryYears(e)} years</span>
+                  <button className="btn btn--text btn--sm" type="button" onClick={() => removeEntry(e.id)}>Remove</button>
+                </span>
+              </div>
+
+              {(e.level === 'matric' || e.level === 'hssc') && (
+                <div className="g2">
+                  <Field label={e.level === 'hssc' ? 'School / college' : 'School'}>
+                    <input className="input" value={e.institution || ''} onChange={ev => setEntry(e.id, { institution: ev.target.value })} />
+                  </Field>
+                  <Num label="Percentage" value={e.percentage} onChange={v => setEntry(e.id, { percentage: v })} max={100} step={0.1} />
+                  {e.level === 'hssc' && (
+                    <Field label="Certificate">
+                      <Chips aria="School certificate" value={e.school} onChange={v => setEntry(e.id, { school: v })}
+                        options={SCHOOLS} />
+                    </Field>
+                  )}
+                  <Field label="Group / subjects">
+                    <input className="input" placeholder="pre_engineering" value={e.field || ''} onChange={ev => setEntry(e.id, { field: ev.target.value })} />
+                  </Field>
+                </div>
+              )}
+
+              {(e.level === 'bachelor' || e.level === 'master') && (
+                <>
+                  <Field label="University" help="Type to search the anabin list of Pakistani institutions.">
+                    <input className="input" value={e.institution || ''}
+                      onChange={ev => { setEntry(e.id, { institution: ev.target.value, anabinId: null, anabinStatus: null }); searchAnabin(ev.target.value); }} />
+                  </Field>
+                  {anabin.q && anabin.q === e.institution && anabin.rows.length > 0 && (
+                    <div className="path-anabin-list">
+                      {anabin.rows.map(r => (
+                        <button key={r.id} type="button" className="path-anabin-opt"
+                          onClick={() => { setEntry(e.id, { institution: r.name, anabinId: r.anabinId, anabinStatus: r.status, anabinCheckedAt: r.checkedAt }); setAnabin(a => ({ ...a, q: '', rows: [] })); }}>
+                          <span>{r.name}</span>
+                          <span className={'anabin-tag is-' + (r.status || 'none').replace(/[+/]/g, '')}>{r.status || 'no record'}</span>
+                          <span className="cap">{r.city || ''}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {anabin.error && <p className="cap">Institution search failed: {anabin.error}</p>}
+
+                  {e.anabinStatus && (
+                    <div className={'path-anabin is-' + (e.anabinStatus || 'none').replace(/[+/]/g, '')}>
+                      <div className="row sp wr" style={{ gap: 8 }}>
+                        <span><b className="w500">anabin {e.anabinStatus}</b> — {zabRule(e.anabinStatus).text}</span>
+                        <button className="btn btn--outlined btn--sm" type="button" disabled={!!(liveState[e.id] || {}).busy}
+                          onClick={() => checkLive(e)}>
+                          {(liveState[e.id] || {}).busy ? 'Checking…' : 'Check live'}
+                        </button>
+                      </div>
+                      {e.anabinCheckedAt && <span className="cap">Stored status from {String(e.anabinCheckedAt).slice(0, 10)}</span>}
+                      {(liveState[e.id] || {}).text && <span className="cap">{liveState[e.id].text}</span>}
+                    </div>
+                  )}
+                  {!e.anabinStatus && e.institution && !anabin.rows.length && (
+                    <p className="cap">No anabin record picked yet — open the search above and choose your university. Without it the ZAB question is answered as “check anabin”.</p>
+                  )}
+
+                  <div className="g3">
+                    <Num label="CGPA" value={e.cgpa} onChange={v => setEntry(e.id, { cgpa: v })} max={10} step={0.01} />
+                    <Num label="Scale maximum" value={e.scaleMax} onChange={v => setEntry(e.id, { scaleMax: v })} max={10} step={0.5} placeholder="4" />
+                    <Num label="Lowest passing grade" value={e.passMark} onChange={v => setEntry(e.id, { passMark: v })} max={10} step={0.5} placeholder="2" />
+                  </div>
+                  {e.cgpa != null && (() => {
+                    const c = germanGpa(e.cgpa, { scaleMax: e.scaleMax == null ? 4 : e.scaleMax, passMark: e.passMark == null ? 2 : e.passMark });
+                    return c ? (
+                      <div className="path-conv">
+                        <div><b className="w500">German grade {c.value}</b> <span className="cap">(1.0 best, 4.0 pass)</span></div>
+                        <code className="path-conv__work">{c.working}</code>
+                        <p className="cap">Modified Bavarian Formula. A university may use its own table.</p>
+                      </div>
+                    ) : null;
+                  })()}
+
+                  <div className="g3">
+                    <Field label="Field of study" help="This is what field fit is derived from.">
+                      <input className="input" placeholder="computer_science" value={e.field || ''} onChange={ev => setEntry(e.id, { field: ev.target.value })} />
+                    </Field>
+                    <Num label="Semesters completed" help="Half a year each." value={e.semestersDone} onChange={v => setEntry(e.id, { semestersDone: v })} max={12} step={1} />
+                    <Num label="Semesters in total" value={e.totalSemesters} onChange={v => setEntry(e.id, { totalSemesters: v })} max={12} step={1} />
+                  </div>
+                  <YesNo label="Degree completed?" value={e.completed} onChange={v => setEntry(e.id, { completed: v })} />
+                </>
+              )}
+            </div>
+          ))}
+
+          <div className="row wr" style={{ gap: 6 }}>
+            {EDU_STEPS.map(s => (
+              <button key={s.level} type="button" className="btn btn--outlined btn--sm" onClick={() => addEntry(s.level)}>{s.label}</button>
+            ))}
+          </div>
+          <p className="cap">{APS_NOTE}</p>
+        </div>
+      )}
+
+      {/* ---------------------------------------------------------- step 4 */}
+      {openStep === 4 && (
+        <div className="path-fields">
+          {level === 'bachelor' || !level ? (
+            <Notice tone="info">
+              {level === 'bachelor'
+                ? 'ECTS are not asked for a bachelor application — a school certificate has no ECTS. This step is skipped for you.'
+                : 'Choose a target degree in step 1 first.'}
+            </Notice>
+          ) : (
+            <>
+              <p className="cap">ECTS of your completed degree. A programme states a minimum and, often, a minimum in specific subjects — that is the single most common reason a Pakistani application is rejected.</p>
+              <Num label="Total ECTS of your completed degree" help="A four-year Pakistani BS is usually about 180 ECTS."
+                value={get(draft, 'academics.bachelorEcts')} onChange={v => set('academics.bachelorEcts', v)} max={400} step={1} />
+              <div className="g3">
+                <Num label="ECTS in computer science" value={get(draft, 'academics.subjectEcts.cs')} onChange={v => set('academics.subjectEcts.cs', v)} max={400} step={1} />
+                <Num label="ECTS in mathematics" value={get(draft, 'academics.subjectEcts.maths')} onChange={v => set('academics.subjectEcts.maths', v)} max={400} step={1} />
+                <Num label="ECTS in statistics" value={get(draft, 'academics.subjectEcts.stats')} onChange={v => set('academics.subjectEcts.stats', v)} max={400} step={1} />
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* ---------------------------------------------------------- step 5 */}
+      {openStep === 5 && (
+        <div className="path-fields">
+          <p className="cap">Only a test a programme explicitly requires can change a verdict. Fill in what you have; skip what you have not taken.</p>
+          <YesNo label="I have not taken any of these tests" value={get(draft, 'tests.noneTaken')} onChange={v => set('tests.noneTaken', v)} />
+          <h3 className="h3">GRE — sections separately, never a total</h3>
           <div className="g3">
             <Num label="Quantitative" value={get(draft, 'tests.gre.quant')} onChange={v => set('tests.gre.quant', v)} max={170} step={1} />
             <Num label="Verbal" value={get(draft, 'tests.gre.verbal')} onChange={v => set('tests.gre.verbal', v)} max={170} step={1} />
             <Num label="Analytical writing" value={get(draft, 'tests.gre.aw')} onChange={v => set('tests.gre.aw', v)} max={6} step={0.5} />
           </div>
-          <Num label="GATE score (if applicable)" value={get(draft, 'tests.gate')} onChange={v => set('tests.gate', v)} max={1000} step={1} />
+          <div className="g3">
+            <Num label="GMAT total" help="Business and management programmes." value={get(draft, 'tests.gmat')} onChange={v => set('tests.gmat', v)} max={800} step={10} />
+            <Num label="GATE score" value={get(draft, 'tests.gate')} onChange={v => set('tests.gate', v)} max={1000} step={1} />
+            <Num label="TestAS score" help="German bachelor programmes; 100 is the average core score." value={get(draft, 'tests.testas')} onChange={v => set('tests.testas', v)} max={200} step={1} />
+          </div>
+          <div className="g3">
+            <Num label="SAT total" value={get(draft, 'tests.sat')} onChange={v => set('tests.sat', v)} max={1600} step={10} />
+            <Num label="ACT composite" value={get(draft, 'tests.act')} onChange={v => set('tests.act', v)} max={36} step={1} />
+            <Num label="Work experience (months)" value={get(draft, 'academics.workExperienceMonths')} onChange={v => set('academics.workExperienceMonths', v)} max={600} step={1} />
+          </div>
         </div>
       )}
 
-      {openStep === 3 && (
+      {/* ---------------------------------------------------------- step 6 */}
+      {openStep === 6 && (
         <div className="path-fields">
           <div className="g2">
             <Num label="Max tuition per semester (€)" help="0 means free or public universities only. Baden-Württemberg charges non-EU €1,500; TUM €6,000."

@@ -81,9 +81,32 @@ export default function ListingForm() {
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
+  /* ---- the 13 hard matching fields, stored on the listing itself ---- */
+  const M = form.match || {};
+  const setM = (k, v) => setForm(f => ({ ...f, match: { ...(f.match || {}), [k]: v } }));
+  const setNum = (k, v) => setM(k, v === '' ? null : Number(v));
+  const setIn = (k, sub, v) => setForm(f => ({ ...f, match: { ...(f.match || {}), [k]: { ...((f.match || {})[k] || {}), [sub]: v === '' ? null : Number(v) } } }));
+  const setInRaw = (k, sub, v) => setForm(f => ({ ...f, match: { ...(f.match || {}), [k]: { ...((f.match || {})[k] || {}), [sub]: v } } }));
+  const req = (M.otherRequirements || {});
+  const setReq = (sub, v) => setForm(f => ({
+    ...f,
+    match: { ...(f.match || {}), otherRequirements: { ...((f.match || {}).otherRequirements || {}), [sub]: v === '' ? null : Number(v) } }
+  }));
+  const subjectEctsText = (M.subjectEcts && typeof M.subjectEcts === 'object')
+    ? Object.entries(M.subjectEcts).map(([k, v]) => k + ':' + v).join(', ') : '';
+  const setSubjectEcts = (text) => {
+    const out = {};
+    for (const part of String(text).split(',')) {
+      const [k, v] = part.split(':').map(x => (x || '').trim());
+      if (k && v && Number(v) > 0) out[k] = Number(v);
+    }
+    setM('subjectEcts', Object.keys(out).length ? out : null);
+  };
+
   function collect() {
     return {
       ...form,
+      match: form.match || null,
       coverage: List(coverage),
       documents: List(docs),
       allowedCountries: List(countries),
@@ -288,6 +311,129 @@ export default function ListingForm() {
               </Field>
             </div>
             <Notice tone="info">A value only reaches students after this group is ticked as reviewed below and a second person publishes.</Notice>
+          </section>
+
+          {/* --------------------------------------- matching requirements */}
+          <section className="card" id="match-requirements">
+            <div className="row sp"><h2 className="h2">Matching requirements</h2><span className="tag tag--out">ScholarPath</span></div>
+            <p className="cap">
+              The hard fields the eligibility engine reads, copied from the university page you have open.
+              <b className="w500"> Leave a field empty when the page does not state it</b> — empty becomes “Check yourself” for the student,
+              never “no requirement”. None of these values is guessed by the app.
+            </p>
+
+            <div className="g3">
+              <Field id="m-level" label="Programme level">
+                <select className="select" id="m-level" value={M.level || (form.degreeLevels || [])[0] || ''} onChange={e => setM('level', e.target.value || null)}>
+                  {['', 'bachelor', 'master', 'phd'].map(v => <option key={v} value={v}>{v || 'Not stated'}</option>)}
+                </select>
+              </Field>
+              <Field id="m-anyField" label="Accepted fields">
+                <select className="select" id="m-anyField" value={M.anyField ? 'all' : 'some'} onChange={e => setM('anyField', e.target.value === 'all')}>
+                  <option value="some">Restricted to listed fields</option>
+                  <option value="all">Open to all fields</option>
+                </select>
+              </Field>
+              <Field id="m-acceptedFields" label="Accepted fields (comma separated)" help="computer_science, informatics, software">
+                <input className="input" id="m-acceptedFields" value={(M.acceptedFields || []).join(', ')}
+                  onChange={e => setM('acceptedFields', e.target.value.split(',').map(x => x.trim()).filter(Boolean))} />
+              </Field>
+            </div>
+
+            <div className="g3">
+              <Field id="m-minGpa" label="Minimum German grade" help="1.0 best, 4.0 pass. Lower is better.">
+                <input className="input" id="m-minGpa" type="number" min="1" max="4" step="0.1" value={M.minGpaGerman ?? ''} onChange={e => setNum('minGpaGerman', e.target.value)} />
+              </Field>
+              <Field id="m-bachelorEcts" label="Bachelor ECTS required" help="Master programmes only.">
+                <input className="input" id="m-bachelorEcts" type="number" min="0" max="400" step="10" value={M.bachelorEctsRequired ?? ''} onChange={e => setNum('bachelorEctsRequired', e.target.value)} />
+              </Field>
+              <Field id="m-subjectEcts" label="Subject ECTS required" help="Example: cs:90, maths:30">
+                <input className="input" id="m-subjectEcts" value={subjectEctsText} onChange={e => setSubjectEcts(e.target.value)} />
+              </Field>
+            </div>
+
+            <div className="g3">
+              <Field id="m-ielts" label="IELTS Academic required">
+                <input className="input" id="m-ielts" type="number" min="0" max="9" step="0.5" value={M.ieltsReq ?? ''} onChange={e => setNum('ieltsReq', e.target.value)} />
+              </Field>
+              <Field id="m-toefl" label="TOEFL iBT required">
+                <input className="input" id="m-toefl" type="number" min="0" max="120" step="1" value={M.toeflReq ?? ''} onChange={e => setNum('toeflReq', e.target.value)} />
+              </Field>
+              <Field id="m-pte" label="PTE Academic required">
+                <input className="input" id="m-pte" type="number" min="0" max="90" step="1" value={M.pteReq ?? ''} onChange={e => setNum('pteReq', e.target.value)} />
+              </Field>
+            </div>
+
+            <div className="g2">
+              <Field id="m-englishOther" label="English-medium instruction (MOI)" help="Tübingen, RWTH and BTU reject MOI; FAU and TU Darmstadt accept it. Per programme — never a global rule.">
+                <select className="select" id="m-englishOther" value={M.englishOther || ''} onChange={e => setM('englishOther', e.target.value || null)}>
+                  <option value="">Not stated</option>
+                  <option value="moi_accepted">MOI accepted instead of a test</option>
+                  <option value="moi_rejected">MOI explicitly rejected</option>
+                  <option value="other">Only an “other” note on the page</option>
+                </select>
+              </Field>
+              <Field id="m-englishOtherText" label="Quote from the page" help="The sentence this choice came from.">
+                <input className="input" id="m-englishOtherText" value={M.englishOtherText || ''} onChange={e => setM('englishOtherText', e.target.value || null)} />
+              </Field>
+            </div>
+
+            <div className="g3">
+              <Field id="m-germanLevel" label="German level required">
+                <select className="select" id="m-germanLevel" value={(M.germanReq || {}).level || ''} onChange={e => setInRaw('germanReq', 'level', e.target.value || null)}>
+                  {['', 'a1', 'a2', 'b1', 'b2', 'c1', 'c2'].map(v => <option key={v} value={v}>{v ? v.toUpperCase() : 'None stated'}</option>)}
+                </select>
+              </Field>
+              <Field id="m-germanTest" label="German certificate named">
+                <input className="input" id="m-germanTest" placeholder="DSH-2 / TestDaF 4" value={(M.germanReq || {}).test || ''} onChange={e => setInRaw('germanReq', 'test', e.target.value || null)} />
+              </Field>
+              <Field id="m-abitur" label="Abitur equivalence required?" help="Bachelor programmes: the school certificate must open a German bachelor.">
+                <select className="select" id="m-abitur" value={M.requiresAbiturEquivalent === false ? 'no' : 'yes'}
+                  onChange={e => setM('requiresAbiturEquivalent', e.target.value === 'yes')}>
+                  <option value="yes">Yes — Abitur equivalent needed</option>
+                  <option value="no">No — open entry route stated</option>
+                </select>
+              </Field>
+            </div>
+
+            <h3 className="h3">Test gates — only when the page names them</h3>
+            <div className="g3">
+              <Field id="m-gre-quant" label="GRE Quantitative">
+                <input className="input" id="m-gre-quant" type="number" min="130" max="170" value={(req.gre || {}).quant ?? ''} onChange={e => setIn('otherRequirements', 'gre', { ...(req.gre || {}), quant: e.target.value === '' ? null : Number(e.target.value) })} />
+              </Field>
+              <Field id="m-gre-verbal" label="GRE Verbal">
+                <input className="input" id="m-gre-verbal" type="number" min="130" max="170" value={(req.gre || {}).verbal ?? ''} onChange={e => setIn('otherRequirements', 'gre', { ...(req.gre || {}), verbal: e.target.value === '' ? null : Number(e.target.value) })} />
+              </Field>
+              <Field id="m-gre-aw" label="GRE Analytical writing">
+                <input className="input" id="m-gre-aw" type="number" min="0" max="6" step="0.5" value={(req.gre || {}).aw ?? ''} onChange={e => setIn('otherRequirements', 'gre', { ...(req.gre || {}), aw: e.target.value === '' ? null : Number(e.target.value) })} />
+              </Field>
+            </div>
+            <div className="g3">
+              <Field id="m-gmat" label="GMAT total"><input className="input" id="m-gmat" type="number" min="0" max="800" step="10" value={req.gmat ?? ''} onChange={e => setReq('gmat', e.target.value)} /></Field>
+              <Field id="m-gate" label="GATE score"><input className="input" id="m-gate" type="number" min="0" max="1000" value={req.gate ?? ''} onChange={e => setReq('gate', e.target.value)} /></Field>
+              <Field id="m-testas" label="TestAS score"><input className="input" id="m-testas" type="number" min="0" max="200" value={req.testas ?? ''} onChange={e => setReq('testas', e.target.value)} /></Field>
+            </div>
+            <div className="g3">
+              <Field id="m-sat" label="SAT total"><input className="input" id="m-sat" type="number" min="400" max="1600" step="10" value={req.sat ?? ''} onChange={e => setReq('sat', e.target.value)} /></Field>
+              <Field id="m-act" label="ACT composite"><input className="input" id="m-act" type="number" min="1" max="36" value={req.act ?? ''} onChange={e => setReq('act', e.target.value)} /></Field>
+              <Field id="m-work" label="Work experience (months)"><input className="input" id="m-work" type="number" min="0" max="600" value={req.workExperienceMonths ?? ''} onChange={e => setReq('workExperienceMonths', e.target.value)} /></Field>
+            </div>
+            <div className="g3">
+              <Field id="m-intake" label="Intake(s)" help="WS = winter, SS = summer.">
+                <input className="input" id="m-intake" placeholder="WS, SS" value={(form.intakes || []).join(', ')}
+                  onChange={e => set('intakes', e.target.value.split(',').map(x => x.trim().toUpperCase()).filter(Boolean))} />
+              </Field>
+              <Field id="m-semesterFee" label="Semester contribution (EUR)" help="Not tuition. Most universities charge €120–460.">
+                <input className="input" id="m-semesterFee" type="number" min="0" max="2000" step="10" value={form.semesterFee ?? ''} onChange={e => set('semesterFee', Num(e.target.value))} />
+              </Field>
+              <Field id="m-source" label="Requirements page" help="Where these 13 fields were read from.">
+                <input className="input" id="m-source" type="url" value={M.sourceUrl || ''} onChange={e => setM('sourceUrl', e.target.value || null)} />
+              </Field>
+            </div>
+            <Notice tone="info">
+              A student sees Eligible only when every field above that the programme states is met. Empty means unknown: the verdict is
+              “Check yourself”, with the missing fields listed by name. AI drafts may fill these, but a human must tick the eligibility group before publishing.
+            </Notice>
           </section>
 
           {/* ------------------------------------------------- provenance */}

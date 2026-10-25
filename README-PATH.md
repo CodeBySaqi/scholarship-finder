@@ -9,8 +9,12 @@ each programme page. It does not modify the data of the legacy `/matches`,
 `/scholarships` or `/programs` pages; it only adds the verdict to their cards.
 
 - Profile store: `db.pathProfiles[userId]` (`GET`/`PUT /api/path/profile`)
-- Engine: `src/path/engine.js`
+- Engine: `src/path/engine.js`; years-of-education + anabin rules: `src/path/education.js`
+- Requirements live on the listing itself: `listing.match`, edited by an admin in
+  **Admin → Listing → Matching requirements**
 - Verdicts for live listings: `GET /api/path/verdicts?kind=program|scholarships`
+- anabin: `GET /api/anabin/institutions?q=` (our snapshot) and
+  `POST /api/anabin/live` (one institution, read from anabin.kmk.org, stored with its date)
 - Embedded UI: `src/components/PathFields.jsx` (`EligibilityBadge`,
   `EligibilityPanel`, `MatchFieldsCard`)
 
@@ -118,10 +122,67 @@ what has been read from the calls so far.
 
 ---
 
-## 3. What is asked, and what is not
+## 3. Years of education, anabin and the ZAB
 
-Only these profile groups exist: `target`, `nationality`, `academics`,
-`language`, `tests`, `money`, `scholarshipExtras`, `documents`, `preferences`.
+The education section is a list of records, not a pile of booleans:
+
+| Record | Years of education |
+|---|---|
+| Matric / SSC | 10 |
+| Intermediate / HSSC, A-Levels, IB | 12 |
+| Bachelor | 12 + 0.5 × semesters completed |
+| Master | 16 + 0.5 × semesters completed |
+
+So two semesters of a Pakistani bachelor is **13 years**, four is 14, and a
+completed four-year (8-semester) BS is **16**.
+
+| Target | Rule | Under it |
+|---|---|---|
+| Bachelor | ≥ 13 years, or A-Levels/IB (Abitur-equivalent) | Not eligible, with all three routes named |
+| Master | a completed four-year bachelor = 16 years | Not eligible; a 3-year (15-year) bachelor is named as short |
+| PhD | a completed master = 18 years | Not eligible |
+
+Under the threshold is **arithmetic**, so it is a hard fail with the number
+shown ("A master needs a completed four-year bachelor (16 years). You have 15")
+— not a "check manually". A student who already holds a master keeps the
+bachelor option open: years only ever add up.
+
+**anabin decides the ZAB, not APS.** Every education record stores the
+institution and its anabin status (H+, H+/- or H-), which the student picks from
+our own snapshot of the official anabin database (232 Pakistani institutions,
+`data/anabin-institutions.json`, refreshable with `node tools/anabin-refresh.mjs`).
+The **Check live** button re-reads that one institution from anabin.kmk.org on
+the server and stores the fresh status with its date; if anabin cannot be
+reached the endpoint says so and the stored value stays visible.
+
+| anabin | ZAB statement | Verdict effect |
+|---|---|---|
+| H+ | not needed | pass |
+| H+/- | **conditional** — may be required | pass, with the condition on the card |
+| H- | **required** (Zeugnisbewertung) | Check manually, ZAB named |
+| no record | unknown | Check manually, "check anabin" named |
+
+APS is never part of this: Pakistan is not an APS country (China, India,
+Vietnam, Mongolia). The note is printed next to the education section so the
+rule cannot drift.
+
+---
+
+## 4. What is asked, and what is not
+
+The form is numbered 1 → 6 and answered in that order:
+
+1. **What you are applying for** — degree, teaching language, intake, nationality
+2. **Languages** — IELTS, TOEFL iBT, PTE Academic, MOI (recorded, never auto-waiving), German level + certificate
+3. **Education** — records with a **+** button (Matric / HSSC / Bachelor / Master), the anabin list, semesters completed, CGPA + scale + pass mark
+4. **ECTS** — total and subject breakdown, for a master/PhD target only; a bachelor applicant is told plainly that ECTS do not apply
+5. **Test requirements** — GRE sections separately (never a total), GMAT, GATE, TestAS, SAT, ACT, work experience, or "I have not taken any of these"
+6. **Money** — tuition budget, semester contribution, funding need, blocked account
+
+Profile groups stored: `target`, `nationality`, `academics`, `language`,
+`tests`, `education`, `money`, `scholarshipExtras`, `documents`, `preferences`.
+The server derives `academics.*` (field, GPA, HSSC group) from the education
+records, so there is one place a degree is typed.
 The API whitelists them (`PATH_PROFILE_SHAPE`), so a field the engine never reads
 cannot be stored by accident.
 
@@ -132,7 +193,20 @@ Never collected: passport numbers, CNIC, IBAN, bank details, ID scans.
 
 ---
 
-## 4. Data honesty
+## 5. Where the requirements live now
+
+`listing.match` on the programme listing, filled by an admin against the
+university page — the 13 hard fields in one section of the listing form
+(level, teaching language, accepted fields, German grade, bachelor ECTS, subject
+ECTS, IELTS, TOEFL, PTE, MOI accepted/rejected + the quoted sentence, German
+level + certificate, Abitur equivalence, the test gates, tuition, semester
+contribution, intakes, deadline, requirements page).
+
+`data/path-programmes.json` is only the **seed** for those values (and still the
+source for scholarship rows). What an admin saves on a live listing wins, and a
+field left empty is *unknown* — Check manually — never "no requirement".
+
+## 6. Data honesty
 
 `data/path-programmes.json` holds the catalogue. Every programme carries a
 `source` string naming the page the values came from, and **anything not verified
@@ -146,20 +220,21 @@ exist to prove a rule; the catalogue is not.
 
 ---
 
-## 5. Running it
+## 7. Running it
 
 ```bash
 npm run build                 # client
-node audit/path-tests.mjs     # engine: 41 checks incl. the 8 required cases
-bash audit/run-dom.sh path    # UI: 22 checks against the real app + API
+node audit/path-tests.mjs     # engine: 73 checks incl. the 8 required cases
+bash audit/run-dom.sh path    # UI: 50 checks against the real app + API
                               #     (needs `npm install --no-save happy-dom`)
+node tools/anabin-refresh.mjs # re-read the anabin list for Pakistan
 ```
 
 Full results, case by case, are in `PATH-TEST-REPORT.md`.
 
 ---
 
-## 6. Scope, stated plainly
+## 8. Scope, stated plainly
 
 Matching is **eligibility screening only**. Meeting every stated requirement is
 not an offer of admission, and that sentence is printed in the panel on every

@@ -19,6 +19,8 @@
    Pure functions. `today` is always passed in; this file never reads the clock.
    ========================================================================== */
 
+import { educationSummary, zabRule, APS_NOTE } from './education.js';
+
 export const VERDICT = {
   ELIGIBLE: 'eligible',
   NOT_ELIGIBLE: 'not_eligible',
@@ -163,16 +165,18 @@ function englishStatus(profile, programme) {
   const lang = profile.language || {};
   const ieltsReq = programme.ieltsReq;
   const toeflReq = programme.toeflReq;
+  const pteReq = programme.pteReq;
   const notes = programme.englishOther || null;      // 'moi_accepted' | 'moi_rejected' | 'other' | null
   const noteText = programme.englishOtherText || null;
 
   const myIelts = num(lang.ielts);
   const myToefl = num(lang.toefl);
+  const myPte = num(lang.pte);
   const moi = lang.englishMediumDegree === true;
 
-  const wantsTest = ieltsReq != null || toeflReq != null || notes === 'moi_rejected';
+  const wantsTest = ieltsReq != null || toeflReq != null || pteReq != null || notes === 'moi_rejected';
 
-  return { ieltsReq, toeflReq, notes, noteText, myIelts, myToefl, moi, wantsTest };
+  return { ieltsReq, toeflReq, pteReq, notes, noteText, myIelts, myToefl, myPte, moi, wantsTest };
 }
 
 const num = (v) => (v === null || v === undefined || v === '' || Number.isNaN(Number(v)) ? null : Number(v));
@@ -181,7 +185,7 @@ function checkEnglish(profile, programme, t) {
   const e = englishStatus(profile, programme);
 
   /* nothing stated about English at all */
-  if (e.ieltsReq == null && e.toeflReq == null && !e.notes) {
+  if (e.ieltsReq == null && e.toeflReq == null && e.pteReq == null && !e.notes) {
     /* if the programme is not taught in English, there is nothing to check */
     return;
   }
@@ -202,6 +206,12 @@ function checkEnglish(profile, programme, t) {
     if (e.myToefl == null) parts.push('TOEFL iBT ' + e.toeflReq + ' required');
     else if (e.myToefl >= e.toeflReq) { satisfied = true; parts.push('TOEFL ' + e.myToefl + ' meets ' + e.toeflReq); }
     else parts.push('TOEFL ' + e.myToefl + ' is below ' + e.toeflReq);
+  }
+  if (e.pteReq != null) {
+    stated = true;
+    if (e.myPte == null) parts.push('PTE Academic ' + e.pteReq + ' required');
+    else if (e.myPte >= e.pteReq) { satisfied = true; parts.push('PTE ' + e.myPte + ' meets ' + e.pteReq); }
+    else parts.push('PTE ' + e.myPte + ' is below ' + e.pteReq);
   }
 
   if (satisfied) {
@@ -307,6 +317,13 @@ function checkTests(profile, programme, t) {
     t.pass('GRE', passes.join('; ') || 'GRE requirements met');
   }
 
+  if (other.gmat != null) {
+    const have = num((mine.gmat || {}).total != null ? mine.gmat.total : mine.gmat);
+    if (have == null) t.fail('GMAT', 'GMAT ' + other.gmat + ' required — no GMAT score recorded');
+    else if (have >= other.gmat) t.pass('GMAT', 'GMAT ' + have + ' meets ' + other.gmat);
+    else t.fail('GMAT', 'GMAT ' + have + ' is below ' + other.gmat);
+  }
+
   if (other.gate) {
     const have = num(mine.gate);
     if (have == null) t.fail('GATE', 'GATE ' + other.gate + ' required — no GATE score recorded');
@@ -357,7 +374,8 @@ function checkTests(profile, programme, t) {
 /* ==========================================================================
    One programme, one verdict.
    ========================================================================== */
-export function evaluateProgramme(profile, programme, today = new Date().toISOString().slice(0, 10)) {
+export function evaluateProgramme(profileRaw, programme, today = new Date().toISOString().slice(0, 10)) {
+  const profile = profileRaw || {};
   const t = makeTrace();
   const target = profile.target || {};
   const acad = profile.academics || {};
@@ -373,6 +391,43 @@ export function evaluateProgramme(profile, programme, today = new Date().toISOSt
     }
   } else {
     t.unknown('Level', 'Programme level is not stated', 'level');
+  }
+
+  /* ---------- 1b. years of education (arithmetic, not an opinion) ----
+     Bachelor needs 13 years (two semesters of a Pakistani bachelor) or an
+     Abitur-equivalent certificate; Master needs a completed four-year bachelor
+     (16 years); PhD needs a completed master (18 years). */
+  const edu = educationSummary(profile);
+  if (programme.level) {
+    if (!edu.entries.length) {
+      t.pending('Education', 'Add your education records so the ' + programme.level + ' requirement can be checked');
+    } else if (programme.level === 'bachelor') {
+      if (edu.canApply.bachelor) t.pass('Education', edu.why.bachelor);
+      else {
+        t.fail('Education', edu.why.bachelor +
+          ' Your routes to a German bachelor: one year of a Pakistani bachelor in the same field, ' +
+          'a Studienkolleg (T-Kurs) with the Feststellungsprüfung, or A-Levels/IB');
+        return finish(programme, t);
+      }
+    } else if (programme.level === 'master') {
+      if (edu.canApply.master) t.pass('Education', edu.why.master);
+      else {
+        t.fail('Education', edu.why.master +
+          (edu.years === 15 ? ' A three-year Pakistani bachelor is 15 years; most universities ask for 16 or a bridge semester' : ''));
+        return finish(programme, t);
+      }
+    } else if (programme.level === 'phd') {
+      if (edu.canApply.phd) t.pass('Education', edu.why.phd);
+      else { t.fail('Education', edu.why.phd); return finish(programme, t); }
+    }
+  }
+
+  /* ---------- 1c. anabin status → ZAB ------------------------------- */
+  if (edu.entries.length) {
+    const z = zabRule(edu.anabinStatus);
+    if (z.status === 'H+') t.pass('anabin / ZAB', z.text);
+    else if (z.conditional) t.pass('anabin / ZAB', z.text);
+    else t.unknown('ZAB', z.text, 'zabStatement');
   }
 
   /* ---------- 2. field (derived from Academics) ---------------------- */
@@ -405,34 +460,10 @@ export function evaluateProgramme(profile, programme, today = new Date().toISOSt
     }
   }
 
-  /* ---------- 3b. bachelor entry route (HSSC is not Abitur) ----------
-     A Pakistani HSSC alone does not open a German bachelor. The recognised
-     routes are: one year of university in the same field, a Studienkolleg with
-     the Feststellungsprüfung, or A-Levels/IB. We encode the routes once and
-     never let an HSSC-only applicant look Eligible. */
-  if (profile.target.level === 'bachelor' && programme.requiresAbiturEquivalent !== false) {
-    const school = (acad.schoolQualification || 'hssc');
-    const hasAbiturEquivalent = school === 'a_levels' || school === 'ib';
-    const oneYear = acad.undergradYearDone === true && acad.undergradYearSameField !== false;
-    const kolleg = acad.studienkolleg === true;
-
-    if (hasAbiturEquivalent) {
-      t.pass('Entry route', (school === 'ib' ? 'IB' : 'A-Levels') + ' is accepted directly');
-    } else if (oneYear) {
-      t.pass('Entry route', 'One year of university study counts toward entry');
-    } else if (kolleg) {
-      t.pass('Entry route', 'Studienkolleg completed');
-    } else if (acad.undergradYearDone === true && acad.undergradYearSameField === false) {
-      t.fail('Entry route', 'Your one year of university was in a different field; the route needs the same field');
-    } else {
-      t.fail('Entry route',
-        'An HSSC is not the Abitur. Your routes: one year of a Pakistani bachelor in the same field, ' +
-        'a Studienkolleg (T-Kurs) with the Feststellungsprüfung, or A-Levels/IB');
-    }
-  }
-
-  /* ---------- 4. subject ECTS (required background) ------------------ */
-  if (programme.subjectEcts && Object.keys(programme.subjectEcts).length) {
+  /* ---------- 4. subject ECTS (required background) ------------------
+     ECTS only exist for a degree above the school level: a bachelor applicant
+     has none, so the check is not run for them. */
+  if (target.level !== 'bachelor' && programme.subjectEcts && Object.keys(programme.subjectEcts).length) {
     const mine = acad.subjectEcts || null;
     if (!mine) {
       t.pending('Subject credits', 'Add your ECTS breakdown to check ' +
@@ -451,7 +482,7 @@ export function evaluateProgramme(profile, programme, today = new Date().toISOSt
   }
 
   /* ---------- 5. bachelor ECTS (Master only) ------------------------- */
-  if (profile.target.level === 'master' && programme.bachelorEctsRequired != null) {
+  if (target.level === 'master' && programme.bachelorEctsRequired != null) {
     const have = num(acad.bachelorEcts);
     if (have == null) {
       t.pending('Bachelor ECTS', 'Add your bachelor total ECTS to check the ' + programme.bachelorEctsRequired + ' requirement');
@@ -600,6 +631,46 @@ function finish(programme, t) {
 }
 
 /* ==========================================================================
+   Where a programme's requirements come from.
+
+   The admin fills them in on the programme listing itself (`listing.match`) —
+   that is the one place a person with the university page open records the 13
+   hard fields. Display values that already live on the listing (tuition,
+   deadline, degree level, teaching language) are read from the listing, so the
+   two can never disagree.
+
+   `listing.match` absent → the old catalogue row → otherwise null, which is
+   Check manually with "not verified". A listing is never eligible by default.
+   ========================================================================== */
+const INTAKE_MAP = { WS: 'winter_2029', SS: 'summer_2029' };
+
+export function requirementFromListing(listing) {
+  const m = listing && listing.match;
+  if (!m || !Object.keys(m).length) return null;
+  const levels = listing.degreeLevels || [];
+  const intakes = (listing.intakes || []).map(x => INTAKE_MAP[x] || x).filter(Boolean);
+  return {
+    ...m,
+    id: listing.id,
+    title: listing.title,
+    university: listing.provider,
+    level: m.level || levels[0] || null,
+    teachingLanguages: m.teachingLanguages || (listing.languageMode ? [listing.languageMode] : null),
+    tuitionPerSemester: listing.tuitionPerSemester !== undefined && listing.tuitionPerSemester !== null
+      ? listing.tuitionPerSemester : (m.tuitionPerSemester ?? null),
+    semesterContribution: listing.semesterFee !== undefined && listing.semesterFee !== null
+      ? listing.semesterFee : (m.semesterContribution ?? null),
+    ieltsReq: m.ieltsReq !== undefined && m.ieltsReq !== null ? m.ieltsReq : (listing.minIelts ?? null),
+    deadlineNonEu: m.deadlineNonEu || listing.deadline || null,
+    intake: m.intake !== undefined && m.intake !== null ? m.intake : (intakes.length ? intakes : null),
+    link: listing.officialUrl || listing.applyUrl || null,
+    universityLink: listing.requirementsUrl || listing.sourceUrl || null,
+    state: m.state || null,
+    city: m.city || null
+  };
+}
+
+/* ==========================================================================
    Evaluate a LIVE site listing.
 
    The programmes a student browses come from the listings collection; the
@@ -660,7 +731,8 @@ export function evaluateListing(profile, listing, req, today = new Date().toISOS
    Hard filters: nationality, level, field, GPA, language, age, deadline not
    passed, and coverage vs the user's funding need.
    ========================================================================== */
-export function evaluateScholarship(profile, s, today = new Date().toISOString().slice(0, 10)) {
+export function evaluateScholarship(profileRaw, s, today = new Date().toISOString().slice(0, 10)) {
+  const profile = profileRaw || {};
   const t = makeTrace();
   const target = profile.target || {};
   const acad = profile.academics || {};
@@ -799,6 +871,92 @@ function finishScholarship(s, t) {
 }
 
 /* ==========================================================================
+   Profile completeness — weighted, and it counts only what the engine reads.
+
+   Six steps, numbered in the order the student fills them, and every step is
+   worth what it decides:
+
+     1 Target         which degree, which intake          (a partial answer still
+                                                           produces verdicts)
+     2 Languages      English test or MOI, German
+     3 Education      the records, semesters, anabin
+     4 ECTS           only for a master/PhD target — a bachelor applicant is
+                      never asked for ECTS, so the step is not counted for them
+     5 Tests          GRE/GMAT/SAT/ACT/TestAS — or "none taken", which is an
+                      answer, not an empty field
+     6 Money          budget, funding need, blocked account
+
+   A step with weight 0 (ECTS for a bachelor target) reports 100% rather than
+   pretending something is missing.
+   ========================================================================== */
+const anyTest = (t) => !!(t && (t.noneTaken === true ||
+  (t.gre && Object.values(t.gre).some(v => v != null)) ||
+  t.gmat != null || t.sat != null || t.act != null || t.testas != null || t.gate != null));
+
+const someEnglish = (l) => !!(l && (l.ielts != null || l.toefl != null || l.pte != null));
+
+const entriesOf = (p) => ((p.education || {}).entries || []).filter(e => e && e.level);
+
+const ITEMS = [
+  ['target.level', 10, 1, p => !!(p.target || {}).level],
+  ['target.intake', 4, 1, p => !!(p.target || {}).intake],
+  ['nationality.nationality', 4, 1, p => !!(p.nationality || {}).nationality],
+  ['language.english', 12, 2, p => someEnglish(p.language)],
+  ['language.moi', 4, 2, p => (p.language || {}).englishMediumDegree != null],
+  ['language.german', 5, 2, p => !!(p.language || {}).germanLevel],
+  ['education.entries', 20, 3, p => entriesOf(p).some(e => e.level === 'hssc' || e.level === 'bachelor')],
+  ['education.details', 6, 3, p => entriesOf(p).some(e => e.level === 'bachelor' && (e.cgpa != null || e.percentage != null))],
+  ['academics.bachelorEcts', 10, 4, p => (p.academics || {}).bachelorEcts != null],
+  ['academics.subjectEcts', 6, 4, p => !!(p.academics || {}).subjectEcts],
+  ['tests.any', 8, 5, p => anyTest(p.tests)],
+  ['money.maxTuitionPerSemester', 10, 6, p => (p.money || {}).maxTuitionPerSemester != null],
+  ['money.fundingNeed', 8, 6, p => !!(p.money || {}).fundingNeed],
+  ['money.blockedAccount', 4, 6, p => !!(p.money || {}).blockedAccount]
+];
+
+/* ECTS only exist above the school level: for a bachelor target step 4 asks
+   nothing and is therefore complete by definition. */
+const stepApplies = (step, profile) => !(step === 4 && (profile.target || {}).level === 'bachelor');
+
+export function completeness(profile) {
+  const steps = { 1: { done: 0, total: 0 }, 2: { done: 0, total: 0 }, 3: { done: 0, total: 0 },
+    4: { done: 0, total: 0 }, 5: { done: 0, total: 0 }, 6: { done: 0, total: 0 } };
+  let done = 0, total = 0;
+  for (const [key, weight, step, isFilled] of ITEMS) {
+    if (!stepApplies(step, profile)) continue;
+    total += weight;
+    steps[step].total += weight;
+    let filled = false;
+    try { filled = !!isFilled(profile); } catch { filled = false; }
+    if (filled) { done += weight; steps[step].done += weight; }
+  }
+  const pct = (o) => (o.total ? Math.round((o.done / o.total) * 100) : 100);
+  const out = {};
+  for (const k of [1, 2, 3, 4, 5, 6]) out[k] = pct(steps[k]);
+  return {
+    pct: total ? Math.round((done / total) * 100) : 0,
+    steps: out,
+    step1Complete: steps[1].total > 0 && steps[1].done === steps[1].total
+  };
+}
+
+/* Which checks are still pending because the profile is short — shown next to
+   the verdicts so a student understands what they are looking at. */
+export function pendingChecks(profile) {
+  const out = [];
+  const a = profile.academics || {};
+  const level = (profile.target || {}).level;
+  const edu = educationSummary(profile);
+  if (!(profile.target || {}).level) out.push('Target level');
+  if (!someEnglish(profile.language)) out.push('English score');
+  if (!edu.entries.length) out.push('Education');
+  if (level && level !== 'bachelor' && a.bachelorEcts == null) out.push('Bachelor ECTS');
+  if (a.gpaOriginal == null) out.push('GPA');
+  if ((profile.money || {}).maxTuitionPerSemester == null) out.push('Tuition budget');
+  return out;
+}
+
+/* ==========================================================================
    Batch entry points
    ========================================================================== */
 export function matchProgrammes(profile, programmes, today) {
@@ -815,7 +973,10 @@ export function matchProgrammes(profile, programmes, today) {
 export function matchListings(profile, listings, requirementsById, today) {
   const out = {};
   for (const l of listings) {
-    out[l.id] = evaluateListing(profile, l, requirementsById[l.id] || null, today);
+    /* what an admin entered on the live listing wins over a stale catalogue
+       row; the catalogue is only the seed the admin starts from */
+    const req = requirementFromListing(l) || (requirementsById && requirementsById[l.id]) || null;
+    out[l.id] = evaluateListing(profile, l, req, today);
   }
   return out;
 }
@@ -843,53 +1004,4 @@ export function matchScholarships(profile, scholarships, today) {
   return scholarships
     .map(s => evaluateScholarship(profile, s, today))
     .sort((a, b) => VERDICT_ORDER[a.verdict] - VERDICT_ORDER[b.verdict]);
-}
-
-/* ==========================================================================
-   Profile completeness — weighted, and it counts only what the engine reads.
-   Step 1 alone must already produce matches, so it is worth the most.
-   ========================================================================== */
-export const COMPLETENESS = [
-  ['target.level', 10, 1], ['target.language', 5, 1], ['target.intake', 3, 1],
-  ['nationality.nationality', 6, 1],
-  ['academics.bachelorField', 9, 2], ['academics.gpaOriginal', 8, 2], ['academics.bachelorEcts', 6, 2],
-  ['academics.subjectEcts', 6, 2],
-  ['language.ielts', 8, 2], ['language.englishMediumDegree', 3, 2],
-  ['tests.gre', 4, 2], ['language.germanLevel', 3, 2],
-  ['money.maxTuitionPerSemester', 8, 3], ['money.fundingNeed', 6, 3], ['money.blockedAccount', 4, 3]
-];
-
-const pick = (o, path) => path.split('.').reduce((a, k) => (a == null ? a : a[k]), o);
-
-export function completeness(profile) {
-  let done = 0, total = 0;
-  const byStep = { 1: { done: 0, total: 0 }, 2: { done: 0, total: 0 }, 3: { done: 0, total: 0 } };
-  for (const [path, weight, step] of COMPLETENESS) {
-    total += weight;
-    byStep[step].total += weight;
-    const v = pick(profile, path);
-    const filled = v !== null && v !== undefined && v !== '' &&
-      !(typeof v === 'object' && !Array.isArray(v) && Object.values(v).every(x => x == null));
-    if (filled) { done += weight; byStep[step].done += weight; }
-  }
-  const pct = (o) => (o.total ? Math.round((o.done / o.total) * 100) : 0);
-  return {
-    pct: Math.round((done / total) * 100),
-    steps: { 1: pct(byStep[1]), 2: pct(byStep[2]), 3: pct(byStep[3]) },
-    step1Complete: byStep[1].done === byStep[1].total
-  };
-}
-
-/* Which checks are still pending because the profile is short — shown on the
-   results page so a Step-1-only user understands the verdicts they see. */
-export function pendingChecks(profile) {
-  const out = [];
-  const a = profile.academics || {};
-  const m = profile.money || {};
-  if (a.gpaOriginal == null) out.push('GPA');
-  if (a.bachelorEcts == null) out.push('Bachelor ECTS');
-  if (a.subjectEcts == null) out.push('Subject credits');
-  if (m.maxTuitionPerSemester == null) out.push('Tuition budget');
-  if ((profile.language || {}).ielts == null) out.push('English score');
-  return out;
 }

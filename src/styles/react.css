@@ -581,3 +581,33 @@ body { overflow-x: hidden; }
   .path-badge { font-size: 11px; }
   .path-panel__head { flex-direction: column; align-items: flex-start; }
 }
+
+/* ---------------------------------------------------- ScholarPath education */
+.path-edu-summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  background: var(--surface-2, #f6f7f9); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; }
+.path-edu-summary__n { font-size: 20px; font-weight: 600; line-height: 1.1; }
+.path-can { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 3px 8px; border-radius: 999px;
+  border: 1px solid var(--border); white-space: nowrap; }
+.path-can.is-yes { color: var(--on-success, #1a7f37); border-color: currentColor; }
+.path-can.is-no { color: var(--on-danger, #b3261e); border-color: currentColor; }
+.path-edu { border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin: 8px 0; }
+.path-edu__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.path-anabin-list { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px;
+  margin: 4px 0 8px; max-height: 220px; overflow: auto; background: var(--card, #fff); }
+.path-anabin-opt { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 10px;
+  border: 0; border-bottom: 1px solid var(--border); background: transparent; cursor: pointer; font: inherit; color: inherit; }
+.path-anabin-opt:last-child { border-bottom: 0; }
+.path-anabin-opt:hover, .path-anabin-opt:focus-visible { background: var(--chip); }
+.anabin-tag { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+.anabin-tag.is-H { color: var(--on-success, #1a7f37); }
+.anabin-tag.is-H- { color: var(--on-danger, #b3261e); }
+.anabin-tag.is-none { color: var(--on-surface-variant, #5f6368); }
+.path-anabin { border: 1px solid var(--border); border-radius: 12px; padding: 8px 10px; margin: 6px 0;
+  display: flex; flex-direction: column; gap: 4px; }
+.path-anabin.is-H- { border-color: var(--on-danger, #b3261e); }
+.path-anabin.is-H- { border-left: 3px solid var(--on-danger, #b3261e); }
+.path-anabin.is-H { border-left: 3px solid var(--on-success, #1a7f37); }
+@media (max-width: 767px) {
+  .path-edu-summary { flex-direction: column; align-items: flex-start; }
+  .path-anabin-opt { flex-wrap: wrap; }
+}

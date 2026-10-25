@@ -100,63 +100,6 @@ export default function Profile() {
             </tbody></table>
           </section>
 
-          <section className="card">
-            <div className="row sp"><h2 className="h2">Education</h2><Link className="link-quiet" to="/wizard?step=2">Edit</Link></div>
-            <table className="kv"><tbody>
-              {row('Current level', lbl(p.currentLevel, L.currentLevel))}
-              {row('Institution', p.institution)}
-              {row('Expected completion', p.expectedCompletionYear)}
-              {row('Matric %', p.matricPct)}
-              {row('Intermediate %', p.interPct)}
-              {row('HSSC board', p.hsscBoard)}
-              {row('HSSC group', lbl(p.hsscGroup, L.hsscGroup))}
-              {row('IBCC equivalence', lbl(p.ibccStatus, L.ibccStatus))}
-              {row('Bachelor CGPA', p.bachelorCgpa != null ? p.bachelorCgpa + ' / ' + p.bachelorScale + ' (pass mark ' + p.passMark + ')' : null)}
-              {row('Bachelor percentage', p.bachelorPct != null ? p.bachelorPct + '%' : null)}
-              {row('Bachelor field', lbl(p.bachelorField, L.bachelorField))}
-            </tbody></table>
-          </section>
-
-          <section className="card">
-            <div className="row sp"><h2 className="h2">Scores and tests</h2><Link className="link-quiet" to="/wizard?step=3">Edit</Link></div>
-            <table className="kv"><tbody>
-              {row('IELTS status', lbl(p.ielts && p.ielts.status, L.ielts))}
-              {row('IELTS overall', p.ielts && p.ielts.overall != null ? p.ielts.overall : null)}
-              {row('IELTS date', p.ielts && p.ielts.date ? fmtDate(p.ielts.date) : null, 'Must still be valid at the deadline')}
-              {row('German level', p.germanLevel ? (p.germanLevel === 'none' ? 'None' : p.germanLevel) : null)}
-              {row('German grade estimate', est != null ? '~' + est.toFixed(1) : null, 'Estimate only')}
-            </tbody></table>
-            <p className="cap">Grade conversion is an estimate. Universities and uni-assist decide your final converted grade.</p>
-          </section>
-
-          <section className="card">
-            <div className="row sp"><h2 className="h2">Targets</h2><Link className="link-quiet" to="/wizard?step=4">Edit</Link></div>
-            <div className="col-8">
-              {targets.length ? targets.map((t, i) => (
-                <div className="row sp wr" key={i} style={{ gap: 8, padding: '8px 0', borderTop: i ? '1px solid var(--border)' : 0 }}>
-                  <div>
-                    <div className="h3">{(t.label || 'Target').replace(/^Primary: |^Backup: /, '')}</div>
-                    <div className="cap">{(t.degree || 'target')[0].toUpperCase() + (t.degree || 'target').slice(1)} · intake {t.intakeYear} · {(t.fields || []).join(', ')} · {t.languagePref || 'both'}</div>
-                  </div>
-                  <span className={'tag ' + (t.isPrimary ? 'tag--pr' : 'tag--out')}>{t.isPrimary ? 'Primary' : 'Backup'}</span>
-                </div>
-              )) : <p className="cap">No targets yet. Add one in step 4.</p>}
-            </div>
-            <p className="cap">Maximum three targets, exactly one primary. Matching shows each listing once, using its best result.</p>
-          </section>
-
-          <section className="card">
-            <div className="row sp"><h2 className="h2">Funding and extras</h2><Link className="link-quiet" to="/wizard?step=5">Edit</Link></div>
-            <table className="kv"><tbody>
-              {row('Funding need', lbl(p.fundingNeed, L.fundingNeed))}
-              {row('Income bracket', lbl(p.incomeBracket, L.incomeBracket))}
-              {row('APS certificate', lbl(p.apsStatus, L.apsStatus))}
-              {row('HEC attestation', lbl(p.hecStatus, L.hecStatus))}
-              {row('Blocked account', p.blockedAccountReady ? 'Arranged' : 'Not yet')}
-              {row('ECTS breakdown', p.hasEctsBreakdown ? 'Available' : 'Not available')}
-              {row('Work experience', (p.workExpMonths || 0) + ' months')}
-            </tbody></table>
-          </section>
         </div>
 
         <div className="dash-side">
