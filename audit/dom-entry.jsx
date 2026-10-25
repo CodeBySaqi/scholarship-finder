@@ -9,6 +9,7 @@ import { NotificationsProvider } from '../src/components/notifications.jsx';
 
 import Landing from '../src/pages/Landing.jsx';
 import { Login } from '../src/pages/AuthPages.jsx';
+import DesignIndex, { DesignPreview } from '../src/pages/landing/DesignIndex.jsx';
 import Notifications from '../src/pages/Notifications.jsx';
 import Settings from '../src/pages/Settings.jsx';
 import Browse from '../src/pages/Browse.jsx';
@@ -51,6 +52,8 @@ export function mount(route) {
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/design" element={<DesignIndex />} />
+                <Route path="/design/:slug" element={<DesignPreview />} />
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/scholarships" element={<Browse kind="scholarship" />} />

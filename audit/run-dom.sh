@@ -5,6 +5,7 @@
 #   ./audit/run-dom.sh responsive  phone + tablet layout behaviour
 #   ./audit/run-dom.sh path        ScholarPath profile steps + results pages
 #   ./audit/run-dom.sh heroui      the HeroUI adoption (components + theme + css)
+#   ./audit/run-dom.sh design      the five candidate home pages at /design
 # Needs happy-dom (`npm i --no-save happy-dom`) and a server on :8000.
 set -e
 mkdir -p /tmp/sf-dom
@@ -18,5 +19,6 @@ case "${1:-smoke}" in
   research) node audit/research-check.mjs ;;
   path)       node audit/path-pages.mjs ;;
   heroui)     node audit/heroui-ui.mjs ;;
-  *) echo "usage: $0 [smoke|features|responsive|research|path|heroui]"; exit 2 ;;
+  design)     node audit/design-pages.mjs ;;
+  *) echo "usage: $0 [smoke|features|responsive|research|path|heroui|design]"; exit 2 ;;
 esac

@@ -13,8 +13,10 @@ import './styles/react.css';
 /* HeroUI + Tailwind load last: HeroUI paints the components, the app's own
    stylesheets keep owning the layout (see src/styles/heroui.css). */
 import './styles/heroui.css';
+import './styles/landing-variants.css';
 
 import Landing from './pages/Landing.jsx';
+import DesignIndex, { DesignPreview } from './pages/landing/DesignIndex.jsx';
 import { Login, Signup, VerifyEmail, ForgotPassword, ResetSent, ResetPassword } from './pages/AuthPages.jsx';
 import Browse from './pages/Browse.jsx';
 import Dashboard from './pages/Dashboard.jsx';
@@ -126,6 +128,9 @@ function App() {
     <Routes>
       {/* public */}
       <Route path="/" element={<Landing />} />
+      {/* home-page design review — five candidates, not public navigation */}
+      <Route path="/design" element={<DesignIndex />} />
+      <Route path="/design/:slug" element={<DesignPreview />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
 

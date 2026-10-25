@@ -396,4 +396,4 @@ export function Textarea({ className = '', classNames, ...rest }) {
   );
 }
 
-export { Avatar, Badge, Checkbox, RadioGroup, Radio, Select, SelectItem } from '@heroui/react';
+export { Avatar, Badge, Checkbox, Divider, RadioGroup, Radio, Select, SelectItem } from '@heroui/react';
