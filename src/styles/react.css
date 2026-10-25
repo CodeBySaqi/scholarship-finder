@@ -480,3 +480,78 @@ body { overflow-x: hidden; }
   .mfilter__select .select { height: 44px; }
   .mfilter__pills .chip { flex: 1 1 auto; justify-content: center; }
 }
+
+/* ============================================================= ScholarPath
+   New module styles only — tokens.css and app.css stay untouched. */
+.path-pct { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; }
+.path-pct__n { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--primary); }
+
+.path-progress { display: flex; flex-direction: column; gap: 10px; }
+.path-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.path-step {
+  display: flex; align-items: center; gap: 8px; padding: 9px 11px; border-radius: 12px;
+  background: var(--tint); border: 1px solid transparent; text-align: left; font-size: 13px; color: var(--text-2);
+  min-height: 44px;
+}
+.path-step.is-on { border-color: var(--primary); color: var(--text); background: var(--card); box-shadow: 0 2px 10px rgba(27,132,255,.12); }
+.path-step.is-done .path-step__n { background: var(--on-success); color: #fff; }
+.path-step__n {
+  width: 22px; height: 22px; flex: 0 0 22px; border-radius: 50%; display: inline-grid; place-items: center;
+  background: var(--card); font-size: 11px; font-weight: 700; color: var(--text-2);
+}
+.path-step__t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.path-preview { margin: 0; }
+
+.path-conv {
+  display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 12px;
+  background: var(--tint); border-left: 3px solid var(--primary);
+}
+.path-conv__work { font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--text-2); }
+
+.path-docs { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 6px; }
+.path-doc { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; min-height: 32px; }
+.path-doc input { width: 17px; height: 17px; accent-color: var(--primary); margin: 0; }
+
+.path-actions { display: flex; align-items: center; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--outline); flex-wrap: wrap; }
+
+/* results */
+.path-tally { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.path-tally__item {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 12px;
+  background: var(--tint); border: 1px solid transparent; min-height: 44px;
+}
+.path-tally__item.is-on { border-color: var(--primary); background: var(--card); }
+.path-tally__n { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.path-tally__n.is-ok { color: var(--on-success); }
+.path-tally__n.is-wn { color: var(--on-warning); }
+.path-tally__n.is-er { color: var(--on-error, #b3261e); }
+.path-tally__l { font-size: 12.5px; color: var(--text-2); }
+
+.path-list { display: flex; flex-direction: column; gap: 10px; }
+.path-card { display: flex; flex-direction: column; gap: 8px; border-left: 3px solid var(--outline); }
+.path-card.is-eligible { border-left-color: var(--on-success); }
+.path-card.is-check_manually { border-left-color: var(--on-warning); }
+.path-card.is-not_eligible { border-left-color: #d9534f; opacity: .92; }
+.path-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.path-card__headline { margin: 0; font-size: 13.5px; font-weight: 600; color: var(--text); }
+.path-card__headline.is-fail { color: #b3261e; }
+.path-card__foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.path-reasons { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.path-reason { display: flex; gap: 8px; font-size: 12.5px; color: var(--text-2); line-height: 1.45; }
+.path-reason__ic { flex: 0 0 16px; display: inline-grid; place-items: center; margin-top: 1px; }
+.path-reason.is-pass .path-reason__ic { color: var(--on-success); }
+.path-reason.is-fail .path-reason__ic { color: #d9534f; }
+.path-reason.is-unknown .path-reason__ic { color: var(--on-warning); }
+.path-reason.is-pending .path-reason__ic { color: var(--text-3); }
+.path-reason.is-fail span:last-child { color: var(--text); }
+.chip.is-soft { background: var(--tint); color: var(--text-2); }
+
+@media (max-width: 767px) {
+  .path-steps { grid-template-columns: 1fr; }
+  .path-step__t { white-space: normal; }
+  .path-tally { gap: 6px; }
+  .path-tally__item { flex: 1 1 calc(50% - 6px); }
+  .path-card__head { flex-direction: column; align-items: flex-start; }
+  .path-actions .btn { flex: 1 1 auto; }
+}

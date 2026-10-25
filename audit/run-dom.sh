@@ -3,6 +3,7 @@
 #   ./audit/run-dom.sh smoke       every route, three roles
 #   ./audit/run-dom.sh features    notifications, admin CRUD, broadcast, research, search
 #   ./audit/run-dom.sh responsive  phone + tablet layout behaviour
+#   ./audit/run-dom.sh path        ScholarPath profile steps + results pages
 # Needs happy-dom (`npm i --no-save happy-dom`) and a server on :8000.
 set -e
 mkdir -p /tmp/sf-dom
@@ -14,5 +15,6 @@ case "${1:-smoke}" in
   features)   node audit/features-admin.mjs ;;
   responsive) node audit/responsive.mjs ;;
   research) node audit/research-check.mjs ;;
-  *) echo "usage: $0 [smoke|features|responsive|research]"; exit 2 ;;
+  path)       node audit/path-pages.mjs ;;
+  *) echo "usage: $0 [smoke|features|responsive|research|path]"; exit 2 ;;
 esac

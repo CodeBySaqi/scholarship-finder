@@ -67,6 +67,17 @@ npm install --no-save happy-dom
 The Playwright suites (`ui-roles`, `wizard-e2e`, `flows`, `failure-modes`, `page-crawl`) need a
 Chromium binary and system libraries; run them where those exist.
 
+## ScholarPath (separate matching module)
+
+`/path` is a second, independent matching module: its own profile, its own engine
+(`src/path/engine.js`), its own routes. It does not touch `/matches`,
+`/scholarships` or `/programs`, and it asks only for what can change a verdict.
+
+Three verdicts — **Eligible**, **Check manually**, **Not eligible** — where a
+missing programme value is UNKNOWN (check manually), never "no requirement", and
+a pending profile value can never let a result be Eligible. Full explanation in
+`README-PATH.md`; test results in `PATH-TEST-REPORT.md`.
+
 ## Responsive design
 
 One layout, four ranges, all driven from `src/styles/react.css`. Nothing in `tokens.css` or

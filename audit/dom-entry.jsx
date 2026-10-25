@@ -27,6 +27,8 @@ import AdminErrors from '../src/pages/admin/Errors.jsx';
 import AdminLogs from '../src/pages/admin/Logs.jsx';
 import ListingForm from '../src/pages/admin/ListingForm.jsx';
 import AiDraft from '../src/pages/admin/AiDraft.jsx';
+import Path from '../src/pages/Path.jsx';
+import PathResults from '../src/pages/PathResults.jsx';
 
 let root = null;
 export function mount(route) {
@@ -63,6 +65,9 @@ export function mount(route) {
                 <Route path="/admin/listings/new" element={<ListingForm />} />
                 <Route path="/admin/listings/:id" element={<ListingForm />} />
                 <Route path="/admin/ai-draft" element={<AiDraft />} />
+                <Route path="/path" element={<Path />} />
+                <Route path="/path/programmes" element={<PathResults kind="programmes" />} />
+                <Route path="/path/scholarships" element={<PathResults kind="scholarships" />} />
               </Routes>
             </NotificationsProvider>
           </SavedProvider>

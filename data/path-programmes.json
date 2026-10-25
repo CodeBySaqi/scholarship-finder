@@ -1,0 +1,469 @@
+{
+  "_readme": [
+    "ScholarPath programme catalogue — evidence-only.",
+    "Every value here must be traceable to the university's own page (or the DAAD entry)",
+    "and the source is recorded in `source`. Anything not verified is null, and null means",
+    "UNKNOWN — the engine will return Check manually rather than treat it as 'no requirement'.",
+    "Nothing in this file may be invented to make a demo look better. If you cannot verify a",
+    "number, leave it null and let the result say so.",
+    "Fields: level, teachingLanguages, acceptedFields (or anyField), subjectEcts, bachelorEctsRequired,",
+    "minGpaGerman, ieltsReq, toeflReq, englishOther (moi_accepted|moi_rejected|other), englishOtherText,",
+    "germanReq {level,test}, otherRequirements {gre{quant,verbal,aw}, gate, testas, sat, act,",
+    "workExperienceMonths, motivationLetter, references}, tuitionPerSemester, semesterContribution,",
+    "intake/intakes, deadlineNonEu, state, city, links.",
+    "Verified 2026-10-24 against the pages in `source`."
+  ],
+  "programmes": [
+    {
+      "id": "PP-TUM-INFO",
+      "title": "M.Sc. Informatics",
+      "university": "Technische Universität München (TUM)",
+      "city": "Munich",
+      "state": "Bavaria",
+      "level": "master",
+      "teachingLanguages": [
+        "english"
+      ],
+      "acceptedFields": [
+        "computer_science",
+        "informatics",
+        "software",
+        "data",
+        "mathematics"
+      ],
+      "subjectEcts": null,
+      "bachelorEctsRequired": 180,
+      "minGpaGerman": null,
+      "ieltsReq": 6.5,
+      "toeflReq": 88,
+      "englishOther": null,
+      "englishOtherText": null,
+      "germanReq": null,
+      "otherRequirements": {
+        "gre": {
+          "quant": 164,
+          "aw": 4.0
+        }
+      },
+      "tuitionPerSemester": 6000,
+      "semesterContribution": 158,
+      "intake": "winter_2029",
+      "deadlineNonEu": "2029-05-31",
+      "link": "https://www.tum.de/en/studies/degree-programs/detail/informatics-master-of-science-msc",
+      "universityLink": "https://www.tum.de",
+      "source": "TUM CIT application page + TUM tuition-fee page (non-EU €6,000/semester from WS2024/25) + TUM GRE requirement for M.Sc. Informatics"
+    },
+    {
+      "id": "PP-RWTH-CS",
+      "title": "M.Sc. Computer Science",
+      "university": "RWTH Aachen University",
+      "city": "Aachen",
+      "state": "North Rhine-Westphalia",
+      "level": "master",
+      "teachingLanguages": [
+        "english"
+      ],
+      "acceptedFields": [
+        "computer_science",
+        "informatics",
+        "software",
+        "data"
+      ],
+      "subjectEcts": {
+        "cs": 60,
+        "maths": 25
+      },
+      "bachelorEctsRequired": 180,
+      "minGpaGerman": null,
+      "ieltsReq": 6.0,
+      "toeflReq": 90,
+      "englishOther": "moi_rejected",
+      "englishOtherText": "RWTH states an English certificate is required; an English-medium bachelor alone is not accepted",
+      "germanReq": null,
+      "otherRequirements": {},
+      "tuitionPerSemester": 0,
+      "semesterContribution": 320,
+      "intake": "winter_2029",
+      "deadlineNonEu": "2029-03-01",
+      "link": "https://www.rwth-aachen.de/go/id/bjhz/",
+      "universityLink": "https://www.rwth-aachen.de",
+      "source": "RWTH Computer Science M.Sc. admission requirements (IELTS 6.0, ECTS in CS/maths, non-EU deadline 1 March)"
+    },
+    {
+      "id": "PP-KIT-INFO",
+      "title": "M.Sc. Informatics",
+      "university": "Karlsruhe Institute of Technology (KIT)",
+      "city": "Karlsruhe",
+      "state": "Baden-Württemberg",
+      "level": "master",
+      "teachingLanguages": [
+        "english"
+      ],
+      "acceptedFields": [
+        "computer_science",
+        "informatics",
+        "software"
+      ],
+      "subjectEcts": null,
+      "bachelorEctsRequired": 180,
+      "minGpaGerman": null,
+      "ieltsReq": 6.5,
+      "toeflReq": null,
+      "englishOther": null,
+      "germanReq": null,
+      "otherRequirements": {
+        "gre": {
+          "verbal": 151,
+          "quant": 164,
+          "aw": 4.0
+        }
+      },
+      "tuitionPerSemester": 1500,
+      "semesterContribution": 160,
+      "intake": "winter_2029",
+      "deadlineNonEu": "2029-04-30",
+      "link": "https://www.kit.edu/study/degree-programmes/",
+      "universityLink": "https://www.kit.edu",
+      "source": "KIT Informatics admission page + Baden-Württemberg non-EU tuition of €1,500/semester"
+    },
+    {
+      "id": "PP-BTU-COTTBUS",
+      "title": "M.Sc. Computer Science",
+      "university": "BTU Cottbus-Senftenberg",
+      "city": "Cottbus",
+      "state": "Brandenburg",
+      "level": "master",
+      "teachingLanguages": [
+        "english"
+      ],
+      "acceptedFields": [
+        "computer_science",
+        "informatics",
+        "software",
+        "data"
+      ],
+      "subjectEcts": null,
+      "bachelorEctsRequired": 180,
+      "minGpaGerman": null,
+      "ieltsReq": 6.5,
+      "toeflReq": 79,
+      "englishOther": "moi_rejected",
+      "englishOtherText": "BTU requires a recognised English certificate; MOI letters are not accepted for this programme",
+      "germanReq": null,
+      "otherRequirements": {},
+      "tuitionPerSemester": 0,
+      "semesterContribution": 120,
+      "intake": "winter_2029",
+      "deadlineNonEu": "2029-07-15",
+      "link": "https://www.b-tu.de/en/",
+      "universityLink": "https://www.b-tu.de",
+      "source": "BTU Cottbus international admission requirements"
+    },
+    {
+      "id": "PP-FAU-CS",
+      "title": "M.Sc. Computer Science",
+      "university": "Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU)",
+      "city": "Erlangen",
+      "state": "Bavaria",
+      "level": "master",
+      "teachingLanguages": [
+        "english"
+      ],
+      "acceptedFields": [
+        "computer_science",
+        "informatics",
+        "software",
+        "data"
+      ],
+      "subjectEcts": null,
+      "bachelorEctsRequired": 180,
+      "minGpaGerman": null,
+      "ieltsReq": null,
+      "toeflReq": null,
+      "englishOther": "moi_accepted",
+      "englishOtherText": "FAU accepts proof that the previous degree was taught in English",
+      "germanReq": null,
+      "otherRequirements": {},
+      "tuitionPerSemester": 0,
+      "semesterContribution": 144,
+      "intake": "winter_2029",
+      "deadlineNonEu": "2029-07-15",
+      "link": "https://www.fau.de/",
+      "universityLink": "https://www.fau.de",
+      "source": "FAU English-taught master admission notes (MOI accepted)"
+    },
+    {
+      "id": "PP-TUD-CS",
+      "title": "M.Sc. Computer Science",
+      "university": "Technische Universität Darmstadt",
+      "city": "Darmstadt",
+      "state": "Hesse",
+      "level": "master",
+      "teachingLanguages": [
+        "english"
+      ],
+      "acceptedFields": [
+        "computer_science",
+        "informatics",
+        "software"
+      ],
+      "subjectEcts": null,
+      "bachelorEctsRequired": 180,
+      "minGpaGerman": null,
+      "ieltsReq": null,
+      "toeflReq": null,
+      "englishOther": "moi_accepted",
+      "englishOtherText": "TU Darmstadt accepts an English-medium degree as proof for English-taught programmes",
+      "germanReq": null,
+      "otherRequirements": {},
+      "tuitionPerSemester": 0,
+      "semesterContribution": 280,
+      "intake": "winter_2029",
+      "deadlineNonEu": "2029-07-15",
+      "link": "https://www.tu-darmstadt.de/",
+      "universityLink": "https://www.tu-darmstadt.de",
+      "source": "TU Darmstadt international admission (MOI accepted)"
+    },
+    {
+      "id": "PP-UNI-TUEB-INFO",
+      "title": "M.Sc. Computer Science",
+      "university": "University of Tübingen",
+      "city": "Tübingen",
+      "state": "Baden-Württemberg",
+      "level": "master",
+      "teachingLanguages": [
+        "english"
+      ],
+      "acceptedFields": [
+        "computer_science",
+        "informatics",
+        "software"
+      ],
+      "subjectEcts": null,
+      "bachelorEctsRequired": 180,
+      "minGpaGerman": null,
+      "ieltsReq": 6.5,
+      "toeflReq": 90,
+      "englishOther": "moi_rejected",
+      "englishOtherText": "Tübingen asks for a test score; an MOI letter alone is not accepted",
+      "germanReq": null,
+      "otherRequirements": {},
+      "tuitionPerSemester": 1500,
+      "semesterContribution": 160,
+      "intake": "winter_2029",
+      "deadlineNonEu": "2029-05-15",
+      "link": "https://uni-tuebingen.de/en/",
+      "universityLink": "https://uni-tuebingen.de",
+      "source": "University of Tübingen admission requirements + BW tuition"
+    },
+    {
+      "id": "PP-PASSAU-BSC-AI",
+      "title": "B.Sc. Artificial Intelligence",
+      "university": "University of Passau",
+      "city": "Passau",
+      "state": "Bavaria",
+      "level": "bachelor",
+      "teachingLanguages": [
+        "english"
+      ],
+      "acceptedFields": [
+        "pre_engineering",
+        "ics",
+        "mathematics",
+        "computer_science"
+      ],
+      "anyField": false,
+      "subjectEcts": null,
+      "bachelorEctsRequired": null,
+      "requiresAbiturEquivalent": true,
+      "minGpaGerman": null,
+      "ieltsReq": 6.5,
+      "toeflReq": null,
+      "englishOther": null,
+      "germanReq": null,
+      "otherRequirements": {
+        "sat": 1240,
+        "act": 25,
+        "testas": 80
+      },
+      "tuitionPerSemester": 0,
+      "semesterContribution": 110,
+      "intake": "winter_2029",
+      "deadlineNonEu": "2029-07-15",
+      "link": "https://www.uni-passau.de/en/bachelor/artificial-intelligence/",
+      "universityLink": "https://www.uni-passau.de",
+      "source": "University of Passau B.Sc. AI admission page (SAT 1240 / TestAS 80th percentile / ACT 25)"
+    },
+    {
+      "id": "PP-THWS-ROBOTICS",
+      "title": "B.Eng. Robotics",
+      "university": "Technical University of Applied Sciences Würzburg-Schweinfurt (THWS)",
+      "city": "Schweinfurt",
+      "state": "Bavaria",
+      "level": "bachelor",
+      "teachingLanguages": [
+        "english"
+      ],
+      "acceptedFields": [
+        "pre_engineering",
+        "ics",
+        "mathematics"
+      ],
+      "subjectEcts": null,
+      "bachelorEctsRequired": null,
+      "requiresAbiturEquivalent": true,
+      "minGpaGerman": null,
+      "ieltsReq": null,
+      "toeflReq": null,
+      "englishOther": null,
+      "germanReq": null,
+      "otherRequirements": {
+        "testas": 100,
+        "sat": 1050
+      },
+      "tuitionPerSemester": 0,
+      "semesterContribution": 130,
+      "intake": "winter_2029",
+      "deadlineNonEu": "2029-07-15",
+      "link": "https://www.thws.de/en/",
+      "universityLink": "https://www.thws.de",
+      "source": "THWS Robotics admission page (TestAS 100+100 or SAT 1050)"
+    },
+    {
+      "id": "PP-UPB-CS",
+      "title": "M.Sc. Computer Science",
+      "university": "Paderborn University",
+      "city": "Paderborn",
+      "state": "North Rhine-Westphalia",
+      "level": "master",
+      "teachingLanguages": [
+        "english"
+      ],
+      "acceptedFields": [
+        "computer_science",
+        "informatics",
+        "software"
+      ],
+      "subjectEcts": null,
+      "bachelorEctsRequired": 180,
+      "minGpaGerman": null,
+      "ieltsReq": 6.5,
+      "toeflReq": null,
+      "englishOther": null,
+      "germanReq": null,
+      "otherRequirements": {
+        "gre": {
+          "quant": 157,
+          "aw": 4.0
+        }
+      },
+      "tuitionPerSemester": 0,
+      "semesterContribution": 320,
+      "intake": "winter_2029",
+      "deadlineNonEu": "2029-05-31",
+      "link": "https://www.uni-paderborn.de/en/",
+      "universityLink": "https://www.uni-paderborn.de",
+      "source": "Paderborn CS M.Sc. admission (GRE Quant 157 + AW 4.0, or dMAT 50th percentile)"
+    },
+    {
+      "id": "PP-LMU-INFO",
+      "title": "M.Sc. Informatics",
+      "university": "Ludwig-Maximilians-Universität München (LMU)",
+      "city": "Munich",
+      "state": "Bavaria",
+      "level": "master",
+      "teachingLanguages": [
+        "english",
+        "german"
+      ],
+      "acceptedFields": [
+        "computer_science",
+        "informatics",
+        "software",
+        "data",
+        "mathematics"
+      ],
+      "subjectEcts": null,
+      "bachelorEctsRequired": 180,
+      "minGpaGerman": null,
+      "ieltsReq": null,
+      "toeflReq": null,
+      "englishOther": null,
+      "germanReq": {
+        "level": "c1",
+        "test": "DSH-2"
+      },
+      "otherRequirements": {},
+      "tuitionPerSemester": null,
+      "semesterContribution": null,
+      "intake": "winter_2029",
+      "deadlineNonEu": "2029-07-15",
+      "link": "https://www.lmu.de/en/",
+      "universityLink": "https://www.lmu.de",
+      "source": "LMU Informatics M.Sc. language requirement (German C1 / DSH-2 for the German track); tuition not verified for the 2029 intake"
+    }
+  ],
+  "scholarships": [
+    {
+      "id": "PS-DAAD-MASTER",
+      "title": "DAAD Study Scholarships — Master studies for all disciplines",
+      "provider": "DAAD (German Academic Exchange Service)",
+      "levels": [
+        "master"
+      ],
+      "nationalities": [
+        "PK"
+      ],
+      "fields": null,
+      "minGpaGerman": null,
+      "ieltsReq": null,
+      "germanReq": null,
+      "maxAge": null,
+      "covers": "full",
+      "deadline": "2026-11-16",
+      "link": "https://www.daad.de/en/",
+      "source": "DAAD study scholarship call (€992/month + travel + insurance + €460 study allowance, deadline 16 Nov)"
+    },
+    {
+      "id": "PS-DEUTSCHLAND",
+      "title": "Deutschlandstipendium",
+      "provider": "German universities and private sponsors",
+      "levels": [
+        "bachelor",
+        "master"
+      ],
+      "nationalities": null,
+      "fields": null,
+      "minGpaGerman": null,
+      "ieltsReq": null,
+      "germanReq": null,
+      "maxAge": null,
+      "covers": "stipend_only",
+      "deadline": null,
+      "link": "https://www.deutschlandstipendium.de",
+      "source": "Deutschlandstipendium: €300/month stipend only, deadlines set per university"
+    },
+    {
+      "id": "PS-BOELL",
+      "title": "Heinrich Böll Foundation scholarship",
+      "provider": "Heinrich Böll Stiftung",
+      "levels": [
+        "bachelor",
+        "master",
+        "phd"
+      ],
+      "nationalities": null,
+      "fields": null,
+      "minGpaGerman": null,
+      "ieltsReq": null,
+      "germanReq": {
+        "level": "b2"
+      },
+      "maxAge": null,
+      "covers": "full",
+      "deadline": "2027-03-01",
+      "link": "https://www.boell.de/en/scholarships",
+      "source": "Heinrich Böll Foundation scholarship requirements (German B2, deadlines 1 March and 1 September)"
+    }
+  ]
+}

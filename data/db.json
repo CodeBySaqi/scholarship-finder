@@ -1,6 +1,6 @@
 {
  "meta": {
-  "seededAt": "2026-10-24T03:24:27.411Z",
+  "seededAt": "2026-10-25T05:07:56.245Z",
   "today": "2026-10-22",
   "password": "demo1234",
   "version": 1
@@ -9,13 +9,13 @@
   {
    "id": "u-ayesha",
    "email": "ayesha@example.com",
-   "displayName": "Renamed By Test",
+   "displayName": "Ayesha Khan",
    "role": "student",
    "isActive": true,
    "emailVerified": true,
-   "passwordHash": "bc6e6aa893e54c6ee62c6c19ada92b8b:c5ac6b31ee83a42887615917195199aa2f143271fbe720400930d02bc6a46e70",
-   "createdAt": "2026-10-24T03:24:27.411Z",
-   "lastLogin": "2026-10-24T03:28:28.498Z"
+   "passwordHash": "93cf1bdf49231465319fa445aa033a8b:031a1c404cf3ad27bacd830dd2cafa1cb638f5d235ee13568ebe41211d743cae",
+   "createdAt": "2026-10-25T05:07:56.245Z",
+   "lastLogin": null
   },
   {
    "id": "u-bilal",
@@ -24,9 +24,9 @@
    "role": "student",
    "isActive": true,
    "emailVerified": true,
-   "passwordHash": "bc6e6aa893e54c6ee62c6c19ada92b8b:c5ac6b31ee83a42887615917195199aa2f143271fbe720400930d02bc6a46e70",
-   "createdAt": "2026-10-24T03:24:27.411Z",
-   "lastLogin": "2026-10-24T03:28:23.941Z"
+   "passwordHash": "93cf1bdf49231465319fa445aa033a8b:031a1c404cf3ad27bacd830dd2cafa1cb638f5d235ee13568ebe41211d743cae",
+   "createdAt": "2026-10-25T05:07:56.245Z",
+   "lastLogin": null
   },
   {
    "id": "u-sana",
@@ -35,9 +35,9 @@
    "role": "student",
    "isActive": true,
    "emailVerified": true,
-   "passwordHash": "bc6e6aa893e54c6ee62c6c19ada92b8b:c5ac6b31ee83a42887615917195199aa2f143271fbe720400930d02bc6a46e70",
-   "createdAt": "2026-10-24T03:24:27.411Z",
-   "lastLogin": "2026-10-24T03:28:23.995Z"
+   "passwordHash": "93cf1bdf49231465319fa445aa033a8b:031a1c404cf3ad27bacd830dd2cafa1cb638f5d235ee13568ebe41211d743cae",
+   "createdAt": "2026-10-25T05:07:56.245Z",
+   "lastLogin": null
   },
   {
    "id": "u-contributor",
@@ -46,9 +46,9 @@
    "role": "contributor",
    "isActive": true,
    "emailVerified": true,
-   "passwordHash": "bc6e6aa893e54c6ee62c6c19ada92b8b:c5ac6b31ee83a42887615917195199aa2f143271fbe720400930d02bc6a46e70",
-   "createdAt": "2026-10-24T03:24:27.411Z",
-   "lastLogin": "2026-10-24T03:28:55.036Z"
+   "passwordHash": "93cf1bdf49231465319fa445aa033a8b:031a1c404cf3ad27bacd830dd2cafa1cb638f5d235ee13568ebe41211d743cae",
+   "createdAt": "2026-10-25T05:07:56.245Z",
+   "lastLogin": null
   },
   {
    "id": "u-admin",
@@ -57,74 +57,8 @@
    "role": "admin",
    "isActive": true,
    "emailVerified": true,
-   "passwordHash": "bc6e6aa893e54c6ee62c6c19ada92b8b:c5ac6b31ee83a42887615917195199aa2f143271fbe720400930d02bc6a46e70",
-   "createdAt": "2026-10-24T03:24:27.411Z",
-   "lastLogin": "2026-10-24T03:28:40.671Z"
-  },
-  {
-   "id": "u-6",
-   "email": "wizard1792812280289@example.com",
-   "displayName": "Wizard Probe",
-   "role": "student",
-   "isActive": true,
-   "emailVerified": true,
-   "passwordHash": "c7dbd4025bb456ff6f81cb5b7ac91c89:ca8f43ad7688fa4781b835ce3b15bd9359b7811c5c0ac404c4a0857b01837993",
-   "createdAt": "2026-10-24T03:24:40.329Z",
-   "lastLogin": null
-  },
-  {
-   "id": "u-7",
-   "email": "maleprobe1792812280349@example.com",
-   "displayName": "male Probe",
-   "role": "student",
-   "isActive": true,
-   "emailVerified": true,
-   "passwordHash": "60fe91ee47c8f670374d2ecdefc80777:7bab708c0c65c89ce29d14b3938fea30dae822fa09a65c01a116475420cadfc1",
-   "createdAt": "2026-10-24T03:24:40.391Z",
-   "lastLogin": null
-  },
-  {
-   "id": "u-8",
-   "email": "femaleprobe1792812280398@example.com",
-   "displayName": "female Probe",
-   "role": "student",
-   "isActive": true,
-   "emailVerified": true,
-   "passwordHash": "ac2a7734a01a5fc25b4fd63387f052c8:4be930277a2c0ff43a0c082788577fc8be25d25c8201c1c7ba7e242ba708cc9d",
-   "createdAt": "2026-10-24T03:24:40.441Z",
-   "lastLogin": null
-  },
-  {
-   "id": "u-9",
-   "email": "wizard1792812504171@example.com",
-   "displayName": "Wizard Probe",
-   "role": "student",
-   "isActive": true,
-   "emailVerified": true,
-   "passwordHash": "014fe84ec3d5138238ac047779db64ca:1e59e516b05c1de8aec792272fae3db324fee16f1184ba196843a4fe83b93d33",
-   "createdAt": "2026-10-24T03:28:24.213Z",
-   "lastLogin": null
-  },
-  {
-   "id": "u-10",
-   "email": "maleprobe1792812504232@example.com",
-   "displayName": "male Probe",
-   "role": "student",
-   "isActive": true,
-   "emailVerified": true,
-   "passwordHash": "987bbed1c0ccb1f0820218bc0db356fb:d2bd4c0b8d6d9fd1129871eff5d1cd63c07a4990fdabca37a915f6b61ad2cd23",
-   "createdAt": "2026-10-24T03:28:24.276Z",
-   "lastLogin": null
-  },
-  {
-   "id": "u-11",
-   "email": "femaleprobe1792812504284@example.com",
-   "displayName": "female Probe",
-   "role": "student",
-   "isActive": true,
-   "emailVerified": true,
-   "passwordHash": "b67c5fb8964e3a4f05ca6a1a662fa33d:8190d323656ca57563e256179cf631d11cf1c578bb6466a8fece6ee725c83bec",
-   "createdAt": "2026-10-24T03:28:24.328Z",
+   "passwordHash": "93cf1bdf49231465319fa445aa033a8b:031a1c404cf3ad27bacd830dd2cafa1cb638f5d235ee13568ebe41211d743cae",
+   "createdAt": "2026-10-25T05:07:56.245Z",
    "lastLogin": null
   }
  ],
@@ -134,8 +68,8 @@
    "fullName": "Ayesha Khan",
    "firstName": "Ayesha",
    "email": "ayesha@example.com",
-   "whatsapp": "+92 300 1111111",
-   "city": "Ayesha-City",
+   "whatsapp": "+92 300 0000000",
+   "city": "Lahore",
    "province": "Punjab",
    "nationality": "PK",
    "dateOfBirth": "2003-03-01",
@@ -343,666 +277,16 @@
    "fullName": "Contributor",
    "firstName": "Contributor",
    "completenessPct": 7,
-   "targets": [],
-   "city": "",
-   "province": "",
-   "nationality": "PK",
-   "currentLevel": null,
-   "institution": "",
-   "bachelorScale": null,
-   "passMark": null,
-   "ielts": {
-    "status": null,
-    "overall": null,
-    "date": null
-   },
-   "germanLevel": null,
-   "fundingNeed": null,
-   "apsStatus": null,
-   "documentsReady": []
+   "targets": []
   },
   "u-admin": {
    "fullName": "Editor Admin",
    "firstName": "Editor",
    "completenessPct": 7,
-   "targets": [],
-   "city": "",
-   "province": "",
-   "nationality": "PK",
-   "currentLevel": null,
-   "institution": "",
-   "bachelorScale": null,
-   "passMark": null,
-   "ielts": {
-    "status": null,
-    "overall": null,
-    "date": null
-   },
-   "germanLevel": null,
-   "fundingNeed": null,
-   "apsStatus": null,
-   "documentsReady": []
-  },
-  "u-6": {
-   "fullName": "Wizard Probe",
-   "firstName": "Wizard",
-   "email": "wizard1792812280289@example.com",
-   "nationality": "PK",
-   "completenessPct": 85,
-   "targets": [
-    {
-     "degree": "master",
-     "fields": [
-      "ai"
-     ],
-     "intakeYear": 2027,
-     "isPrimary": true
-    },
-    {
-     "degree": "master",
-     "fields": [
-      "ai"
-     ],
-     "intakeYear": 2027,
-     "isPrimary": false
-    },
-    {
-     "degree": "master",
-     "fields": [
-      "ai"
-     ],
-     "intakeYear": 2027,
-     "isPrimary": false
-    }
-   ],
-   "city": "Multan",
-   "province": "",
-   "currentLevel": "bachelor",
-   "institution": "UET",
-   "bachelorScale": 4,
-   "passMark": null,
-   "ielts": {
-    "status": "taken",
-    "overall": null,
-    "date": null
-   },
-   "germanLevel": "B1",
-   "fundingNeed": "partial_ok",
-   "apsStatus": "certificate_ready",
-   "documentsReady": [
-    "transcripts",
-    "cv"
-   ],
-   "dateOfBirth": null,
-   "gender": "female",
-   "expectedCompletionYear": 2027,
-   "matricPct": 82,
-   "interPct": 78,
-   "hsscGroup": "pre_engineering",
-   "ibccStatus": "done",
-   "bachelorCgpa": null
-  },
-  "u-7": {
-   "fullName": "male Probe",
-   "firstName": "male",
-   "email": "maleprobe1792812280349@example.com",
-   "nationality": "PK",
-   "completenessPct": 21,
-   "targets": [
-    {
-     "degree": "phd",
-     "fields": [
-      "science"
-     ],
-     "intakeYear": 2027,
-     "isPrimary": true
-    }
-   ],
-   "city": "",
-   "province": "",
-   "currentLevel": null,
-   "institution": "",
-   "bachelorScale": null,
-   "passMark": null,
-   "ielts": {
-    "status": null,
-    "overall": null,
-    "date": null
-   },
-   "germanLevel": null,
-   "fundingNeed": null,
-   "apsStatus": null,
-   "documentsReady": [],
-   "gender": "male"
-  },
-  "u-8": {
-   "fullName": "female Probe",
-   "firstName": "female",
-   "email": "femaleprobe1792812280398@example.com",
-   "nationality": "PK",
-   "completenessPct": 21,
-   "targets": [
-    {
-     "degree": "phd",
-     "fields": [
-      "science"
-     ],
-     "intakeYear": 2027,
-     "isPrimary": true
-    }
-   ],
-   "city": "",
-   "province": "",
-   "currentLevel": null,
-   "institution": "",
-   "bachelorScale": null,
-   "passMark": null,
-   "ielts": {
-    "status": null,
-    "overall": null,
-    "date": null
-   },
-   "germanLevel": null,
-   "fundingNeed": null,
-   "apsStatus": null,
-   "documentsReady": [],
-   "gender": "female"
-  },
-  "u-9": {
-   "fullName": "Wizard Probe",
-   "firstName": "Wizard",
-   "email": "wizard1792812504171@example.com",
-   "nationality": "PK",
-   "completenessPct": 85,
-   "targets": [
-    {
-     "degree": "master",
-     "fields": [
-      "ai"
-     ],
-     "intakeYear": 2027,
-     "isPrimary": true
-    },
-    {
-     "degree": "master",
-     "fields": [
-      "ai"
-     ],
-     "intakeYear": 2027,
-     "isPrimary": false
-    },
-    {
-     "degree": "master",
-     "fields": [
-      "ai"
-     ],
-     "intakeYear": 2027,
-     "isPrimary": false
-    }
-   ],
-   "city": "Multan",
-   "province": "",
-   "currentLevel": "bachelor",
-   "institution": "UET",
-   "bachelorScale": 4,
-   "passMark": null,
-   "ielts": {
-    "status": "taken",
-    "overall": null,
-    "date": null
-   },
-   "germanLevel": "B1",
-   "fundingNeed": "partial_ok",
-   "apsStatus": "certificate_ready",
-   "documentsReady": [
-    "transcripts",
-    "cv"
-   ],
-   "dateOfBirth": null,
-   "gender": "female",
-   "expectedCompletionYear": 2027,
-   "matricPct": 82,
-   "interPct": 78,
-   "hsscGroup": "pre_engineering",
-   "ibccStatus": "done",
-   "bachelorCgpa": null
-  },
-  "u-10": {
-   "fullName": "male Probe",
-   "firstName": "male",
-   "email": "maleprobe1792812504232@example.com",
-   "nationality": "PK",
-   "completenessPct": 21,
-   "targets": [
-    {
-     "degree": "phd",
-     "fields": [
-      "science"
-     ],
-     "intakeYear": 2027,
-     "isPrimary": true
-    }
-   ],
-   "city": "",
-   "province": "",
-   "currentLevel": null,
-   "institution": "",
-   "bachelorScale": null,
-   "passMark": null,
-   "ielts": {
-    "status": null,
-    "overall": null,
-    "date": null
-   },
-   "germanLevel": null,
-   "fundingNeed": null,
-   "apsStatus": null,
-   "documentsReady": [],
-   "gender": "male"
-  },
-  "u-11": {
-   "fullName": "female Probe",
-   "firstName": "female",
-   "email": "femaleprobe1792812504284@example.com",
-   "nationality": "PK",
-   "completenessPct": 21,
-   "targets": [
-    {
-     "degree": "phd",
-     "fields": [
-      "science"
-     ],
-     "intakeYear": 2027,
-     "isPrimary": true
-    }
-   ],
-   "city": "",
-   "province": "",
-   "currentLevel": null,
-   "institution": "",
-   "bachelorScale": null,
-   "passMark": null,
-   "ielts": {
-    "status": null,
-    "overall": null,
-    "date": null
-   },
-   "germanLevel": null,
-   "fundingNeed": null,
-   "apsStatus": null,
-   "documentsReady": [],
-   "gender": "female"
+   "targets": []
   }
  },
  "listings": [
-  {
-   "id": "S32",
-   "kind": "scholarship",
-   "status": "verified",
-   "title": "Probe Fellowship 2027",
-   "provider": "Extracted from example.org",
-   "hostCountry": "Germany",
-   "degreeLevels": [
-    "master"
-   ],
-   "fundingType": "full",
-   "deadline": "2027-03-15",
-   "lastVerified": "2026-10-22",
-   "createdBy": "ai-agent",
-   "verifiedBy": "admin@example.com",
-   "draftedByAi": false,
-   "openErrorReports": 0,
-   "applyUrl": "https://example.org/probe-ai",
-   "officialUrl": "https://example.org/probe-ai",
-   "sourceUrl": "https://example.org/probe-ai",
-   "description": "Draft created by the extraction agent. A human must check every field against the source before publishing.",
-   "minCgpa": null,
-   "minIelts": null,
-   "maxAge": null,
-   "sourceSnapshot": "Probe Fellowship 2027. The deadline for this intake is 15 March 2027. Applicants need a minimum CGPA of 3.4 on a 4.0 scale. Health insurance is included.",
-   "evidence": {
-    "title": "Probe Fellowship 2027.",
-    "deadline": "The deadline for this intake is 15 March 2027.",
-    "cgpa": "Applicants need a minimum CGPA of 3.4 on a 4.0 scale."
-   },
-   "droppedFields": [
-    "ielts",
-    "age"
-   ],
-   "updatedAt": "2026-10-24T03:28:24.359Z",
-   "ieltsRequired": false
-  },
-  {
-   "id": "S31",
-   "kind": "scholarship",
-   "status": "draft",
-   "title": "Admin own probe",
-   "provider": "",
-   "hostCountry": "Germany",
-   "degreeLevels": [
-    "master"
-   ],
-   "fundingType": "full",
-   "lastVerified": "2026-10-22",
-   "deadline": null,
-   "createdBy": "admin@example.com",
-   "verifiedBy": null,
-   "openErrorReports": 0,
-   "draftedByAi": false,
-   "evidence": {},
-   "updatedAt": "2026-10-24T03:28:23.563Z",
-   "sourceUrl": "https://example.org/own"
-  },
-  {
-   "id": "S30",
-   "kind": "scholarship",
-   "status": "verified",
-   "title": "Contrib isolation probe",
-   "provider": "",
-   "hostCountry": "Germany",
-   "degreeLevels": [
-    "master"
-   ],
-   "fundingType": "full",
-   "lastVerified": "2026-10-22",
-   "deadline": null,
-   "createdBy": "contributor@example.com",
-   "verifiedBy": "admin@example.com",
-   "openErrorReports": 0,
-   "draftedByAi": false,
-   "evidence": {},
-   "updatedAt": "2026-10-24T03:28:23.544Z",
-   "sourceUrl": "https://example.org/probe"
-  },
-  {
-   "id": "P29",
-   "kind": "program",
-   "status": "draft",
-   "title": "Untitled draft",
-   "provider": "",
-   "hostCountry": "Germany",
-   "degreeLevels": [
-    "master"
-   ],
-   "fundingType": "full",
-   "deadline": "2027-05-31",
-   "lastVerified": "2026-10-22",
-   "createdBy": "admin@example.com",
-   "verifiedBy": null,
-   "openErrorReports": 0,
-   "draftedByAi": true,
-   "researchProvider": "extract",
-   "evidence": {},
-   "updatedAt": "2026-10-24T03:28:23.145Z",
-   "languageMode": "english",
-   "description": "Researched from the notes. Every field must be checked against the source before publishing."
-  },
-  {
-   "id": "P28",
-   "kind": "program",
-   "status": "draft",
-   "title": "Untitled draft",
-   "provider": "",
-   "hostCountry": "Germany",
-   "degreeLevels": [
-    "master"
-   ],
-   "fundingType": "full",
-   "deadline": "2027-05-31",
-   "lastVerified": "2026-10-22",
-   "createdBy": "admin@example.com",
-   "verifiedBy": null,
-   "openErrorReports": 0,
-   "draftedByAi": true,
-   "researchProvider": "extract",
-   "evidence": {},
-   "updatedAt": "2026-10-24T03:28:23.139Z",
-   "languageMode": "english",
-   "description": "Researched from the notes. Every field must be checked against the source before publishing."
-  },
-  {
-   "id": "P27",
-   "kind": "program",
-   "status": "draft",
-   "title": "Untitled draft",
-   "provider": "",
-   "hostCountry": "Germany",
-   "degreeLevels": [
-    "master"
-   ],
-   "fundingType": "full",
-   "deadline": "2027-05-31",
-   "lastVerified": "2026-10-22",
-   "createdBy": "admin@example.com",
-   "verifiedBy": null,
-   "openErrorReports": 0,
-   "draftedByAi": true,
-   "researchProvider": "extract",
-   "evidence": {},
-   "updatedAt": "2026-10-24T03:28:12.582Z",
-   "languageMode": "english",
-   "description": "Researched from the notes. Every field must be checked against the source before publishing."
-  },
-  {
-   "id": "P26",
-   "kind": "program",
-   "status": "draft",
-   "title": "Untitled draft",
-   "provider": "",
-   "hostCountry": "Germany",
-   "degreeLevels": [
-    "master"
-   ],
-   "fundingType": "full",
-   "deadline": "2027-05-31",
-   "lastVerified": "2026-10-22",
-   "createdBy": "admin@example.com",
-   "verifiedBy": null,
-   "openErrorReports": 0,
-   "draftedByAi": true,
-   "researchProvider": "extract",
-   "evidence": {},
-   "updatedAt": "2026-10-24T03:28:12.576Z",
-   "languageMode": "english",
-   "description": "Researched from the notes. Every field must be checked against the source before publishing."
-  },
-  {
-   "id": "P25",
-   "kind": "program",
-   "status": "draft",
-   "title": "Untitled draft",
-   "provider": "",
-   "hostCountry": "Germany",
-   "degreeLevels": [
-    "master"
-   ],
-   "fundingType": "full",
-   "deadline": "2027-05-31",
-   "lastVerified": "2026-10-22",
-   "createdBy": "admin@example.com",
-   "verifiedBy": null,
-   "openErrorReports": 0,
-   "draftedByAi": true,
-   "researchProvider": "extract",
-   "evidence": {},
-   "updatedAt": "2026-10-24T03:27:59.561Z",
-   "languageMode": "english",
-   "description": "Researched from the notes. Every field must be checked against the source before publishing."
-  },
-  {
-   "id": "P24",
-   "kind": "program",
-   "status": "draft",
-   "title": "Untitled draft",
-   "provider": "",
-   "hostCountry": "Germany",
-   "degreeLevels": [
-    "master"
-   ],
-   "fundingType": "full",
-   "deadline": "2027-05-31",
-   "lastVerified": "2026-10-22",
-   "createdBy": "admin@example.com",
-   "verifiedBy": null,
-   "openErrorReports": 0,
-   "draftedByAi": true,
-   "researchProvider": "extract",
-   "evidence": {},
-   "updatedAt": "2026-10-24T03:27:59.552Z",
-   "languageMode": "english",
-   "description": "Researched from the notes. Every field must be checked against the source before publishing."
-  },
-  {
-   "id": "S23",
-   "kind": "scholarship",
-   "status": "draft",
-   "title": "The Example Foundation scholarship is fully funded",
-   "provider": "",
-   "hostCountry": "Germany",
-   "degreeLevels": [
-    "master"
-   ],
-   "fundingType": "full",
-   "deadline": "2027-09-30",
-   "lastVerified": "2026-10-22",
-   "createdBy": "admin@example.com",
-   "verifiedBy": null,
-   "openErrorReports": 0,
-   "draftedByAi": true,
-   "researchProvider": "extract",
-   "evidence": {},
-   "updatedAt": "2026-10-24T03:25:54.681Z",
-   "minCgpa": 3.2,
-   "ieltsRequired": true,
-   "minIelts": 6.5,
-   "allowedCountries": [],
-   "description": "Researched from the notes. Every field must be checked against the source before publishing."
-  },
-  {
-   "id": "S22",
-   "kind": "scholarship",
-   "status": "verified",
-   "title": "Probe Fellowship 2027",
-   "provider": "Extracted from example.org",
-   "hostCountry": "Germany",
-   "degreeLevels": [
-    "master"
-   ],
-   "fundingType": "full",
-   "deadline": "2027-03-15",
-   "lastVerified": "2026-10-22",
-   "createdBy": "ai-agent",
-   "verifiedBy": "admin@example.com",
-   "draftedByAi": false,
-   "openErrorReports": 0,
-   "applyUrl": "https://example.org/probe-ai",
-   "officialUrl": "https://example.org/probe-ai",
-   "sourceUrl": "https://example.org/probe-ai",
-   "description": "Draft created by the extraction agent. A human must check every field against the source before publishing.",
-   "minCgpa": null,
-   "minIelts": null,
-   "maxAge": null,
-   "sourceSnapshot": "Probe Fellowship 2027. The deadline for this intake is 15 March 2027. Applicants need a minimum CGPA of 3.4 on a 4.0 scale. Health insurance is included.",
-   "evidence": {
-    "title": "Probe Fellowship 2027.",
-    "deadline": "The deadline for this intake is 15 March 2027.",
-    "cgpa": "Applicants need a minimum CGPA of 3.4 on a 4.0 scale."
-   },
-   "droppedFields": [
-    "ielts",
-    "age"
-   ],
-   "updatedAt": "2026-10-24T03:24:40.472Z",
-   "ieltsRequired": false
-  },
-  {
-   "id": "S21",
-   "kind": "scholarship",
-   "status": "draft",
-   "title": "Admin own probe",
-   "provider": "",
-   "hostCountry": "Germany",
-   "degreeLevels": [
-    "master"
-   ],
-   "fundingType": "full",
-   "lastVerified": "2026-10-22",
-   "deadline": null,
-   "createdBy": "admin@example.com",
-   "verifiedBy": null,
-   "openErrorReports": 0,
-   "draftedByAi": false,
-   "evidence": {},
-   "updatedAt": "2026-10-24T03:24:39.718Z",
-   "sourceUrl": "https://example.org/own"
-  },
-  {
-   "id": "S20",
-   "kind": "scholarship",
-   "status": "verified",
-   "title": "Contrib isolation probe",
-   "provider": "",
-   "hostCountry": "Germany",
-   "degreeLevels": [
-    "master"
-   ],
-   "fundingType": "full",
-   "lastVerified": "2026-10-22",
-   "deadline": null,
-   "createdBy": "contributor@example.com",
-   "verifiedBy": "admin@example.com",
-   "openErrorReports": 0,
-   "draftedByAi": false,
-   "evidence": {},
-   "updatedAt": "2026-10-24T03:24:39.691Z",
-   "sourceUrl": "https://example.org/probe"
-  },
-  {
-   "id": "P19",
-   "kind": "program",
-   "status": "draft",
-   "title": "Untitled draft",
-   "provider": "",
-   "hostCountry": "Germany",
-   "degreeLevels": [
-    "master"
-   ],
-   "fundingType": "full",
-   "deadline": "2027-05-31",
-   "lastVerified": "2026-10-22",
-   "createdBy": "admin@example.com",
-   "verifiedBy": null,
-   "openErrorReports": 0,
-   "draftedByAi": true,
-   "researchProvider": "extract",
-   "evidence": {},
-   "updatedAt": "2026-10-24T03:24:31.290Z",
-   "languageMode": "english",
-   "description": "Researched from the notes. Every field must be checked against the source before publishing."
-  },
-  {
-   "id": "P18",
-   "kind": "program",
-   "status": "draft",
-   "title": "Untitled draft",
-   "provider": "",
-   "hostCountry": "Germany",
-   "degreeLevels": [
-    "master"
-   ],
-   "fundingType": "full",
-   "deadline": "2027-05-31",
-   "lastVerified": "2026-10-22",
-   "createdBy": "admin@example.com",
-   "verifiedBy": null,
-   "openErrorReports": 0,
-   "draftedByAi": true,
-   "researchProvider": "extract",
-   "evidence": {},
-   "updatedAt": "2026-10-24T03:24:31.283Z",
-   "languageMode": "english",
-   "description": "Researched from the notes. Every field must be checked against the source before publishing."
-  },
   {
    "id": "S1",
    "kind": "scholarship",
@@ -1048,7 +332,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 1,
    "evidence": {},
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "S2",
@@ -1097,7 +381,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "S3",
@@ -1141,9 +425,9 @@
    "sourceUrl": "https://www.daad.pk/en/find-funding/daad-scholarship-programmes-for-pakistan/",
    "verifiedBy": "admin@example.com",
    "createdBy": "admin@example.com",
-   "openErrorReports": 4,
+   "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "S4",
@@ -1189,7 +473,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "S5",
@@ -1231,7 +515,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "S6",
@@ -1272,7 +556,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "S7",
@@ -1321,12 +605,12 @@
     "title": "MSc Environmental Governance at the University of Freiburg is a two-year, English-taught programme of 120 ECTS credits.",
     "deadline": "The application deadline for the October 2027 intake is 15 October 2026."
    },
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "S8",
    "kind": "scholarship",
-   "status": "stale",
+   "status": "verified",
    "lastVerified": "2026-02-10",
    "title": "Study scholarships for foreign graduates in the field of architecture",
    "provider": "DAAD",
@@ -1364,7 +648,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 1,
    "evidence": {},
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "S9",
@@ -1408,7 +692,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "P1",
@@ -1469,7 +753,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 1,
    "evidence": {},
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "P2",
@@ -1532,7 +816,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "P3",
@@ -1592,7 +876,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "P4",
@@ -1652,7 +936,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "P5",
@@ -1709,7 +993,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "P6",
@@ -1767,7 +1051,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "P7",
@@ -1827,7 +1111,7 @@
    "createdBy": "admin@example.com",
    "openErrorReports": 0,
    "evidence": {},
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "P8",
@@ -1886,7 +1170,7 @@
     "title": "Bachelor programme Physics at LMU Munich.",
     "deadline": "The application deadline for the winter semester is 15 July 2027 and for the summer semester 15 January 2027."
    },
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   }
  ],
  "universities": [
@@ -1900,7 +1184,7 @@
    "websiteUrl": "https://www.tum.de",
    "uniAssistMember": true,
    "notes": "Every applicant with a non-German Bachelor needs a uni-assist preliminary documentation (VPD).",
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "u2",
@@ -1912,7 +1196,7 @@
    "websiteUrl": "https://www.rwth-aachen.de",
    "uniAssistMember": false,
    "notes": "Master applications for Computer Science and Software Systems Engineering go directly through RWTHonline.",
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "u3",
@@ -1924,7 +1208,7 @@
    "websiteUrl": "https://www.lmu.de",
    "uniAssistMember": true,
    "notes": "International Office deadlines: 15 January for the summer semester, 15 July for the winter semester.",
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "u4",
@@ -1936,7 +1220,7 @@
    "websiteUrl": "https://www.ruhr-uni-bochum.de",
    "uniAssistMember": true,
    "notes": "Master Computer Science: 15 December is the final deadline for applicants whose Bachelor was obtained outside the EU.",
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "u5",
@@ -1948,7 +1232,7 @@
    "websiteUrl": "https://www.tu.berlin",
    "uniAssistMember": true,
    "notes": "Applicants with foreign academic credentials also submit a uni-assist VPD.",
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "u6",
@@ -1960,7 +1244,7 @@
    "websiteUrl": "https://www.hu-berlin.de",
    "uniAssistMember": true,
    "notes": "Deutschlandstipendium: application 9 November to 6 December 2026, funding from 1 April 2027.",
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "u7",
@@ -1972,7 +1256,7 @@
    "websiteUrl": "https://tu-dresden.de",
    "uniAssistMember": true,
    "notes": "Deutschlandstipendium: next application window 1 to 15 July 2027.",
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "u8",
@@ -1984,7 +1268,7 @@
    "websiteUrl": "https://www.fau.eu",
    "uniAssistMember": true,
    "notes": "Deutschlandstipendium 2026 ran from 15 June to 15 July 2026.",
-   "updatedAt": "2026-10-24T03:24:27.411Z"
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   },
   {
    "id": "u9",
@@ -1996,29 +1280,7 @@
    "websiteUrl": "https://uni-freiburg.de",
    "uniAssistMember": true,
    "notes": "Hosts the DAAD EPOS course MSc Environmental Governance.",
-   "updatedAt": "2026-10-24T03:24:27.411Z"
-  },
-  {
-   "id": "u10",
-   "name": "Probe University 1792812280482",
-   "city": "Probe City",
-   "state": "—",
-   "type": "university",
-   "isPublic": true,
-   "websiteUrl": "https://example.edu",
-   "uniAssistMember": false,
-   "notes": ""
-  },
-  {
-   "id": "u11",
-   "name": "Probe University 1792812504368",
-   "city": "Probe City",
-   "state": "—",
-   "type": "university",
-   "isPublic": true,
-   "websiteUrl": "https://example.edu",
-   "uniAssistMember": false,
-   "notes": ""
+   "updatedAt": "2026-10-25T05:07:56.245Z"
   }
  ],
  "saved": [
@@ -2053,51 +1315,17 @@
    "kind": "scholarship",
    "note": "Deadline is a year away — set a reminder.",
    "createdAt": "2026-10-19T09:00:00Z"
+  },
+  {
+   "id": "sv-bilal-S2",
+   "userId": "u-bilal",
+   "listingId": "S2",
+   "kind": "scholarship",
+   "note": "",
+   "createdAt": "2026-10-01T09:00:00Z"
   }
  ],
  "errorReports": [
-  {
-   "id": "er9",
-   "listingType": "scholarship",
-   "listingId": "S3",
-   "reason": "wrong_deadline",
-   "note": "",
-   "userId": "bilal@example.com",
-   "status": "open",
-   "createdAt": "2026-10-24T03:28:24.346Z"
-  },
-  {
-   "id": "er8",
-   "listingType": "scholarship",
-   "listingId": "S3",
-   "reason": "wrong_deadline",
-   "note": "Deadline looks wrong",
-   "userId": "sana@example.com",
-   "status": "dismissed",
-   "createdAt": "2026-10-24T03:28:24.344Z",
-   "resolvedBy": "contributor@example.com"
-  },
-  {
-   "id": "er7",
-   "listingType": "scholarship",
-   "listingId": "S3",
-   "reason": "wrong_deadline",
-   "note": "",
-   "userId": "bilal@example.com",
-   "status": "open",
-   "createdAt": "2026-10-24T03:24:40.460Z"
-  },
-  {
-   "id": "er6",
-   "listingType": "scholarship",
-   "listingId": "S3",
-   "reason": "wrong_deadline",
-   "note": "Deadline looks wrong",
-   "userId": "sana@example.com",
-   "status": "dismissed",
-   "createdAt": "2026-10-24T03:24:40.457Z",
-   "resolvedBy": "contributor@example.com"
-  },
   {
    "id": "er1",
    "listingType": "scholarship",
@@ -2150,965 +1378,6 @@
   }
  ],
  "logs": [
-  {
-   "id": "l80",
-   "adminId": "admin@example.com",
-   "action": "insert_university",
-   "entityType": "university",
-   "entityId": "u11",
-   "detail": {
-    "name": "Probe University 1792812504368",
-    "city": "Probe City"
-   },
-   "createdAt": "2026-10-24T03:28:24.369Z"
-  },
-  {
-   "id": "l79",
-   "adminId": "admin@example.com",
-   "action": "publish",
-   "entityType": "scholarship",
-   "entityId": "S32",
-   "detail": {
-    "gate": {
-     "display": true,
-     "eligibility": true,
-     "provenance": true
-    }
-   },
-   "createdAt": "2026-10-24T03:28:24.364Z"
-  },
-  {
-   "id": "l78",
-   "adminId": "admin@example.com",
-   "action": "insert_draft",
-   "entityType": "scholarship",
-   "entityId": "S32",
-   "detail": {
-    "via": "ai_draft",
-    "url": "https://example.org/probe-ai"
-   },
-   "createdAt": "2026-10-24T03:28:24.359Z"
-  },
-  {
-   "id": "l77",
-   "adminId": "contributor@example.com",
-   "action": "report dismissed",
-   "entityType": "error_report",
-   "entityId": "er8",
-   "detail": {
-    "listingId": "S3"
-   },
-   "createdAt": "2026-10-24T03:28:24.350Z"
-  },
-  {
-   "id": "l76",
-   "adminId": "admin@example.com",
-   "action": "role change",
-   "entityType": "user",
-   "entityId": "u-sana",
-   "detail": {
-    "changed": [
-     "activated"
-    ],
-    "role": "student",
-    "isActive": true
-   },
-   "createdAt": "2026-10-24T03:28:23.624Z"
-  },
-  {
-   "id": "l75",
-   "adminId": "admin@example.com",
-   "action": "role change",
-   "entityType": "user",
-   "entityId": "u-sana",
-   "detail": {
-    "changed": [
-     "suspended"
-    ],
-    "role": "student",
-    "isActive": false
-   },
-   "createdAt": "2026-10-24T03:28:23.573Z"
-  },
-  {
-   "id": "l74",
-   "adminId": "admin@example.com",
-   "action": "verify",
-   "entityType": "scholarship",
-   "entityId": "S30",
-   "detail": {
-    "from": "verified",
-    "to": "verified"
-   },
-   "createdAt": "2026-10-24T03:28:23.567Z"
-  },
-  {
-   "id": "l73",
-   "adminId": "admin@example.com",
-   "action": "insert_draft",
-   "entityType": "scholarship",
-   "entityId": "S31",
-   "detail": {},
-   "createdAt": "2026-10-24T03:28:23.563Z"
-  },
-  {
-   "id": "l72",
-   "adminId": "admin@example.com",
-   "action": "publish",
-   "entityType": "scholarship",
-   "entityId": "S30",
-   "detail": {
-    "gate": {
-     "display": true,
-     "eligibility": true,
-     "provenance": true
-    }
-   },
-   "createdAt": "2026-10-24T03:28:23.559Z"
-  },
-  {
-   "id": "l71",
-   "adminId": "contributor@example.com",
-   "action": "insert_draft",
-   "entityType": "scholarship",
-   "entityId": "S30",
-   "detail": {},
-   "createdAt": "2026-10-24T03:28:23.544Z"
-  },
-  {
-   "id": "l70",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 4
-   },
-   "createdAt": "2026-10-24T03:28:23.155Z"
-  },
-  {
-   "id": "l69",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 4
-   },
-   "createdAt": "2026-10-24T03:28:23.153Z"
-  },
-  {
-   "id": "l68",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 4
-   },
-   "createdAt": "2026-10-24T03:28:23.151Z"
-  },
-  {
-   "id": "l67",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 4
-   },
-   "createdAt": "2026-10-24T03:28:23.149Z"
-  },
-  {
-   "id": "l66",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 4
-   },
-   "createdAt": "2026-10-24T03:28:23.147Z"
-  },
-  {
-   "id": "l65",
-   "adminId": "admin@example.com",
-   "action": "insert_draft",
-   "entityType": "program",
-   "entityId": "P29",
-   "detail": {
-    "via": "research",
-    "provider": "extract"
-   },
-   "createdAt": "2026-10-24T03:28:23.145Z"
-  },
-  {
-   "id": "l64",
-   "adminId": "admin@example.com",
-   "action": "insert_draft",
-   "entityType": "program",
-   "entityId": "P28",
-   "detail": {
-    "via": "research",
-    "provider": "extract"
-   },
-   "createdAt": "2026-10-24T03:28:23.139Z"
-  },
-  {
-   "id": "l63",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "program",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 5
-   },
-   "createdAt": "2026-10-24T03:28:23.136Z"
-  },
-  {
-   "id": "l62",
-   "adminId": "admin@example.com",
-   "action": "settings update",
-   "entityType": "settings",
-   "entityId": "site",
-   "detail": {
-    "fields": [
-     "aiApiKey"
-    ]
-   },
-   "createdAt": "2026-10-24T03:28:23.133Z"
-  },
-  {
-   "id": "l61",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract (provider failed)",
-    "url": null,
-    "fields": 6
-   },
-   "createdAt": "2026-10-24T03:28:23.130Z"
-  },
-  {
-   "id": "l60",
-   "adminId": "admin@example.com",
-   "action": "settings update",
-   "entityType": "settings",
-   "entityId": "site",
-   "detail": {
-    "fields": [
-     "aiApiKey",
-     "aiProvider",
-     "aiBaseUrl"
-    ]
-   },
-   "createdAt": "2026-10-24T03:28:23.009Z"
-  },
-  {
-   "id": "l59",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": "https://www.daad.de/en/study-and-research-in-germany/scholarships/",
-    "fields": 6
-   },
-   "createdAt": "2026-10-24T03:28:23.003Z"
-  },
-  {
-   "id": "l58",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 9
-   },
-   "createdAt": "2026-10-24T03:28:22.007Z"
-  },
-  {
-   "id": "l57",
-   "adminId": "contributor@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 3
-   },
-   "createdAt": "2026-10-24T03:28:22.000Z"
-  },
-  {
-   "id": "l56",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 3
-   },
-   "createdAt": "2026-10-24T03:28:12.591Z"
-  },
-  {
-   "id": "l55",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 4
-   },
-   "createdAt": "2026-10-24T03:28:12.589Z"
-  },
-  {
-   "id": "l54",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 4
-   },
-   "createdAt": "2026-10-24T03:28:12.587Z"
-  },
-  {
-   "id": "l53",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 4
-   },
-   "createdAt": "2026-10-24T03:28:12.585Z"
-  },
-  {
-   "id": "l52",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 4
-   },
-   "createdAt": "2026-10-24T03:28:12.584Z"
-  },
-  {
-   "id": "l51",
-   "adminId": "admin@example.com",
-   "action": "insert_draft",
-   "entityType": "program",
-   "entityId": "P27",
-   "detail": {
-    "via": "research",
-    "provider": "extract"
-   },
-   "createdAt": "2026-10-24T03:28:12.582Z"
-  },
-  {
-   "id": "l50",
-   "adminId": "admin@example.com",
-   "action": "insert_draft",
-   "entityType": "program",
-   "entityId": "P26",
-   "detail": {
-    "via": "research",
-    "provider": "extract"
-   },
-   "createdAt": "2026-10-24T03:28:12.576Z"
-  },
-  {
-   "id": "l49",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "program",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 5
-   },
-   "createdAt": "2026-10-24T03:28:12.574Z"
-  },
-  {
-   "id": "l48",
-   "adminId": "admin@example.com",
-   "action": "settings update",
-   "entityType": "settings",
-   "entityId": "site",
-   "detail": {
-    "fields": [
-     "aiApiKey"
-    ]
-   },
-   "createdAt": "2026-10-24T03:28:12.572Z"
-  },
-  {
-   "id": "l47",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract (provider failed)",
-    "url": null,
-    "fields": 6
-   },
-   "createdAt": "2026-10-24T03:28:12.569Z"
-  },
-  {
-   "id": "l46",
-   "adminId": "admin@example.com",
-   "action": "settings update",
-   "entityType": "settings",
-   "entityId": "site",
-   "detail": {
-    "fields": [
-     "aiApiKey",
-     "aiProvider",
-     "aiBaseUrl"
-    ]
-   },
-   "createdAt": "2026-10-24T03:28:12.370Z"
-  },
-  {
-   "id": "l45",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": "https://www.daad.de/en/study-and-research-in-germany/scholarships/",
-    "fields": 6
-   },
-   "createdAt": "2026-10-24T03:28:12.365Z"
-  },
-  {
-   "id": "l44",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 9
-   },
-   "createdAt": "2026-10-24T03:28:11.426Z"
-  },
-  {
-   "id": "l43",
-   "adminId": "contributor@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 3
-   },
-   "createdAt": "2026-10-24T03:28:11.420Z"
-  },
-  {
-   "id": "l42",
-   "adminId": "admin@example.com",
-   "action": "insert_draft",
-   "entityType": "program",
-   "entityId": "P25",
-   "detail": {
-    "via": "research",
-    "provider": "extract"
-   },
-   "createdAt": "2026-10-24T03:27:59.561Z"
-  },
-  {
-   "id": "l41",
-   "adminId": "admin@example.com",
-   "action": "insert_draft",
-   "entityType": "program",
-   "entityId": "P24",
-   "detail": {
-    "via": "research",
-    "provider": "extract"
-   },
-   "createdAt": "2026-10-24T03:27:59.553Z"
-  },
-  {
-   "id": "l40",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "program",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 5
-   },
-   "createdAt": "2026-10-24T03:27:59.550Z"
-  },
-  {
-   "id": "l39",
-   "adminId": "admin@example.com",
-   "action": "settings update",
-   "entityType": "settings",
-   "entityId": "site",
-   "detail": {
-    "fields": [
-     "aiApiKey"
-    ]
-   },
-   "createdAt": "2026-10-24T03:27:59.547Z"
-  },
-  {
-   "id": "l38",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract (provider failed)",
-    "url": null,
-    "fields": 6
-   },
-   "createdAt": "2026-10-24T03:27:59.544Z"
-  },
-  {
-   "id": "l37",
-   "adminId": "admin@example.com",
-   "action": "settings update",
-   "entityType": "settings",
-   "entityId": "site",
-   "detail": {
-    "fields": [
-     "aiApiKey",
-     "aiProvider",
-     "aiBaseUrl"
-    ]
-   },
-   "createdAt": "2026-10-24T03:27:59.335Z"
-  },
-  {
-   "id": "l36",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract (provider failed)",
-    "url": "https://www.daad.de/en/study-and-research-in-germany/scholarships/",
-    "fields": 6
-   },
-   "createdAt": "2026-10-24T03:27:59.330Z"
-  },
-  {
-   "id": "l35",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract (provider failed)",
-    "url": null,
-    "fields": 9
-   },
-   "createdAt": "2026-10-24T03:27:58.125Z"
-  },
-  {
-   "id": "l34",
-   "adminId": "contributor@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract (provider failed)",
-    "url": null,
-    "fields": 3
-   },
-   "createdAt": "2026-10-24T03:27:57.919Z"
-  },
-  {
-   "id": "l33",
-   "adminId": "admin@example.com",
-   "action": "settings update",
-   "entityType": "settings",
-   "entityId": "site",
-   "detail": {
-    "fields": [
-     "siteName",
-     "tagline",
-     "supportEmail",
-     "aiProvider",
-     "aiModel",
-     "aiBaseUrl",
-     "researchEnabled",
-     "aiApiKey"
-    ]
-   },
-   "createdAt": "2026-10-24T03:25:58.090Z"
-  },
-  {
-   "id": "l32",
-   "adminId": "admin@example.com",
-   "action": "insert_draft",
-   "entityType": "scholarship",
-   "entityId": "S23",
-   "detail": {
-    "via": "research",
-    "provider": "extract"
-   },
-   "createdAt": "2026-10-24T03:25:54.682Z"
-  },
-  {
-   "id": "l31",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 8
-   },
-   "createdAt": "2026-10-24T03:25:52.078Z"
-  },
-  {
-   "id": "l30",
-   "adminId": "admin@example.com",
-   "action": "broadcast sent",
-   "entityType": "notification",
-   "entityId": "bc-mvlu6lz8",
-   "detail": {
-    "audience": "selected",
-    "recipients": 1
-   },
-   "createdAt": "2026-10-24T03:25:49.125Z"
-  },
-  {
-   "id": "l29",
-   "adminId": "admin@example.com",
-   "action": "role change",
-   "entityType": "user",
-   "entityId": "u-ayesha",
-   "detail": {
-    "changed": [
-     "activated"
-    ],
-    "role": "student",
-    "isActive": true
-   },
-   "createdAt": "2026-10-24T03:25:42.427Z"
-  },
-  {
-   "id": "l28",
-   "adminId": "admin@example.com",
-   "action": "role change",
-   "entityType": "user",
-   "entityId": "u-ayesha",
-   "detail": {
-    "changed": [
-     "suspended"
-    ],
-    "role": "student",
-    "isActive": false
-   },
-   "createdAt": "2026-10-24T03:25:42.364Z"
-  },
-  {
-   "id": "l27",
-   "adminId": "admin@example.com",
-   "action": "role change",
-   "entityType": "user",
-   "entityId": "u-ayesha",
-   "detail": {
-    "changed": [
-     "name"
-    ],
-    "role": "student",
-    "isActive": true
-   },
-   "createdAt": "2026-10-24T03:25:41.164Z"
-  },
-  {
-   "id": "l26",
-   "adminId": "system",
-   "action": "stale to draft",
-   "entityType": "scholarship",
-   "entityId": "S8",
-   "detail": {},
-   "createdAt": "2026-10-24T03:24:40.488Z"
-  },
-  {
-   "id": "l25",
-   "adminId": "admin@example.com",
-   "action": "insert_university",
-   "entityType": "university",
-   "entityId": "u10",
-   "detail": {
-    "name": "Probe University 1792812280482",
-    "city": "Probe City"
-   },
-   "createdAt": "2026-10-24T03:24:40.483Z"
-  },
-  {
-   "id": "l24",
-   "adminId": "admin@example.com",
-   "action": "publish",
-   "entityType": "scholarship",
-   "entityId": "S22",
-   "detail": {
-    "gate": {
-     "display": true,
-     "eligibility": true,
-     "provenance": true
-    }
-   },
-   "createdAt": "2026-10-24T03:24:40.478Z"
-  },
-  {
-   "id": "l23",
-   "adminId": "admin@example.com",
-   "action": "insert_draft",
-   "entityType": "scholarship",
-   "entityId": "S22",
-   "detail": {
-    "via": "ai_draft",
-    "url": "https://example.org/probe-ai"
-   },
-   "createdAt": "2026-10-24T03:24:40.472Z"
-  },
-  {
-   "id": "l22",
-   "adminId": "contributor@example.com",
-   "action": "report dismissed",
-   "entityType": "error_report",
-   "entityId": "er6",
-   "detail": {
-    "listingId": "S3"
-   },
-   "createdAt": "2026-10-24T03:24:40.463Z"
-  },
-  {
-   "id": "l21",
-   "adminId": "admin@example.com",
-   "action": "role change",
-   "entityType": "user",
-   "entityId": "u-sana",
-   "detail": {
-    "changed": [
-     "activated"
-    ],
-    "role": "student",
-    "isActive": true
-   },
-   "createdAt": "2026-10-24T03:24:39.786Z"
-  },
-  {
-   "id": "l20",
-   "adminId": "admin@example.com",
-   "action": "role change",
-   "entityType": "user",
-   "entityId": "u-sana",
-   "detail": {
-    "changed": [
-     "suspended"
-    ],
-    "role": "student",
-    "isActive": false
-   },
-   "createdAt": "2026-10-24T03:24:39.731Z"
-  },
-  {
-   "id": "l19",
-   "adminId": "admin@example.com",
-   "action": "verify",
-   "entityType": "scholarship",
-   "entityId": "S20",
-   "detail": {
-    "from": "verified",
-    "to": "verified"
-   },
-   "createdAt": "2026-10-24T03:24:39.724Z"
-  },
-  {
-   "id": "l18",
-   "adminId": "admin@example.com",
-   "action": "insert_draft",
-   "entityType": "scholarship",
-   "entityId": "S21",
-   "detail": {},
-   "createdAt": "2026-10-24T03:24:39.718Z"
-  },
-  {
-   "id": "l17",
-   "adminId": "admin@example.com",
-   "action": "publish",
-   "entityType": "scholarship",
-   "entityId": "S20",
-   "detail": {
-    "gate": {
-     "display": true,
-     "eligibility": true,
-     "provenance": true
-    }
-   },
-   "createdAt": "2026-10-24T03:24:39.713Z"
-  },
-  {
-   "id": "l16",
-   "adminId": "contributor@example.com",
-   "action": "insert_draft",
-   "entityType": "scholarship",
-   "entityId": "S20",
-   "detail": {},
-   "createdAt": "2026-10-24T03:24:39.691Z"
-  },
-  {
-   "id": "l15",
-   "adminId": "admin@example.com",
-   "action": "insert_draft",
-   "entityType": "program",
-   "entityId": "P19",
-   "detail": {
-    "via": "research",
-    "provider": "extract"
-   },
-   "createdAt": "2026-10-24T03:24:31.290Z"
-  },
-  {
-   "id": "l14",
-   "adminId": "admin@example.com",
-   "action": "insert_draft",
-   "entityType": "program",
-   "entityId": "P18",
-   "detail": {
-    "via": "research",
-    "provider": "extract"
-   },
-   "createdAt": "2026-10-24T03:24:31.283Z"
-  },
-  {
-   "id": "l13",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "program",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 5
-   },
-   "createdAt": "2026-10-24T03:24:31.280Z"
-  },
-  {
-   "id": "l12",
-   "adminId": "admin@example.com",
-   "action": "settings update",
-   "entityType": "settings",
-   "entityId": "site",
-   "detail": {
-    "fields": [
-     "aiApiKey"
-    ]
-   },
-   "createdAt": "2026-10-24T03:24:31.277Z"
-  },
-  {
-   "id": "l11",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract (provider failed)",
-    "url": null,
-    "fields": 6
-   },
-   "createdAt": "2026-10-24T03:24:31.274Z"
-  },
-  {
-   "id": "l10",
-   "adminId": "admin@example.com",
-   "action": "settings update",
-   "entityType": "settings",
-   "entityId": "site",
-   "detail": {
-    "fields": [
-     "aiApiKey",
-     "aiProvider",
-     "aiBaseUrl"
-    ]
-   },
-   "createdAt": "2026-10-24T03:24:31.137Z"
-  },
-  {
-   "id": "l9",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": "https://www.daad.de/en/study-and-research-in-germany/scholarships/",
-    "fields": 6
-   },
-   "createdAt": "2026-10-24T03:24:31.120Z"
-  },
-  {
-   "id": "l8",
-   "adminId": "admin@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 9
-   },
-   "createdAt": "2026-10-24T03:24:30.123Z"
-  },
-  {
-   "id": "l7",
-   "adminId": "contributor@example.com",
-   "action": "research run",
-   "entityType": "research",
-   "entityId": "scholarship",
-   "detail": {
-    "provider": "extract",
-    "url": null,
-    "fields": 3
-   },
-   "createdAt": "2026-10-24T03:24:30.116Z"
-  },
   {
    "id": "l3",
    "adminId": "admin",
@@ -3176,33 +1445,12 @@
    "createdAt": "2026-10-11T12:00:00Z"
   }
  ],
- "settings": {
-  "u-ayesha": {
-   "notifyEmail": false,
-   "alertDays": [
-    7
-   ],
-   "langPref": "english"
-  },
-  "u-bilal": {
-   "notifyEmail": false,
-   "alertDays": [
-    7
-   ],
-   "langPref": "german"
-  },
-  "u-sana": {
-   "notifyEmail": false,
-   "alertDays": [
-    7
-   ]
-  }
- },
+ "settings": {},
  "sessions": {},
  "notifications": [
   {
    "id": "nt-1",
-   "readAt": "2026-10-24T03:25:35.124Z",
+   "readAt": null,
    "createdBy": "system",
    "link": "/wizard",
    "category": "system",
@@ -3257,7 +1505,7 @@
   },
   {
    "id": "nt-6",
-   "readAt": "2026-10-24T03:25:34.021Z",
+   "readAt": null,
    "createdBy": "admin@example.com",
    "link": "/scholarships",
    "category": "broadcast",
@@ -3312,190 +1560,9 @@
    "createdAt": "2026-10-19T09:00:00.000Z",
    "title": "Your draft S7 needs a source URL",
    "body": "MSc Environmental Governance has no apply URL yet, so it cannot pass the provenance check. Add the official page and send it for review."
-  },
-  {
-   "id": "nt-11",
-   "userId": "u-sana",
-   "title": "Account updated",
-   "body": "Your account was suspended by an administrator. You can no longer sign in. Contact support@scholarshipfinder.app if you think this is a mistake.",
-   "category": "account",
-   "link": null,
-   "createdAt": "2026-10-24T03:24:39.731Z",
-   "readAt": null,
-   "createdBy": "admin@example.com",
-   "broadcastId": null
-  },
-  {
-   "id": "nt-12",
-   "userId": "u-sana",
-   "title": "Account updated",
-   "body": "Your account has been reactivated. You can sign in again.",
-   "category": "account",
-   "link": null,
-   "createdAt": "2026-10-24T03:24:39.786Z",
-   "readAt": null,
-   "createdBy": "admin@example.com",
-   "broadcastId": null
-  },
-  {
-   "id": "nt-13",
-   "userId": "u-6",
-   "title": "Welcome to Scholarship Finder",
-   "body": "Your account is ready. Complete your profile and every listing will show the requirements you meet and the ones you still need. Nothing here is a promise of selection — the provider decides.",
-   "category": "system",
-   "link": "/wizard",
-   "createdAt": "2026-10-24T03:24:40.330Z",
-   "readAt": null,
-   "createdBy": "system",
-   "broadcastId": null
-  },
-  {
-   "id": "nt-14",
-   "userId": "u-7",
-   "title": "Welcome to Scholarship Finder",
-   "body": "Your account is ready. Complete your profile and every listing will show the requirements you meet and the ones you still need. Nothing here is a promise of selection — the provider decides.",
-   "category": "system",
-   "link": "/wizard",
-   "createdAt": "2026-10-24T03:24:40.391Z",
-   "readAt": null,
-   "createdBy": "system",
-   "broadcastId": null
-  },
-  {
-   "id": "nt-15",
-   "userId": "u-8",
-   "title": "Welcome to Scholarship Finder",
-   "body": "Your account is ready. Complete your profile and every listing will show the requirements you meet and the ones you still need. Nothing here is a promise of selection — the provider decides.",
-   "category": "system",
-   "link": "/wizard",
-   "createdAt": "2026-10-24T03:24:40.441Z",
-   "readAt": null,
-   "createdBy": "system",
-   "broadcastId": null
-  },
-  {
-   "id": "nt-16",
-   "userId": "u-ayesha",
-   "title": "Account updated",
-   "body": "An administrator updated your account (name).",
-   "category": "account",
-   "link": null,
-   "createdAt": "2026-10-24T03:25:41.164Z",
-   "readAt": null,
-   "createdBy": "admin@example.com",
-   "broadcastId": null
-  },
-  {
-   "id": "nt-17",
-   "userId": "u-ayesha",
-   "title": "Account updated",
-   "body": "Your account was suspended by an administrator. You can no longer sign in. Contact support@scholarshipfinder.app if you think this is a mistake.",
-   "category": "account",
-   "link": null,
-   "createdAt": "2026-10-24T03:25:42.364Z",
-   "readAt": null,
-   "createdBy": "admin@example.com",
-   "broadcastId": null
-  },
-  {
-   "id": "nt-18",
-   "userId": "u-ayesha",
-   "title": "Account updated",
-   "body": "Your account has been reactivated. You can sign in again.",
-   "category": "account",
-   "link": null,
-   "createdAt": "2026-10-24T03:25:42.427Z",
-   "readAt": null,
-   "createdBy": "admin@example.com",
-   "broadcastId": null
-  },
-  {
-   "id": "nt-19",
-   "userId": "u-ayesha",
-   "title": "Happy DOM broadcast",
-   "body": "Sent from the DOM harness to prove the audience picker works end to end.",
-   "category": "broadcast",
-   "link": null,
-   "createdAt": "2026-10-24T03:25:49.125Z",
-   "readAt": null,
-   "createdBy": "admin@example.com",
-   "broadcastId": "bc-mvlu6lz8"
-  },
-  {
-   "id": "nt-20",
-   "userId": "u-sana",
-   "title": "Account updated",
-   "body": "Your account was suspended by an administrator. You can no longer sign in. Contact support@scholarshipfinder.app if you think this is a mistake.",
-   "category": "account",
-   "link": null,
-   "createdAt": "2026-10-24T03:28:23.573Z",
-   "readAt": null,
-   "createdBy": "admin@example.com",
-   "broadcastId": null
-  },
-  {
-   "id": "nt-21",
-   "userId": "u-sana",
-   "title": "Account updated",
-   "body": "Your account has been reactivated. You can sign in again.",
-   "category": "account",
-   "link": null,
-   "createdAt": "2026-10-24T03:28:23.624Z",
-   "readAt": null,
-   "createdBy": "admin@example.com",
-   "broadcastId": null
-  },
-  {
-   "id": "nt-22",
-   "userId": "u-9",
-   "title": "Welcome to Scholarship Finder",
-   "body": "Your account is ready. Complete your profile and every listing will show the requirements you meet and the ones you still need. Nothing here is a promise of selection — the provider decides.",
-   "category": "system",
-   "link": "/wizard",
-   "createdAt": "2026-10-24T03:28:24.214Z",
-   "readAt": null,
-   "createdBy": "system",
-   "broadcastId": null
-  },
-  {
-   "id": "nt-23",
-   "userId": "u-10",
-   "title": "Welcome to Scholarship Finder",
-   "body": "Your account is ready. Complete your profile and every listing will show the requirements you meet and the ones you still need. Nothing here is a promise of selection — the provider decides.",
-   "category": "system",
-   "link": "/wizard",
-   "createdAt": "2026-10-24T03:28:24.277Z",
-   "readAt": null,
-   "createdBy": "system",
-   "broadcastId": null
-  },
-  {
-   "id": "nt-24",
-   "userId": "u-11",
-   "title": "Welcome to Scholarship Finder",
-   "body": "Your account is ready. Complete your profile and every listing will show the requirements you meet and the ones you still need. Nothing here is a promise of selection — the provider decides.",
-   "category": "system",
-   "link": "/wizard",
-   "createdAt": "2026-10-24T03:28:24.328Z",
-   "readAt": null,
-   "createdBy": "system",
-   "broadcastId": null
   }
  ],
  "notificationSends": [
-  {
-   "id": "bc-mvlu6lz8",
-   "title": "Happy DOM broadcast",
-   "body": "Sent from the DOM harness to prove the audience picker works end to end.",
-   "audience": "selected",
-   "recipients": 1,
-   "recipientIds": [
-    "u-ayesha"
-   ],
-   "link": null,
-   "sentBy": "admin@example.com",
-   "sentAt": "2026-10-24T03:25:49.125Z"
-  },
   {
    "id": "bc-seed-1",
    "title": "Three listings were rechecked this week",
@@ -3521,15 +1588,5 @@
   "aiModel": "gpt-4o-mini",
   "aiBaseUrl": "https://api.openai.com/v1",
   "researchEnabled": true
- },
- "revokedTokens": [
-  {
-   "sig": "T9o0N27vEdwvG8YzCOO7KNll4IJnMXLijvDBIkct4Ak",
-   "exp": 1794021879871
-  },
-  {
-   "sig": "uLlrkBb8jMgNoqCY2sxU40BCmxYIpW-zUxrvCjpJhC4",
-   "exp": 1794022103708
-  }
- ]
+ }
 }

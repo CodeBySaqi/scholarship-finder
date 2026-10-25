@@ -92,6 +92,19 @@ entirely, and counts for the Match group are computed inside the bucket so "Almo
 reports the total. Layout: auto-fit across one line on a laptop, three per row on a tablet, two on a
 phone, one below 400px; selects are 42px and 16px on phones so the native picker does not zoom.
 
+**Round 6 — ScholarPath module (2026-10-25).** A second matching module built to a
+"matters-only" brief: 13 hard programme fields, a 3-step profile, three verdicts
+(Eligible / Check manually / Not eligible) and no target field. Engine in
+`src/path/engine.js` (pure, shared by client and server), catalogue in
+`data/path-programmes.json` (evidence-only, `null` where unverified), profile in
+`db.pathProfiles`, API under `/api/path/*`.
+New suites: `audit/path-tests.mjs` **37/37** (all eight required cases) and
+`audit/path-pages.mjs` **27/27** (the real forms and results page).
+Two defects it caught in the legacy shell: adding a sidebar item silently
+rewrote the phone tab bar (it indexes `STUDENT_NAV` positionally — now pinned by
+route), and a "check manually" card could read "Meets every stated requirement"
+when the cause was a pending profile value (headline now says which).
+
 Regression suites re-run after the change: api-matrix 83/83, feature-logic 114/114,
 data-integrity 20/20, dom-smoke 37/37, features-admin 69/69, **responsive 83/83**,
 **responsive-css 34/34**, **research 41/41**.

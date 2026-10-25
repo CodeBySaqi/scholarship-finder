@@ -8,6 +8,7 @@ import { NotificationBell, useNotifications } from './notifications.jsx';
 const STUDENT_NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: 'home' },
   { to: '/matches', label: 'Matches', icon: 'target' },
+  { to: '/path', label: 'Find my path', icon: 'trend' },
   { to: '/scholarships', label: 'Scholarships', icon: 'search' },
   { to: '/programs', label: 'German programs', icon: 'school' },
   { to: '/saved', label: 'Saved', icon: 'bookmark' }
@@ -249,6 +250,15 @@ function AdminBottomNav() {
   );
 }
 
+const find = (nav, to) => nav.find(n => n.to === to) || { to, label: to, icon: 'list' };
+const BOTTOM_ROUTES = [
+  find(STUDENT_NAV, '/dashboard'),
+  find(STUDENT_NAV, '/matches'),
+  find(STUDENT_NAV, '/scholarships'),
+  find(STUDENT_NAV, '/saved'),
+  { to: '/notifications', label: 'Alerts', icon: 'bell' }
+];
+
 export function AppShell({ page, children, counts = {} }) {
   useShell('app', page);
   const { user } = useAuth();
@@ -273,9 +283,11 @@ export function AppShell({ page, children, counts = {} }) {
         </div>
       </header>
       <main className="page" id="page">{children}</main>
+      {/* five tabs, chosen by route rather than by array position: inserting a
+          sidebar entry must never silently change what the phone bar shows */}
       <nav className="bottomnav">
-        {[STUDENT_NAV[0], STUDENT_NAV[1], STUDENT_NAV[2], STUDENT_NAV[4], ACCOUNT_NAV[0]].map(n => (
-          <NavLink key={n.to} to={n.to}><Icon name={n.icon} />{n.label === 'Scholarships' ? 'Browse' : n.label === 'Notifications' ? 'Alerts' : n.label}</NavLink>
+        {[BOTTOM_ROUTES].flat().map(n => (
+          <NavLink key={n.to} to={n.to}><Icon name={n.icon} />{n.label}</NavLink>
         ))}
       </nav>
     </>

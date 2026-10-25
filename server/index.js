@@ -13,6 +13,7 @@ import { hashPassword, verifyPassword, signToken, readToken, parseCookies, COOKI
 import { Match, resultsFor, matchOne, safeMatchOne, safeResultsFor, completeness } from './lib/matching.js';
 import { ensureCollections, addNotification, notifyUsers, listFor, unreadCount, summary as notifySummary, CATEGORIES } from './lib/notify.js';
 import { readSettings, publicSettings, writeSettings, runResearch, SETTINGS_DEFAULTS } from './lib/research.js';
+import { matchProgrammes, matchScholarships, completeness as pathCompleteness, pendingChecks, germanGpa } from '../src/path/engine.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -299,6 +300,136 @@ app.post('/api/auth/reset', (req, res) => {
   delete user.resetToken;
   persist();
   res.json({ ok: true });
+});
+
+
+/* ============================================================== SCHOLARPATH
+   A separate module with its own profile. It deliberately does not touch the
+   legacy profile/targets: the existing listings pages keep working exactly as
+   they are. Only the fields the engine reads are accepted here. */
+const PATH_CATALOGUE = JSON.parse(fs.readFileSync(path.join(here, '..', 'data', 'path-programmes.json'), 'utf8'));
+
+function pathProfileOf(userId) {
+  const d = db();
+  if (!d.pathProfiles) d.pathProfiles = {};
+  return d.pathProfiles[userId] || {};
+}
+
+/* Whitelist: a field the engine never reads must not be stored, so the profile
+   cannot slowly fill up with data nobody uses. */
+const PATH_PROFILE_SHAPE = {
+  target: ['level', 'language', 'intake'],
+  nationality: ['nationality', 'residence', 'lastDegreeCountry'],
+  academics: ['bachelorField', 'bachelorSubjectAreas', 'bachelorEcts', 'subjectEcts', 'gpaOriginal',
+    'gpaScaleMax', 'gpaPassMark', 'gpaGerman', 'gpaConverted', 'schoolQualification', 'sscPct',
+    'hsscGroup', 'hsscPct', 'undergradYearDone', 'undergradYearSameField', 'studienkolleg',
+    'masterField', 'masterGpaOriginal', 'thesisTopic', 'researchAreas', 'publications',
+    'proposalReady', 'fundingPreference', 'workExperienceMonths'],
+  language: ['ielts', 'toefl', 'germanLevel', 'germanTest', 'englishMediumDegree'],
+  tests: ['gre', 'gate', 'testas', 'sat', 'act'],
+  money: ['maxTuitionPerSemester', 'maxSemesterContribution', 'fundingNeed', 'blockedAccount'],
+  scholarshipExtras: ['financialNeedBracket', 'firstGeneration', 'dateOfBirth', 'awards',
+    'volunteering', 'leadership'],
+  documents: ['passportValid', 'hecAttested', 'transcriptsReady', 'motivationLetter', 'references'],
+  preferences: ['cities', 'states']
+};
+const PATH_LEVELS = ['bachelor', 'master', 'phd'];
+const PATH_LANGS = ['english', 'german', 'either'];
+const PATH_FUNDING = ['full', 'partial', 'self'];
+
+function sanitizePathProfile(raw) {
+  const out = {};
+  if (!raw || typeof raw !== 'object') return out;
+  for (const [group, keys] of Object.entries(PATH_PROFILE_SHAPE)) {
+    if (raw[group] === null || raw[group] === undefined) continue;
+    if (typeof raw[group] !== 'object' || Array.isArray(raw[group])) continue;
+    const g = {};
+    for (const k of keys) {
+      const v = raw[group][k];
+      if (v === undefined) continue;
+      if (v === null || v === '') { g[k] = null; continue; }
+      if (typeof v === 'number' || typeof v === 'boolean') g[k] = v;
+      else if (typeof v === 'string') g[k] = v.trim().slice(0, 120);
+      else if (Array.isArray(v)) g[k] = v.slice(0, 20).map(x => String(x).slice(0, 80));
+      else if (typeof v === 'object') {
+        const inner = {};
+        for (const [ik, iv] of Object.entries(v)) {
+          if (iv === null || iv === '') inner[ik] = null;
+          else if (typeof iv === 'number' || typeof iv === 'boolean') inner[ik] = iv;
+          else if (typeof iv === 'string') inner[ik] = iv.trim().slice(0, 120);
+        }
+        g[k] = inner;
+      }
+    }
+    out[group] = g;
+  }
+  /* guard the enumerated ones */
+  if (out.target) {
+    if (out.target.level && !PATH_LEVELS.includes(out.target.level)) delete out.target.level;
+    if (out.target.language && !PATH_LANGS.includes(out.target.language)) delete out.target.language;
+  }
+  if (out.money && out.money.fundingNeed && !PATH_FUNDING.includes(out.money.fundingNeed)) delete out.money.fundingNeed;
+  return out;
+}
+
+/* Convert the original GPA once, on the server, so the number the engine uses
+   and the working shown in the UI can never disagree. */
+function withGpaConversion(p) {
+  const a = p.academics || {};
+  if (a.gpaOriginal == null) return p;
+  const conv = germanGpa(a.gpaOriginal, {
+    scaleMax: a.gpaScaleMax == null ? 4 : a.gpaScaleMax,
+    passMark: a.gpaPassMark == null ? 2 : a.gpaPassMark
+  });
+  const academics = { ...a, gpaConverted: conv, gpaGerman: conv ? conv.value : null };
+  return { ...p, academics };
+}
+
+app.get('/api/path/profile', requireUser, (req, res) => {
+  const raw = pathProfileOf(req.user.id);
+  const profile = withGpaConversion(raw);
+  res.json({ profile, completeness: pathCompleteness(profile), pending: pendingChecks(profile) });
+});
+
+app.put('/api/path/profile', requireUser, (req, res) => {
+  const d = db();
+  if (!d.pathProfiles) d.pathProfiles = {};
+  const existing = d.pathProfiles[req.user.id] || {};
+  const patch = sanitizePathProfile(req.body && req.body.profile ? req.body.profile : req.body);
+  /* merge group by group so step 1 can be saved without wiping step 2 */
+  const merged = { ...existing };
+  for (const [group, value] of Object.entries(patch)) {
+    merged[group] = { ...(existing[group] || {}), ...value };
+  }
+  d.pathProfiles[req.user.id] = merged;
+  persist();
+  const profile = withGpaConversion(merged);
+  res.json({ profile, completeness: pathCompleteness(profile), pending: pendingChecks(profile) });
+});
+
+app.get('/api/path/catalogue', requireUser, (req, res) => {
+  res.json({ programmes: PATH_CATALOGUE.programmes, scholarships: PATH_CATALOGUE.scholarships, verifiedOn: PATH_CATALOGUE.verifiedOn || null });
+});
+
+/* Matches are computed on the server from the stored profile. The client never
+   sends its own verdicts, so a verdict cannot be hand-crafted in the browser. */
+app.get('/api/path/matches', requireUser, (req, res) => {
+  const profile = withGpaConversion(pathProfileOf(req.user.id));
+  const now = today();          // shadowing the helper would throw
+  const kind = req.query.kind === 'scholarships' ? 'scholarships' : 'programmes';
+  const list = kind === 'scholarships'
+    ? matchScholarships(profile, PATH_CATALOGUE.scholarships, now)
+    : matchProgrammes(profile, PATH_CATALOGUE.programmes, now);
+  const counts = list.reduce((acc, r) => { acc[r.verdict] = (acc[r.verdict] || 0) + 1; return acc; }, {});
+  res.json({
+    kind,
+    results: list,
+    counts,
+    today: now,
+    completeness: pathCompleteness(profile),
+    pending: pendingChecks(profile),
+    disclaimer: 'Eligibility screening only. Meeting every stated requirement is not an offer of admission — the university decides.'
+  });
 });
 
 /* ================================================================ PROFILE */

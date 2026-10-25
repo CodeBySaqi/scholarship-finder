@@ -27,6 +27,12 @@ export function ensureCollections(d) {
     changed = true;
   }
   if (!Array.isArray(d.notificationSends)) { d.notificationSends = []; changed = true; }
+  /* ScholarPath keeps its own profile per user: it carries data the legacy
+     wizard never asked for (ECTS breakdown, GRE sections, budget). */
+  if (!d.pathProfiles || typeof d.pathProfiles !== 'object' || Array.isArray(d.pathProfiles)) {
+    d.pathProfiles = {};
+    changed = true;
+  }
   return changed;
 }
 
